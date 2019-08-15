@@ -92,9 +92,9 @@
                     <el-input v-model="orgForm.description" placeholder="Organization description " type="textarea" />
                   </el-form-item>
                   <el-form-item label="Social Media">
-                    <el-input v-for="(social,index) in orgForm.social" v-model="social.value" placeholder="input address" class="input-with-select">
+                    <el-input v-for="(social,index) in orgForm.social" :key="index" v-model="social.value" placeholder="input address" class="input-with-select">
                       <el-select slot="prepend" v-model="social.name" placeholder="select">
-                        <el-option v-for="item in socialList" :label="item" :value="item" />
+                        <el-option v-for="item in socialList" :key="item" :label="item" :value="item" />
                       </el-select>
                       <el-button slot="append" icon="el-icon-delete" @click="removeSocial(index)" />
                     </el-input>

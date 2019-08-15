@@ -144,7 +144,7 @@
 <script>
 import DialogAddAddress from './dialog-add-update-address'
 import { mapGetters } from 'vuex'
-import { getOrgStatus } from '@/api/organization'
+// import { getOrgStatus } from '@/api/organization'
 export default {
   name: 'Profile',
   components: {

@@ -80,8 +80,6 @@ export default {
   },
   methods: {
     getOrgInfo() {
-      console.log(123, this.orgForm._id)
-
       console.log('!')
       let id = ''
       if (this.$route.query.id) {
@@ -90,20 +88,14 @@ export default {
       } else {
         id = getCurOrgId()
       }
-      console.log('id', id)
       if (id) {
         this.$store.dispatch('organization/getOrgInfo', id).then(res => {
-          console.log(0, this.token, this.userInfo.orgs)
-
           if (this.token) {
-            console.log(111)
             if (this.userInfo) {
-              console.log(222)
               if (this.userInfo.orgs[0] && this.userInfo.orgs[0]._id === getCurOrgId()) {
                 this.isOwner = true
               }
             } else {
-              console.log(333)
               this.$store.dispatch('user/getInfo').then(res => {
                 if (this.userInfo.orgs[0] && this.userInfo.orgs[0]._id === getCurOrgId()) {
                   this.isOwner = true
@@ -191,13 +183,11 @@ export default {
           'members.email': user.email
         },
         op: {
-          role: user.role,
-          description: user.description
+          'members.$.role': user.role,
+          'members.$.description': user.description
         }
       }
       updateOrgMember(data).then(res => {
-        console.log(123, data, res)
-
         this.$store.dispatch('organization/getOrgInfo', this.orgForm._id)
       })
     },
