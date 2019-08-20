@@ -75,7 +75,6 @@
             <el-input v-else v-model="orgForm.website" />
           </el-form-item>
           <el-form-item label="Social Media">
-
             <!-- <div class="socials el-input fake">
               <ul>
                 <li v-for="(social,index) in orgForm.social" :key="social.name">
@@ -115,9 +114,7 @@
               </el-input>
               <span class="add-media" @click="handleAddSocial">+ add</span>
             </div>
-
           </el-form-item>
-
         </div>
       </div>
     </el-form>
@@ -181,7 +178,7 @@ export default {
       if (id) {
         this.$store.dispatch('organization/getOrgInfo', id).then(res => {
           if (this.token) {
-            if (this.userInfo) {
+            if (this.userInfo._id) {
               if (this.userInfo.orgs[0] && this.userInfo.orgs[0]._id === getCurOrgId()) {
                 this.isOwner = true
               }

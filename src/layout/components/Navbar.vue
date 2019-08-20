@@ -95,6 +95,7 @@ import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import { userRegister, sendVeriCode, resetPwd } from '@/api/user'
+import { getOrgStatus } from '@/api/organization'
 
 export default {
   components: {
@@ -114,12 +115,6 @@ export default {
         _vCode: '',
         username: ''
       },
-      // resetForm: {
-      //   email: '',
-      //   code: '',
-      //   password: '',
-      //   afterSave: 'sendPsdEmail'
-      // },
       isDialogVisible: false,
       type: {
         login: 'Please Login',
@@ -137,11 +132,9 @@ export default {
     ])
   },
   created() {
-    // if (!this.userInfo._id) {
-    //   if (this.token) {
-    //     this.$store.dispatch('user/getInfo')
-    //   }
-    // }
+    if (this.token && !this.userInfo._id) {
+      this.$store.dispatch('user/getInfo')
+    }
   },
   methods: {
     toggleSideBar() {
@@ -155,6 +148,38 @@ export default {
       this.$store.dispatch('user/login', this.loginForm).then(data => {
         if (!data.err) {
           this.isDialogVisible = false
+
+          const theOrg = this.userInfo.orgs.filter(org => {
+            return org.role === 'owner'
+          })
+
+          console.log('current user\'s organization:', theOrg)
+          theOrg.length > 0 && getOrgStatus(theOrg[0]._id).then(res => {
+            if (res.err) {
+              this.$notify({
+                message: res.msg,
+                type: 'warning'
+              })
+            } else if (res.status) {
+              if (res.status === 0) {
+                this.$notify({
+                  message: 'Your organization creation hasn\'t success yet.',
+                  type: 'warning'
+                })
+              } else if (res.status === -1) {
+                this.$notify({
+                  message: 'Your previous organization creation failed.',
+                  type: 'warning'
+                })
+              } else if (res.status === 1) {
+                this.$notify({
+                  message: 'You have successfully created an organization previously!',
+                  type: 'warning'
+                })
+              }
+            }
+          })
+
           this.$router.push('/dao/profile')
         } else {
           this.$notify({

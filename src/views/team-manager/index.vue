@@ -11,7 +11,7 @@
 
     <el-form v-if="orgForm.members.length > 0" ref="form">
       <div class="card-wrapper">
-        <user-card v-for="user in orgForm.members" :key="user._id" :user="user" :editible="true" @editUser="handleEditMember" @deleteUser="handleDeleteMember" />
+        <user-card v-for="user in orgForm.members" :key="user._id" :user="user" :editible="true" @clickEdit="handleClickEdiit" @clickDelete="handleClickDelete" />
         <el-card class="box-card fake" />
         <el-card class="box-card fake" />
       </div>
@@ -43,7 +43,7 @@
       </div>
     </el-dialog>
 
-    <add-update-dialog ref="editDialog" :user="curUser" :visible="isDialogEditVisible" @saveUser="handleSaveMember" />
+    <add-update-dialog ref="editDialog" :user="curUser" :visible="isDialogEditVisible" @saveUser="handleUpdateMember" />
   </div>
 </template>
 
@@ -80,7 +80,6 @@ export default {
   },
   methods: {
     getOrgInfo() {
-      console.log('!')
       let id = ''
       if (this.$route.query.id) {
         id = this.$route.query.id
@@ -103,7 +102,6 @@ export default {
               })
             }
           }
-          console.log('isowner', this.isOwner)
         })
       } else {
         this.$notify({
@@ -115,7 +113,6 @@ export default {
     handleSearchUser() {
       // this.isDialogAddVisible = false
       getUserInfoByEmail(this.searchEmail).then(res => {
-        console.log(res)
         if (res.entity) {
           this.searchEmail = ''
           this.searchUser = res.entity
@@ -131,11 +128,10 @@ export default {
         email: this.searchUser.email
       }
       this.$store.dispatch('organization/addOrgMember', member).then(res => {
-        console.log(res)
         if (res === 'success') {
           this.isDialogAddVisible = false
-
           this.searchUser = null
+          this.$store.dispatch('organization/getOrgInfo', this.orgForm._id)
         } else {
           this.$notify({
             message: res,
@@ -144,7 +140,7 @@ export default {
         }
       })
     },
-    handleEditMember(user) {
+    handleClickEdiit(user) {
       if (this.isOwner) {
         this.isDialogEditVisible = true
         this.$refs.editDialog.init(user)
@@ -155,10 +151,9 @@ export default {
         })
       }
     },
-    handleDeleteMember(email) {
+    handleClickDelete(email) {
       if (this.isOwner) {
         this.$store.dispatch('organization/deleteOrgMember', email).then(res => {
-          console.log(res)
         // if (res === 'success') {
         //   this.isDialogAddVisible = false
         // } else {
@@ -176,7 +171,7 @@ export default {
       }
     },
 
-    handleSaveMember(user) {
+    handleUpdateMember(user) {
       const data = {
         q: {
           _id: this.orgForm._id,

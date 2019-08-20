@@ -8,7 +8,10 @@
     <el-form ref="form" class="box-card">
 
       <el-form-item label="Profile Photo">
-        <div class="user-avatar"><img src="~@/assets/avatar.png" alt=""></div>
+        <div class="user-avatar">
+          <img v-if="user&&user.logo" :src="user.logo" alt="">
+          <img v-else src="~@/assets/avatar.png" alt="">
+        </div>
       </el-form-item>
       <el-form-item label="Email">
         <div class="el-input fake">{{ user?user.email:'' }}</div>
@@ -23,9 +26,11 @@
         <div class="socials el-input fake">
           <ul v-show="user&&user.social&&user.social.length>0">
             <li v-for="social in user.social" :key="social.name">
-              <svg class="icon" aria-hidden="true">
-                <use :xlink:href="'#icon-'+social.name" />
-              </svg>
+              <a :href="social.value" target="_blank">
+                <svg class="icon" aria-hidden="true">
+                  <use :xlink:href="'#icon-'+social.name" />
+                </svg>
+              </a>
             </li>
           </ul>
         </div>

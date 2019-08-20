@@ -5,15 +5,17 @@
       <router-link to="/home" :class="curTab=='home'?'cur':''">Home</router-link>
       <router-link to="/list" :class="curTab=='list'?'cur':''">Organization</router-link>
     </div>
-    <div class="right-menu">
-      Ethiereum Mainnet
-    </div>
+    <net-bar />
   </div>
 </template>
 
 <script>
+import NetBar from '@/components/NetBar'
 export default {
   name: 'MainHeader',
+  components: {
+    NetBar
+  },
   computed: {
     curTab() {
       const tmp = this.$route.path.split('/')
@@ -23,7 +25,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .main-header {
     width: 100%;
     height: 86px;
@@ -31,14 +33,12 @@ export default {
     z-index: 999;
     padding: 30px;
     .logo {
-      display: inline-block;
       width: 110px;
       height: 30px;
       background: url(~@/assets/logo.png);
       float: left;
     }
     .menu {
-      display: inline-block;
       float: left;
       font-size: 20px;
       font-weight: 500;
@@ -51,11 +51,8 @@ export default {
         }
       }
     }
-    .right-menu {
+    .netbar {
       float: right;
-      font-size: 14px;
-      color: rgba(55, 64, 89, 0.8);
-      margin-top: 10px
     }
   }
 </style>

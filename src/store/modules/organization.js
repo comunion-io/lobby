@@ -1,10 +1,11 @@
 // import { login, logout, getInfo } from '@/api/user'
-import { newOrg, getOrgInfo, updateOrgInfo } from '@/api/organization'
+import { newOrg, getOrgInfo, getOrgMembers, updateOrgInfo } from '@/api/organization'
 
 const state = {
   _id: '',
   name: '',
   email: '',
+  type: '',
   wallet: [],
   website: '',
   mission: '',
@@ -23,6 +24,7 @@ const mutations = {
   SET_INFO: (state, data) => {
     state.name = data.name
     state.email = data.email
+    state.type = data.type
     state.wallet = data.wallet
     state.website = data.website
     state.mission = data.mission
@@ -30,8 +32,11 @@ const mutations = {
     state.description = data.description
     state.transactionHash = data.transactionHash
     state.social = data.social
-    state.members = data.members
+    // state.members = data.members
     state.status = data.status
+  },
+  SET_MEMBERS: (state, data) => {
+    state.members = data
   },
   SET_MEMBER: (state, members) => {
     state.members = members
@@ -68,6 +73,13 @@ const actions = {
         if (!response.err && response.entity) {
           commit('SET_ID', _id)
           commit('SET_INFO', response.entity)
+          getOrgMembers(_id).then(res => {
+            if (!res.err && res.entities) {
+              commit('SET_MEMBERS', res.entities)
+            } else {
+              console.log(res.msg)
+            }
+          })
         } else {
           console.log(response.msg)
         }

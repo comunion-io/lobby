@@ -144,7 +144,7 @@
 <script>
 import DialogAddAddress from './dialog-add-update-address'
 import { mapGetters } from 'vuex'
-// import { getOrgStatus } from '@/api/organization'
+
 export default {
   name: 'Profile',
   components: {
@@ -166,11 +166,10 @@ export default {
   },
   created() {
     if (!this.userInfo._id) {
-      this.$store.dispatch('user/getInfo')
+      this.$store.dispatch('user/getInfo').then(res => {
+        console.log(res)
+      })
     }
-    // getOrgStatus('5d50d185f111c74b839ca26b').then(res => {
-    //   console.log(1, res)
-    // })
   },
   methods: {
     getBalance(address) {

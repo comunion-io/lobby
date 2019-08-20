@@ -31,6 +31,7 @@ export function getOrgList() {
   })
 }
 
+// 0:正在注册；1:注册成功；-1:注册失败
 export function getOrgStatus(_id) {
   return request({
     url: `/a/org/orgStatus/${_id}`,
@@ -41,6 +42,13 @@ export function getOrgStatus(_id) {
 export function getOrgInfo(_id) {
   return request({
     url: `/r/org/_id/${_id}`,
+    method: 'get'
+  })
+}
+
+export function getOrgMembers(_id) {
+  return request({
+    url: `/r/org/info/members/${_id}`,
     method: 'get'
   })
 }

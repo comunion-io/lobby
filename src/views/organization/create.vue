@@ -4,27 +4,27 @@
     <!--      <el-button class="btn-grey" round>&lt; Back</el-button>-->
     <!--    </div>-->
 
-    <el-form v-if="!isTransactionSuccess" ref="orgForm" :model="orgForm" label-width="190px" :rules="orgRules">
+    <el-form v-if="!isTransactionSuccess" ref="newOrg" :model="newOrg" label-width="190px" :rules="orgRules">
 
       <el-tabs v-model="curStep" @tab-click="handleTabClick">
-        <el-tab-pane label="Claim organization name" name="step1">
+        <el-tab-pane label="Claim organization name" name="step1" disabled>
           <div class="inner-content">
             <div class="section-card">
               <div class="card-title">Claim organization name</div>
               <div class="card-content">
                 <el-form-item label="" prop="name" label-width="0">
-                  <el-input v-model="orgForm.name" placeholder="Organization name" class="org-name-input" />
+                  <el-input v-model="newOrg.name" placeholder="Organization name" class="org-name-input" />
                 </el-form-item>
                 <div class="org-name-check">
                   <span v-show="isOrgNameInCheck" class="check" />
-                  <svg v-show="orgForm.name && !isOrgNameInCheck && isOrgNameValid" class="icon" aria-hidden="true">
+                  <svg v-show="newOrg.name && !isOrgNameInCheck && isOrgNameValid" class="icon" aria-hidden="true">
                     <use xlink:href="#icon-check" />
                   </svg>
-                  <!-- <svg v-show="orgForm.name && !isOrgNameInCheck && !isOrgNameValid" class="icon" aria-hidden="true">
+                  <!-- <svg v-show="newOrg.name && !isOrgNameInCheck && !isOrgNameValid" class="icon" aria-hidden="true">
                     <use xlink:href="#icon-minus" />
                   </svg> -->
                 </div>
-                <div v-if="!orgForm.name || !orgForm.name.replace(/(^\s*)|(\s*$)/g, '')" class="tip">Please input your organization name</div>
+                <div v-if="!newOrg.name || !newOrg.name.replace(/(^\s*)|(\s*$)/g, '')" class="tip">Please input your organization name</div>
                 <div v-else>
                   <div v-show="!isOrgNameInCheck && isOrgNameValid" class="tip">Organization name does not exist</div>
                   <div v-show="!isOrgNameInCheck && !isOrgNameValid" class="tip error">Organization name already exists</div>
@@ -35,7 +35,7 @@
           </div>
         </el-tab-pane>
 
-        <el-tab-pane label="Fill in information" name="step2">
+        <el-tab-pane label="Fill in information" name="step2" disabled>
           <div v-show="curInfo==='info1'">
             <div class="inner-content">
               <div class="section-card">
@@ -45,7 +45,7 @@
                     <div class="el-input fake">Ethereum Mainnet</div>
                   </el-form-item>
                   <el-form-item label="Organization type" prop="type">
-                    <el-select v-model="orgForm.type" placeholder="select...">
+                    <el-select v-model="newOrg.type" placeholder="select...">
                       <el-option
                         v-for="item in orgTypeList"
                         :key="item.value"
@@ -68,6 +68,7 @@
                     </el-upload>
                     <div class="tip upload-tip">Upload 100x100 png/jpeg</div>
                   </el-form-item>
+                  <el-button class="btn-main" round @click="curStep = 'step1'">Previous</el-button>
                   <el-button :class="['btn-main', 'btn-wide', isInfo1Valid ? '' : 'disable']" round @click="checkInfo1">Next</el-button>
                 </div>
               </div>
@@ -80,19 +81,19 @@
                 <!--          <div class="card-title">Fill in information</div>-->
                 <div class="card-content">
                   <el-form-item label="Office website" prop="website">
-                    <el-input v-model="orgForm.website" placeholder="Office website" />
+                    <el-input v-model="newOrg.website" placeholder="Office website" />
                   </el-form-item>
                   <el-form-item label="Organization mission" prop="mission">
-                    <el-input v-model="orgForm.mission" placeholder="Organization mission " type="textarea" />
+                    <el-input v-model="newOrg.mission" placeholder="Organization mission " type="textarea" />
                   </el-form-item>
                   <el-form-item label="Organization Vision" prop="vision">
-                    <el-input v-model="orgForm.vision" placeholder="Organization vision " type="textarea" />
+                    <el-input v-model="newOrg.vision" placeholder="Organization vision " type="textarea" />
                   </el-form-item>
                   <el-form-item label="Organization Description" prop="description">
-                    <el-input v-model="orgForm.description" placeholder="Organization description " type="textarea" />
+                    <el-input v-model="newOrg.description" placeholder="Organization description " type="textarea" />
                   </el-form-item>
                   <el-form-item label="Social Media">
-                    <el-input v-for="(social,index) in orgForm.social" :key="index" v-model="social.value" placeholder="input address" class="input-with-select">
+                    <el-input v-for="(social,index) in newOrg.social" :key="index" v-model="social.value" placeholder="input address" class="input-with-select">
                       <el-select slot="prepend" v-model="social.name" placeholder="select">
                         <el-option v-for="item in socialList" :key="item" :label="item" :value="item" />
                       </el-select>
@@ -100,7 +101,7 @@
                     </el-input>
                     <span class="add-media" @click="addSocial">+ add</span>
                   </el-form-item>
-                  <!--                  <el-button class="btn-grey btn-wide" round @click="curInfo='info1'">上一步</el-button>-->
+                  <el-button class="btn-main" round @click="curInfo = 'info1'">Previous</el-button>
                   <el-button :class="['btn-main', 'btn-wide', isInfo2Valid ? '' : 'disable']" round @click="checkInfo2Click">Next</el-button>
                 </div>
               </div>
@@ -114,12 +115,12 @@
                 <div class="card-content">
 
                   <el-form-item label="Your Email" prop="email">
-                    <el-input v-model="orgForm.email" placeholder="" />
+                    <el-input v-model="newOrg.email" placeholder="" />
                   </el-form-item>
 
                   <div class="tip">-The initial password will be sent to your email. You can use this email to login your account.<br>
                     -You can continute to complete your profile affter completing the creation.</div>
-                  <!--                  <el-button class="btn-grey" round @click="curInfo='info2'">上一步</el-button>-->
+                  <el-button class="btn-main" round @click="curInfo = 'info2'">Previous</el-button>
                   <el-button :class="['btn-main', 'btn-wide', isEmailValid ? '' : 'disable']" round @click="checkEmailClick">Next</el-button>
                 </div>
               </div>
@@ -127,12 +128,12 @@
           </div>
         </el-tab-pane>
 
-        <el-tab-pane label="Sign the transaction" name="step3">
+        <el-tab-pane label="Sign the transaction" name="step3" disabled>
           <div class="inner-content">
             <div class="section-card">
               <div class="card-title">Sign the transaction </div>
               <div class="tip nomargin left">At last, you should sign the transaction to register your organization.</div>
-              <div v-if="!orgForm.transactionHash" class="card-content">
+              <div v-if="!newOrg.transactionHash" class="card-content">
                 <div class="tip">Open your web wallet</div>
 
                 <div class="wallet-logo">
@@ -140,7 +141,7 @@
                     <use :xlink:href="'#icon-metamask'+(isMetaMaskInstalled?1:'')" />
                   </svg>
                 </div>
-                <el-button :class="['btn-wide', isMetaMaskInstalled?'btn-main':'btn-grey']" round @click="submitForm('orgForm')">Open MetaMask</el-button>
+                <el-button :class="['btn-wide', isMetaMaskInstalled?'btn-main':'btn-grey']" round @click="submitForm('newOrg')">Open MetaMask</el-button>
                 <div v-if="!coinbase" class="tip" @click="handleMetaMaskLogin">Please <a>log in</a> first</div>
                 <div v-else class="tip black">Address: {{ coinbase }}</div>
 
@@ -151,7 +152,7 @@
                 </div>
                 <el-button class="btn-grey" round>Open MyEtherWallet</el-button>
                 <div class="tip">Please <a>log in</a> first</div>
-                <!--                <el-button :class="['btn-main', 'btn-wide', coinbase ? '' : 'disable']" round @click="submitForm('orgForm')">Create</el-button>-->
+                <!--                <el-button :class="['btn-main', 'btn-wide', coinbase ? '' : 'disable']" round @click="submitForm('newOrg')">Create</el-button>-->
               </div>
               <div v-else>
                 <div class="success">
@@ -173,6 +174,17 @@
       <div class="success-txt">You have created a decentralized organization.</div>
       <el-button class="btn-main btn-wide" round @click="handleGetStart">Get Start</el-button>
     </div>
+
+    <el-dialog
+      title=""
+      :visible.sync="dialogVisible"
+      width="30%"
+    >
+      <div class="message">You have not installed MetaMask Yet!</div>
+      <span slot="footer" class="dialog-footer">
+        <el-button class="btn-main btn-wide" round @click="dialogVisible = false">View installation tutorial</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -180,7 +192,7 @@
 import { checkOrgName } from '@/api/organization'
 import _ from 'lodash'
 import { mapGetters } from 'vuex'
-import { setInterval, clearInterval } from 'timers'
+import { getOrgStatus } from '@/api/organization'
 
 export default {
   data() {
@@ -199,7 +211,7 @@ export default {
       }, 1000)
     }
     return {
-      orgForm: {
+      newOrg: {
         name: '',
         type: '', // 没有该字段
         logo: '',
@@ -265,7 +277,8 @@ export default {
       isMetaMaskInMainNet: false,
       isCreateSuccess: false,
       isTransactionSuccess: false,
-      percentage: 0
+      percentage: 0,
+      dialogVisible: false
     }
   },
   // computed: {
@@ -281,11 +294,12 @@ export default {
   // },
   computed: {
     ...mapGetters([
-      'coinbase'
+      'coinbase',
+      'orgForm'
     ])
   },
   watch: {
-    'orgForm.name': function(newVal, oldVal) {
+    'newOrg.name': function(newVal, oldVal) {
       const name = newVal.replace(/(^\s*)|(\s*$)/g, '')
 
       if (name.length === 0) {
@@ -297,15 +311,15 @@ export default {
         this.debouncedCheckOrgName()
       }
     },
-    'orgForm.type': function(newVal, oldVal) {
+    'newOrg.type': function(newVal, oldVal) {
       if (newVal) {
         this.isInfo1Valid = true
       }
     },
-    'orgForm.email': function(newVal, oldVal) {
+    'newOrg.email': function(newVal, oldVal) {
       if (newVal) { this.checkEmail() }
     },
-    'orgForm.description': function(newVal, oldVal) {
+    'newOrg.description': function(newVal, oldVal) {
       if (newVal) { this.checkInfo2() }
     }
   },
@@ -315,7 +329,7 @@ export default {
   },
   methods: {
     checkOrgName() {
-      const name = this.orgForm.name.replace(/(^\s*)|(\s*$)/g, '')
+      const name = this.newOrg.name.replace(/(^\s*)|(\s*$)/g, '')
       if (name.length > 0) {
         console.log('check')
         this.isOrgNameInCheck = true
@@ -336,7 +350,7 @@ export default {
     },
     checkInfo1() {
       if (!this.isInfo1Valid) {
-        this.$refs.orgForm.validateField('type', (err) => {
+        this.$refs.newOrg.validateField('type', (err) => {
           console.log('err msg ', err)
           if (!err) {
             this.isInfo1Valid = true
@@ -348,13 +362,13 @@ export default {
       }
     },
     checkInfo2() {
-      this.$refs.orgForm.validateField('website', (errWebsite) => {
+      this.$refs.newOrg.validateField('website', (errWebsite) => {
         if (!errWebsite) {
-          this.$refs.orgForm.validateField('mission', (errMission) => {
+          this.$refs.newOrg.validateField('mission', (errMission) => {
             if (!errMission) {
-              this.$refs.orgForm.validateField('vision', (errVision) => {
+              this.$refs.newOrg.validateField('vision', (errVision) => {
                 if (!errVision) {
-                  this.$refs.orgForm.validateField('description', (errDes) => {
+                  this.$refs.newOrg.validateField('description', (errDes) => {
                     if (!errDes) {
                       this.isInfo2Valid = true
                       console.log('valid info 2')
@@ -368,13 +382,13 @@ export default {
       })
     },
     checkInfo2Click() {
-      this.$refs.orgForm.validateField('website', (errWebsite) => {
+      this.$refs.newOrg.validateField('website', (errWebsite) => {
         if (!errWebsite) {
-          this.$refs.orgForm.validateField('mission', (errMission) => {
+          this.$refs.newOrg.validateField('mission', (errMission) => {
             if (!errMission) {
-              this.$refs.orgForm.validateField('vision', (errVision) => {
+              this.$refs.newOrg.validateField('vision', (errVision) => {
                 if (!errVision) {
-                  this.$refs.orgForm.validateField('description', (errDes) => {
+                  this.$refs.newOrg.validateField('description', (errDes) => {
                     if (!errDes) {
                       this.isInfo2Valid = true
                       console.log('valid info 2')
@@ -389,7 +403,7 @@ export default {
       })
     },
     checkEmail() {
-      this.$refs.orgForm.validateField('email', (err) => {
+      this.$refs.newOrg.validateField('email', (err) => {
         console.log('err msg ', err)
         if (!err) {
           this.isEmailValid = true
@@ -397,7 +411,7 @@ export default {
       })
     },
     checkEmailClick() {
-      this.$refs.orgForm.validateField('email', (err) => {
+      this.$refs.newOrg.validateField('email', (err) => {
         console.log('err msg ', err)
         if (!err) {
           this.isEmailValid = true
@@ -407,11 +421,11 @@ export default {
     },
     submitForm(formName) {
       if (this.coinbase) {
-        this.orgForm.wallet.push({
+        this.newOrg.wallet.push({
           name: 'eth',
           value: this.coinbase
         })
-        console.log(this.orgForm)
+        console.log(this.newOrg)
 
         this.$refs[formName].validate((valid) => {
           console.log('valid value:', valid)
@@ -423,21 +437,49 @@ export default {
               value: '80000000'
             }, (err, data) => {
               if (data) {
-                this.orgForm.transactionHash = data
+                this.newOrg.transactionHash = data
 
                 console.log('transaction hash', data)
                 const _this = this
-                const timer = setInterval(function() {
+                const progressTimer = setInterval(() => {
                   if (_this.percentage < 90) {
                     _this.percentage++
                   } else {
-                    clearInterval(timer)
+                    clearInterval(progressTimer)
                   }
                 }, 2000)
-                this.$store.dispatch('organization/newOrg', this.orgForm).then((res) => {
-                  if (res === 'success') {
-                    this.isCreateSuccess = true
-                  }
+                this.$once('hook:beforeDestroy', () => {
+                  console.log('before destroy')
+                  clearInterval(progressTimer)
+                })
+
+                this.$store.dispatch('organization/newOrg', this.newOrg).then((res) => {
+                  console.log('res', res)
+
+                  this.isCreateSuccess = true
+                  const checkOrgStatusTimer = setInterval(() => {
+                    getOrgStatus(this.orgForm._id).then(statusRes => {
+                      console.log(44, statusRes)
+                      if (statusRes.err) {
+                        this.$notify({
+                          message: statusRes.msg,
+                          type: 'warning'
+                        })
+                        clearInterval(progressTimer)
+                        clearInterval(checkOrgStatusTimer)
+                      } else if (statusRes.status === 1) {
+                        this.isTransactionSuccess = true
+                        clearInterval(checkOrgStatusTimer)
+                      } else if (statusRes.status === -1) {
+                        // clearInterval(progressTimer)
+                        clearInterval(this.checkOrgStatusTimer)
+                      }
+                    })
+                  }, 5000)
+                  this.$once('hook:beforeDestroy', () => {
+                    console.log('before destroy')
+                    clearInterval(checkOrgStatusTimer)
+                  })
                 })
               } else {
                 this.isCreateSuccess = false
@@ -477,18 +519,18 @@ export default {
       document.querySelector('.el-upload--picture-card').style.visibility = 'visible'
     },
     handleUploadSuccess(response, file, fileList) {
-      this.orgForm.logo = response.url
+      this.newOrg.logo = response.url
     },
     addSocial() {
-      this.orgForm.social.push({
+      this.newOrg.social.push({
         name: '',
         value: ''
       })
     },
     removeSocial(index) {
-      console.log(this.orgForm.social)
-      this.orgForm.social.splice(index, 1)
-      console.log(this.orgForm.social)
+      console.log(this.newOrg.social)
+      this.newOrg.social.splice(index, 1)
+      console.log(this.newOrg.social)
     },
     handleTabClick(tab, e) {
       e.preventDefault()
@@ -508,7 +550,8 @@ export default {
         this.isMetaMaskInstalled = false
         this.$notify({
           message: 'No web3? You should consider trying MetaMask!',
-          type: 'warning'
+          type: 'warning',
+          duration: 0
         })
       }
     },
@@ -530,19 +573,16 @@ export default {
       }
     },
     handleMetaMaskLogin() {
-      this.metaMaskLogin().then(res => {
-        console.log('login res', res)
-        // web3.eth.getAccounts((err, account) => {
-        //   console.log('web3 eth account', account)
-        // })
-        // web3.eth.getCoinbase((err, coinbase) => {
-        //   console.log('coninbase', coinbase, err)
-        // })
-        // console.log('account', web3.eth.accounts[0])
+      if (!this.isMetaMaskInstalled) {
+        this.dialogVisible = true
+      } else {
+        this.metaMaskLogin().then(res => {
+          console.log('login res', res)
 
-        const coinbase = web3.eth.accounts[0]
-        this.$store.commit('coinbase/SET_COINBASE', coinbase)
-      })
+          const coinbase = web3.eth.accounts[0]
+          this.$store.commit('coinbase/SET_COINBASE', coinbase)
+        })
+      }
     },
 
     handleContract() {
@@ -563,12 +603,21 @@ export default {
       })
     },
     handleGetStart() {
-      this.$router.push(`/dao/info/${this.orgId}`)
+      this.$router.push(`/dao/info?id=${this.orgForm._id}`)
     }
   }
 }
 </script>
 
 <style lang="scss" >
-
+.el-dialog__body {
+  .message {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+  }
+}
+.el-dialog__footer {
+  text-align: center;
+}
 </style>

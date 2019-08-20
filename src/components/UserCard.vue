@@ -3,10 +3,10 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <div v-show="editible" class="tools">
-          <svg class="icon tool" aria-hidden="true" type="text" @click="$emit('editUser',user)">
+          <svg class="icon tool" aria-hidden="true" type="text" @click="$emit('clickEdit',user)">
             <use xlink:href="#icon-edit" />
           </svg>
-          <svg class="icon tool" aria-hidden="true" type="text" @click="$emit('deleteUser',user.email)">
+          <svg class="icon tool" aria-hidden="true" type="text" @click="$emit('clickDelete',user.email)">
             <use xlink:href="#icon-delete" />
           </svg>
         </div>
@@ -40,14 +40,15 @@
           <div class="socials el-input fake">
             <ul v-show="user&&user.social">
               <li v-for="social in user.social" :key="social.name">
-                <svg class="icon" aria-hidden="true">
-                  <use :xlink:href="'#icon-'+social.name" />
-                </svg>
+                <a :href="social.value" target="_blank">
+                  <svg class="icon" aria-hidden="true">
+                    <use :xlink:href="'#icon-'+social.name" />
+                  </svg>
+                </a>
               </li>
             </ul>
           </div>
         </el-form-item>
-
       </div>
     </el-card>
   </el-form>
