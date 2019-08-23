@@ -31,7 +31,7 @@
             </div>
             <div v-show="isInEdit&&!isShowLogo">
               <el-upload
-                action="/comunion-api/a/upload"
+                action="http://178.128.221.42:8080/a/upload"
                 name="upload"
                 list-type="picture-card"
                 :multiple="false"
