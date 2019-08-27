@@ -63,17 +63,17 @@ export const constantRoutes = [
     // }
     ]
   },
-  {
-    path: '/dao',
-    component: Layout,
-    // redirect: '/dao',
-    children: [{
-      path: 'home',
-      name: 'Dashboard',
-      component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Home', icon: 'home' }
-    }]
-  },
+  // {
+  //   path: '/dao',
+  //   component: Layout,
+  //   // redirect: '/dao',
+  //   children: [{
+  //     path: 'home',
+  //     name: 'Dashboard',
+  //     component: () => import('@/views/dashboard/index'),
+  //     meta: { title: 'Home', icon: 'home' }
+  //   }]
+  // },
   {
     path: '/dao/info',
     component: Layout,
@@ -106,56 +106,56 @@ export const constantRoutes = [
       meta: { title: 'Profile', icon: 'dashboard' }
     }]
   },
-  {
-    path: '/dao/finance',
-    component: Layout,
-    children: [{
-      path: '',
-      name: 'Finance',
-      component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Finance', icon: 'finance' }
-    }]
-  },
-  {
-    path: '/dao/voting',
-    component: Layout,
-    children: [{
-      path: '',
-      name: 'Voting',
-      component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Voting', icon: 'vote' }
-    }]
-  },
-  {
-    path: '/dao/setting',
-    component: Layout,
-    children: [{
-      path: '',
-      name: 'Setting',
-      component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Settings', icon: 'setting' }
-    }]
-  },
-  {
-    path: '/dao/discovery',
-    component: Layout,
-    name: 'Example',
-    meta: { title: 'Discovery', icon: 'example' },
-    children: [
-      {
-        path: 'new-organization',
-        redirect: '/create',
-        name: 'Table',
-        meta: { title: 'New Organization', icon: 'info' }
-      },
-      {
-        path: 'hot-organization',
-        redirect: '/list',
-        name: 'Tree',
-        meta: { title: 'Hot Organization', icon: 'info' }
-      }
-    ]
-  },
+  // {
+  //   path: '/dao/finance',
+  //   component: Layout,
+  //   children: [{
+  //     path: '',
+  //     name: 'Finance',
+  //     component: () => import('@/views/dashboard/index'),
+  //     meta: { title: 'Finance', icon: 'finance' }
+  //   }]
+  // },
+  // {
+  //   path: '/dao/voting',
+  //   component: Layout,
+  //   children: [{
+  //     path: '',
+  //     name: 'Voting',
+  //     component: () => import('@/views/dashboard/index'),
+  //     meta: { title: 'Voting', icon: 'vote' }
+  //   }]
+  // },
+  // {
+  //   path: '/dao/setting',
+  //   component: Layout,
+  //   children: [{
+  //     path: '',
+  //     name: 'Setting',
+  //     component: () => import('@/views/dashboard/index'),
+  //     meta: { title: 'Settings', icon: 'setting' }
+  //   }]
+  // },
+  // {
+  //   path: '/dao/discovery',
+  //   component: Layout,
+  //   name: 'Example',
+  //   meta: { title: 'Discovery', icon: 'example' },
+  //   children: [
+  //     {
+  //       path: 'new-organization',
+  //       redirect: '/create',
+  //       name: 'Table',
+  //       meta: { title: 'New Organization', icon: 'info' }
+  //     },
+  //     {
+  //       path: 'hot-organization',
+  //       redirect: '/list',
+  //       name: 'Tree',
+  //       meta: { title: 'Hot Organization', icon: 'info' }
+  //     }
+  //   ]
+  // },
   // {
   //   path: 'external-link',
   //   component: Layout,
