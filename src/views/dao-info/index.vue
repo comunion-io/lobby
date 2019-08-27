@@ -15,7 +15,7 @@
           <el-form-item label="Net">
             <div class="el-input fake">Ethereum Mainnet</div>
           </el-form-item>
-          <el-form-item label="Contract">
+          <!-- <el-form-item label="Contract">
             <div class="el-input fake">
               <el-button class="btn-link" plain round>
                 <svg class="icon" aria-hidden="true" style="width:1em;height:1em">
@@ -24,7 +24,7 @@
                 {{ orgForm.wallet?(orgForm.wallet[0]?orgForm.wallet[0].value:''):'' }}
               </el-button>
             </div>
-          </el-form-item>
+          </el-form-item> -->
         </div>
       </div>
 
@@ -42,6 +42,10 @@
           <el-form-item label="Mission">
             <div v-if="!isAboutInEdit" class="el-input fake">{{ orgForm.mission }}</div>
             <el-input v-else v-model="orgForm.mission" />
+          </el-form-item>
+          <el-form-item label="Vision">
+            <div v-if="!isAboutInEdit" class="el-input fake">{{ orgForm.vision }}</div>
+            <el-input v-else v-model="orgForm.vision" />
           </el-form-item>
           <el-form-item label="Desccription">
             <div v-if="!isAboutInEdit" class="el-input fake textarea">{{ orgForm.description }}</div>
