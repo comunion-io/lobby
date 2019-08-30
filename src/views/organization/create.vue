@@ -26,7 +26,7 @@
                 </div>
                 <div v-if="!newOrg.name || !newOrg.name.replace(/(^\s*)|(\s*$)/g, '')" class="tip">Please input your organization name</div>
                 <div v-else>
-                  <div v-show="!isOrgNameInCheck && isOrgNameValid" class="tip">Organization name does not exist</div>
+                  <div v-show="!isOrgNameInCheck && isOrgNameValid" class="tip">The organization name is available.</div>
                   <div v-show="!isOrgNameInCheck && !isOrgNameValid" class="tip error">Organization name already exists</div>
                 </div>
                 <el-button :class="['btn-main', 'btn-wide', isOrgNameValid ? '' : 'disable']" round @click="isOrgNameValid?curStep='step2':''">Next</el-button>
@@ -59,8 +59,8 @@
                       action="http://178.128.221.42:8080/a/upload"
                       name="upload"
                       list-type="picture-card"
-                      :on-change="handleFileChange"
                       :multiple="false"
+                      :on-change="handleFileChange"
                       :on-remove="handleFileRemove"
                       :on-success="handleUploadSuccess"
                     >
@@ -145,13 +145,13 @@
                 <div v-if="!coinbase" class="tip" @click="handleMetaMaskLogin">Please <a>log in</a> first</div>
                 <div v-else class="tip black">Address: {{ coinbase }}</div>
 
-                <div class="wallet-logo">
+                <!-- <div class="wallet-logo">
                   <svg class="icon" aria-hidden="true">
                     <use :xlink:href="'#icon-myether'+(false?1:'')" />
                   </svg>
                 </div>
                 <el-button class="btn-grey" round>Open MyEtherWallet</el-button>
-                <div class="tip">Please <a>log in</a> first</div>
+                <div class="tip">Please <a>log in</a> first</div> -->
                 <!--                <el-button :class="['btn-main', 'btn-wide', coinbase ? '' : 'disable']" round @click="submitForm('newOrg')">Create</el-button>-->
               </div>
               <div v-else>
@@ -453,6 +453,7 @@ export default {
                   clearInterval(progressTimer)
                 })
 
+                this.newOrg.website = this.newOrg.website.replace(/(http\:\/\/)|(https\:\/\/)/, '')
                 this.$store.dispatch('organization/newOrg', this.newOrg).then((res) => {
                   console.log('res', res)
 
@@ -508,9 +509,7 @@ export default {
       this.$refs[formName].resetFields()
     },
     handleFileChange(file, fileList) {
-      console.log(file, fileList)
       if (fileList.length === 1) {
-        console.log(1, document.querySelector('.el-upload--picture-card'))
         document.querySelector('.el-upload--picture-card').style.visibility = 'hidden'
       }
     },
@@ -545,6 +544,8 @@ export default {
         /* To see if the injected provider is from MetaMask */
         if (web3.currentProvider.isMetaMask) {
           console.log('The injected provider is from MetaMask！')
+
+          this.getCoinBase()
         }
       } else {
         this.isMetaMaskInstalled = false
@@ -553,6 +554,12 @@ export default {
           type: 'warning',
           duration: 0
         })
+      }
+    },
+    getCoinBase() {
+      const coinbase = web3.eth.accounts[0]
+      if (coinbase) {
+        this.$store.commit('coinbase/SET_COINBASE', coinbase)
       }
     },
     metaMaskLogin: async() => {

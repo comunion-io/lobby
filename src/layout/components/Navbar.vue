@@ -52,26 +52,24 @@
       :visible.sync="isDialogVisible"
       width="500px"
     >
-      <el-form v-show="curType==='login'" ref="loginForm" :model="loginForm">
-        <el-form-item label="Email">
+      <el-form v-show="curType==='login'" ref="loginForm" :model="loginForm" :rules="loginRules">
+        <el-form-item label="Email" prop="email">
           <el-input v-model="loginForm.email" placeholder="Please input your email" />
         </el-form-item>
-        <el-form-item label="Password">
+        <el-form-item label="Password" prop="password">
           <el-input v-model="loginForm.password" type="password" placeholder="Please input your password" />
         </el-form-item>
       </el-form>
 
-      <el-form v-show="curType==='register'||curType==='reset'" ref="registerForm" :model="registerForm">
-        <el-form-item label="Email">
+      <el-form v-show="curType==='register'||curType==='reset'" ref="registerForm" :model="registerForm" :rules="registerRules">
+        <el-form-item label="Email" prop="email">
           <el-input v-model="registerForm.email" placeholder="Please input your email" />
         </el-form-item>
-        <el-form-item label="Code" class="code">
-
+        <el-form-item label="Code" prop="_vCode" class="code">
           <el-input v-model="registerForm._vCode" placeholder="Please input verification code" />
-          <el-button type="primary btn-main" round @click="handleSendCode">Send Verificatiob Code</el-button>
-
+          <el-button type="primary btn-main" round @click="handleSendCode">Send Verification Code</el-button>
         </el-form-item>
-        <el-form-item label="Password">
+        <el-form-item label="Password" prop="password">
           <el-input v-model="registerForm.password" type="password" placeholder="Please input your password" />
         </el-form-item>
       </el-form>
@@ -103,6 +101,20 @@ export default {
     Hamburger
   },
   data() {
+    const checkPwd = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('please input password'))
+      }
+      setTimeout(() => {
+        if (value.length < 6) {
+          callback(new Error('password must have at least 6 charactors'))
+        } else if (value.length > 24) {
+          callback(new Error('password must not exceed 24 charactors'))
+        } else {
+          callback()
+        }
+      })
+    }
     return {
       loginForm: {
         email: '',
@@ -114,6 +126,25 @@ export default {
         _cCode: '',
         _vCode: '',
         username: ''
+      },
+      loginRules: {
+        email: [
+          { required: true, message: 'please input email', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: 'please input password', trigger: 'blur' }
+        ]
+      },
+      registerRules: {
+        email: [
+          { required: true, message: 'please input email', trigger: 'blur' }
+        ],
+        _vCode: [
+          { required: true, message: 'please input verification code', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, validator: checkPwd, trigger: 'blur' }
+        ]
       },
       isDialogVisible: false,
       type: {
@@ -145,96 +176,112 @@ export default {
       // this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     },
     handleLogin() {
-      this.$store.dispatch('user/login', this.loginForm).then(data => {
-        if (!data.err) {
-          this.isDialogVisible = false
+      this.$refs.loginForm.validate(valid => {
+        if (valid) {
+          console.log(1)
+          this.$store.dispatch('user/login', this.loginForm).then(data => {
+            if (!data.err) {
+              this.isDialogVisible = false
 
-          const theOrg = this.userInfo.orgs.filter(org => {
-            return org.role === 'owner'
-          })
+              const theOrg = this.userInfo.orgs.filter(org => {
+                return org.role === 'owner'
+              })
 
-          console.log('current user\'s organization:', theOrg)
-          theOrg.length > 0 && getOrgStatus(theOrg[0]._id).then(res => {
-            if (res.err) {
+              console.log('current user\'s organization:', theOrg)
+              theOrg.length > 0 && getOrgStatus(theOrg[0]._id).then(res => {
+                if (res.err) {
+                  this.$notify({
+                    message: res.msg,
+                    type: 'warning'
+                  })
+                } else if (res.status) {
+                  if (res.status === 0) {
+                    this.$notify({
+                      message: 'Your organization creation hasn\'t success yet.',
+                      type: 'warning'
+                    })
+                  } else if (res.status === -1) {
+                    this.$notify({
+                      message: 'Your previous organization creation failed.',
+                      type: 'warning'
+                    })
+                  } else if (res.status === 1) {
+                    this.$notify({
+                      message: 'You have successfully created an organization previously!',
+                      type: 'warning'
+                    })
+                  }
+                }
+              })
+
+              this.$router.push('/dao/profile')
+            } else {
               this.$notify({
-                message: res.msg,
+                message: data.msg,
                 type: 'warning'
               })
-            } else if (res.status) {
-              if (res.status === 0) {
-                this.$notify({
-                  message: 'Your organization creation hasn\'t success yet.',
-                  type: 'warning'
-                })
-              } else if (res.status === -1) {
-                this.$notify({
-                  message: 'Your previous organization creation failed.',
-                  type: 'warning'
-                })
-              } else if (res.status === 1) {
-                this.$notify({
-                  message: 'You have successfully created an organization previously!',
-                  type: 'warning'
-                })
-              }
             }
-          })
-
-          this.$router.push('/dao/profile')
-        } else {
-          this.$notify({
-            message: data.msg,
-            type: 'warning'
           })
         }
       })
     },
     handleRegister() {
-      const index = this.registerForm.email.indexOf('@')
-      if (index !== -1) {
-        this.registerForm.username = this.registerForm.email.substr(0, index)
-      } else {
-        this.$notify({
-          message: 'Please input corrent email!',
-          type: 'warning'
-        })
-      }
-
-      userRegister(this.registerForm).then(res => {
-        if (!res.err) {
-          // this.orgList = res.entities
-          this.$notify({
-            message: 'register success',
-            type: 'success'
-          })
-          this.isDialogVisible = false
-        } else {
-          this.$notify({
-            message: res.msg,
-            type: 'warning'
-          })
+      this.$refs.registerForm.validate(valid => {
+        if (valid) {
+          const index = this.registerForm.email.indexOf('@')
+          if (index !== -1) {
+            this.registerForm.username = this.registerForm.email.substr(0, index)
+            userRegister(this.registerForm).then(res => {
+              if (!res.err) {
+                // this.orgList = res.entities
+                this.$notify({
+                  message: 'register success',
+                  type: 'success'
+                })
+                this.isDialogVisible = false
+              } else {
+                this.$notify({
+                  message: res.msg,
+                  type: 'warning'
+                })
+              }
+            })
+          } else {
+            this.$notify({
+              message: 'Please input correct email!',
+              type: 'warning'
+            })
+          }
         }
       })
     },
     handleResetPwd() {
-      resetPwd(this.registerForm).then(res => {
-        if (!res.err) {
-          this.$notify({
-            message: 'reset password success!',
-            type: 'success'
-          })
-          this.isDialogVisible = false
-        } else {
-          this.$notify({
-            message: res.msg,
-            type: 'warning'
+      this.$refs.registerForm.validate(valid => {
+        if (valid) {
+          resetPwd(this.registerForm).then(res => {
+            if (!res.err) {
+              this.$notify({
+                message: 'reset password success!',
+                type: 'success'
+              })
+              this.isDialogVisible = false
+            } else {
+              this.$notify({
+                message: res.msg,
+                type: 'warning'
+              })
+            }
           })
         }
       })
     },
     handleSendCode() {
-      sendVeriCode({ email: this.registerForm.email }).then(res => {
-        this.registerForm._cCode = res.cCode
+      this.$refs.registerForm.validateField('email', err => {
+        if (!err) {
+          sendVeriCode({ email: this.registerForm.email }).then(res => {
+            this.registerForm._cCode = res.cCode
+          })
+        }
       })
     }
   }
@@ -317,7 +364,7 @@ export default {
           cursor: pointer;
           position: absolute;
           right: -20px;
-          top: 25px;
+          top: 15px;
           font-size: 12px;
         }
       }
@@ -338,7 +385,7 @@ export default {
     }
   }
   .el-form-item {
-    margin-bottom: 0;
+    margin-bottom: 10px;
   }
   .code {
     .el-form-item__label {

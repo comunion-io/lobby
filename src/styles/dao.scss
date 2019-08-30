@@ -263,6 +263,9 @@
   padding-left: 30px;
   padding-right: 30px;
 }
+.el-notification__group {
+  overflow: hidden;
+}
 
 /* style for file upload element-ui modification */
 .el-upload-list--picture-card .el-upload-list__item {

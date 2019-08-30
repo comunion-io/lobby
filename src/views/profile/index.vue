@@ -35,6 +35,8 @@
                 name="upload"
                 list-type="picture-card"
                 :multiple="false"
+                :on-change="handleFileChange"
+                :on-remove="handleFileRemove"
                 :on-success="handleUploadSuccess"
               >
                 <i class="el-icon-plus" />
@@ -180,6 +182,15 @@ export default {
     handleDeleteLogo() {
       this.isShowLogo = false
     },
+    handleFileChange(file, fileList) {
+      if (fileList.length === 1) {
+        document.querySelector('.el-upload--picture-card').style.visibility = 'hidden'
+      }
+    },
+    handleFileRemove(file) {
+      console.log('remove')
+      document.querySelector('.el-upload--picture-card').style.visibility = 'visible'
+    },
     handleUploadSuccess(response, file, fileList) {
       this.userInfo.logo = response.url
     },
@@ -259,6 +270,9 @@ export default {
         top: 6px;
         margin-right: 30px;
       }
+    }
+    .add-media {
+      cursor: pointer;
     }
     .wallet-title {
       display: flex;

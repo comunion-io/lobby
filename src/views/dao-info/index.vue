@@ -67,7 +67,7 @@
         <div class="card-content">
           <el-form-item label="Office Website">
             <div v-if="!isContactInEdit" class="el-input fake">
-              <a :href="orgForm.website" target="_blank">
+              <a :href="'http://'+orgForm.website" target="_blank">
                 <el-button class="btn-link" plain round>
                   <svg class="icon" aria-hidden="true" style="width:1em;height:1em">
                     <use xlink:href="#icon-link" />

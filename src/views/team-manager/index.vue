@@ -17,7 +17,7 @@
       </div>
     </el-form>
     <div v-else class="no-member">
-      Click Add Menber to add members
+      Click Add Member to add members
     </div>
 
     <el-dialog

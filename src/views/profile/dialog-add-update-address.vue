@@ -8,12 +8,12 @@
     <el-form ref="walletForm" :model="form">
       <el-form-item label="Select Currency">
         <div class="el-input fake">
-          <div :class="['currency',form.name==='btc'? 'cur':'']" @click="form.name='btc'">
+          <!-- <div :class="['currency',form.name==='btc'? 'cur':'']" @click="form.name='btc'">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-btc" />
             </svg>
             <span>BTC</span>
-          </div>
+          </div> -->
           <div :class="['currency',form.name==='eth'? 'cur':'']" @click="form.name='eth'">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-eth" />
@@ -44,7 +44,7 @@ export default {
     return {
       form: {
         _id: '',
-        name: '',
+        name: 'eth',
         address: '',
         usage: ''
       },
@@ -64,7 +64,7 @@ export default {
       } else {
         // this.$refs.walletForm.resetFields()
         this.form._id = ''
-        this.form.name = ''
+        this.form.name = 'eth'
         this.form.address = ''
         this.form.usage = ''
       }
