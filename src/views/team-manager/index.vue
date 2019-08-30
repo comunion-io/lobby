@@ -192,7 +192,7 @@ export default {
         this.isDialogAddVisible = true
       } else {
         this.$notify({
-          message: 'Please log in to add member!',
+          message: 'Make sure you are the creator of this organization and have logged in!',
           type: 'warning'
         })
       }
