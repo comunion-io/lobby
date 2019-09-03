@@ -33,6 +33,7 @@
           class="search-email-input"
           placeholder="Enter a member's email address"
           prefix-icon="el-icon-search"
+          @input="isUserExist=true"
         />
         <el-button type="primary btn-main" round @click="handleSearchUser">Search</el-button>
       </div>

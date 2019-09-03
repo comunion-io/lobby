@@ -18,7 +18,7 @@
           </div>
           <div class="user-meta">
             <div class="user-name">{{ user&&user.name }}</div>
-            <div class="user-title">{{ user&&user.title }}</div>
+            <div class="user-title">{{ user&&user.role }}</div>
           </div>
         </div>
 

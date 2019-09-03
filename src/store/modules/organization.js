@@ -6,6 +6,7 @@ const state = {
   name: '',
   email: '',
   type: '',
+  logo: '',
   wallet: [],
   website: '',
   mission: '',
@@ -25,6 +26,7 @@ const mutations = {
     state.name = data.name
     state.email = data.email
     state.type = data.type
+    state.logo = data.logo
     state.wallet = data.wallet
     state.website = data.website
     state.mission = data.mission

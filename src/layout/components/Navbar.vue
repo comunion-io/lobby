@@ -2,9 +2,9 @@
   <div class="navbar">
     <hamburger :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
 
-    <div class="logo">
+    <!-- <div class="logo">
       <img src="~@/assets/logo.png" alt="">
-    </div>
+    </div> -->
     <breadcrumb class="breadcrumb-container" />
 
     <div class="right-menu">
@@ -67,7 +67,8 @@
         </el-form-item>
         <el-form-item label="Code" prop="_vCode" class="code">
           <el-input v-model="registerForm._vCode" placeholder="Please input verification code" />
-          <el-button type="primary btn-main" round @click="handleSendCode">Send Verification Code</el-button>
+          <el-button v-if="countdown===0" type="primary btn-main" round @click="handleSendCode">Send Verification Code</el-button>
+          <el-button v-else class="btn-main disable countdown-btn" round>{{ countdown }}s</el-button>
         </el-form-item>
         <el-form-item label="Password" prop="password">
           <el-input v-model="registerForm.password" type="password" placeholder="Please input your password" />
@@ -152,7 +153,8 @@ export default {
         register: 'Please Register',
         reset: 'Reset Password'
       },
-      curType: 'login'
+      curType: 'login',
+      countdown: 0
     }
   },
   computed: {
@@ -276,13 +278,29 @@ export default {
       })
     },
     handleSendCode() {
-      this.$refs.registerForm.validateField('email', err => {
-        if (!err) {
-          sendVeriCode({ email: this.registerForm.email }).then(res => {
-            this.registerForm._cCode = res.cCode
-          })
-        }
-      })
+      if (this.countdown === 0) {
+        this.$refs.registerForm.validateField('email', err => {
+          if (!err) {
+            sendVeriCode({ email: this.registerForm.email }).then(res => {
+              this.registerForm._cCode = res.cCode
+            })
+
+            this.countdown = 60
+            const countdownTimer = setInterval(() => {
+              if (this.countdown > 0) {
+                this.countdown--
+              }
+
+              if (this.countdown === 0) {
+                clearInterval(countdownTimer)
+              }
+            }, 1000)
+            this.$once('hook:beforeDestroy', () => {
+              clearInterval(countdownTimer)
+            })
+          }
+        })
+      }
     }
   }
 }
@@ -373,6 +391,10 @@ export default {
   .new-dao-btn {
     float: right;
     margin: 4px 20px 0 0;
+  }
+  .countdown-btn {
+    width: 150px;
+    cursor: default;
   }
   .dialog-footer {
     height: 40px;
