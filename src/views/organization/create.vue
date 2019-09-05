@@ -7,10 +7,10 @@
     <el-form v-if="!isTransactionSuccess" ref="newOrg" :model="newOrg" label-width="190px" :rules="orgRules">
 
       <el-tabs v-model="curStep" @tab-click="handleTabClick">
-        <el-tab-pane label="Claim organization name" name="step1" disabled>
+        <el-tab-pane label="Set organization name" name="step1" disabled>
           <div class="inner-content">
             <div class="section-card">
-              <div class="card-title">Claim organization name</div>
+              <div class="card-title">Set organization name</div>
               <div class="card-content">
                 <el-form-item label="" prop="name" label-width="0">
                   <el-input v-model="newOrg.name" placeholder="Organization name" class="org-name-input" />
@@ -35,13 +35,13 @@
           </div>
         </el-tab-pane>
 
-        <el-tab-pane label="Fill in information" name="step2" disabled>
+        <el-tab-pane label="Organization Information" name="step2" disabled>
           <div v-show="curInfo==='info1'">
             <div class="inner-content">
               <div class="section-card">
-                <div class="card-title">Fill in information</div>
+                <div class="card-title">Organization Information</div>
                 <div class="card-content">
-                  <el-form-item label="Operation net">
+                  <el-form-item label="Select carrier net">
                     <div class="el-input fake">Ethereum Mainnet</div>
                   </el-form-item>
                   <el-form-item label="Organization type" prop="type">
@@ -80,8 +80,8 @@
               <div class="section-card">
                 <!--          <div class="card-title">Fill in information</div>-->
                 <div class="card-content">
-                  <el-form-item label="Office website" prop="website">
-                    <el-input v-model="newOrg.website" placeholder="Office website" />
+                  <el-form-item label="Website" prop="website">
+                    <el-input v-model="newOrg.website" placeholder="Website" />
                   </el-form-item>
                   <el-form-item label="Organization mission" prop="mission">
                     <el-input v-model="newOrg.mission" placeholder="Organization mission " type="textarea" />
@@ -111,15 +111,16 @@
           <div v-show="curInfo==='info3'">
             <div class="inner-content">
               <div class="section-card">
-                <div class="card-title">Your information</div>
+                <div class="card-title">Personal Information</div>
                 <div class="card-content">
 
                   <el-form-item label="Your Email" prop="email">
                     <el-input v-model="newOrg.email" placeholder="" />
                   </el-form-item>
 
-                  <div class="tip">-The initial password will be sent to your email. You can use this email to login your account.<br>
-                    -You can continute to complete your profile affter completing the creation.</div>
+                  <div class="tip"><strong>-The initial password will be sent to this E-mail, and this E-mail is used to login to your account.</strong><br>
+                    -You can complete your profile later after creating the organization.
+                  </div>
                   <el-button class="btn-main" round @click="curInfo = 'info2'">Previous</el-button>
                   <el-button :class="['btn-main', 'btn-wide', isEmailValid ? '' : 'disable']" round @click="checkEmailClick">Next</el-button>
                 </div>
@@ -128,11 +129,12 @@
           </div>
         </el-tab-pane>
 
-        <el-tab-pane label="Sign the transaction" name="step3" disabled>
+        <el-tab-pane label="Deploy Transaction" name="step3" disabled>
           <div class="inner-content">
             <div class="section-card">
-              <div class="card-title">Sign the transaction </div>
-              <div class="tip nomargin left">At last, you should sign the transaction to register your organization.</div>
+              <div class="card-title">Deploy Transaction</div>
+              <div class="tip nomargin left">This is the last step : ) &nbsp; You will need to sign the transaction to register your organization.<br>
+                Continue with your web wallet.</div>
               <div v-if="!newOrg.transactionHash" class="card-content">
                 <div class="tip">Open your web wallet</div>
 
@@ -141,8 +143,8 @@
                     <use :xlink:href="'#icon-metamask'+(isMetaMaskInstalled?1:'')" />
                   </svg>
                 </div>
-                <el-button :class="['btn-wide', isMetaMaskInstalled?'btn-main':'btn-grey']" round @click="submitForm('newOrg')">Open MetaMask</el-button>
-                <div v-if="!coinbase" class="tip" @click="handleMetaMaskLogin">Please <a>log in</a> first</div>
+                <el-button :class="['btn-wide', isMetaMaskInstalled?'btn-main':'btn-grey']" round @click="submitForm('newOrg')">MetaMask</el-button>
+                <div v-if="!coinbase" class="tip" @click="handleMetaMaskLogin">click <a>log in</a> to wake up your MetaMask</div>
                 <div v-else class="tip black">Address: {{ coinbase }}</div>
 
                 <!-- <div class="wallet-logo">
@@ -150,7 +152,7 @@
                     <use :xlink:href="'#icon-myether'+(false?1:'')" />
                   </svg>
                 </div>
-                <el-button class="btn-grey" round>Open MyEtherWallet</el-button>
+                <el-button class="btn-grey" round>MyEtherWallet</el-button>
                 <div class="tip">Please <a>log in</a> first</div> -->
                 <!--                <el-button :class="['btn-main', 'btn-wide', coinbase ? '' : 'disable']" round @click="submitForm('newOrg')">Create</el-button>-->
               </div>
@@ -259,8 +261,8 @@ export default {
         value: 'Business',
         label: 'Business'
       }, {
-        value: 'School',
-        label: 'School'
+        value: 'Educational',
+        label: 'Educational'
       }, {
         value: 'Personal',
         label: 'Personal'

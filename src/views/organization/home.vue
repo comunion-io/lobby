@@ -3,14 +3,16 @@
     <div class="inner-content">
       <div class="welcome" />
       <div class="intro">Comunion is a decentralized autonomous organization collaboation network, helps companies, organization and individuals all around the world to create, manage and operate their own decentralized autonomous organization (The DAO).
-        <a href="https://comunion.io/" target="_blank" class="blue learn-more">Learn more about comunion</a></div>
-      <div class="tip">You can create a new decentralized organization.</div>
+        <a href="https://comunion.io/" target="_blank" class="blue learn-more">Learn more about Comunion</a>
+      </div>
+      <div class="tip" />
+      <!-- You can create a new decentralized organization. -->
       <router-link to="/create">
         <el-button class="btn-main btn-wide" round>Create a  new  decentralized organization</el-button>
       </router-link>
       <div class="tip"><a href="https://bbs.comunion.io/" target="_blank">How to create</a></div>
 
-      <div class="tip bold">Or open an exiisting organation</div>
+      <div class="tip bold">Retrieve an existing organization</div>
 
       <div class="section-card">
         <div class="card-content">
@@ -29,8 +31,8 @@
                 </svg>
               </span>
             </div>
-            <div v-if="!orgForm.name || !orgForm.name.replace(/(^\s*)|(\s*$)/g, '')" class="tip">Please input your organization name</div>
-            <div v-else>
+
+            <div v-if="orgForm.name && orgForm.name.replace(/(^\s*)|(\s*$)/g, '')">
               <div v-show="!isOrgNameInCheck && isOrgNameExist" class="tip">Organization name exists. You can open it</div>
               <div v-show="!isOrgNameInCheck && !isOrgNameExist" class="tip error">Organization name doesn't exist. You can create a new decentralized organization.</div>
             </div>
@@ -113,6 +115,9 @@ export default {
     height: 160px;
     background-image: url(~@/assets/welcome.png);
     background-size: cover;
+  }
+  .section-card {
+    margin-top: -30px;
   }
   .learn-more {
     text-decoration: underline;

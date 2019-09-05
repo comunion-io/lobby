@@ -5,11 +5,14 @@
 
       <el-dropdown-menu slot="dropdown" class="net-dropdown">
         <el-dropdown-item>
+          Ethereum Mainnet
+        </el-dropdown-item>
+        <!-- <el-dropdown-item>
           Ropsten Test Net
         </el-dropdown-item>
         <el-dropdown-item>
           Kovan Test Net
-        </el-dropdown-item>
+        </el-dropdown-item> -->
       </el-dropdown-menu>
     </el-dropdown>
   </div>
@@ -61,5 +64,8 @@ export default {
 }
 .net-dropdown {
   width: 154px;
+  li {
+    padding: 0 18px;
+  }
 }
 </style>
