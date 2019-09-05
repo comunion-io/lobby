@@ -3,7 +3,7 @@
 
 > The DAO Collaboration NetWork
 
-**Live demo:** http://www.effy.me/comunion
+**Live demo:** http://u.comunion.io
 
 
 
@@ -12,7 +12,7 @@
 
 ```bash
 # clone the project
-git clone https://github.com/dodoroy/comunion.git
+git clone https://github.com/comunion-io/lobby.git
 
 # enter the project directory
 cd comunion
@@ -62,7 +62,7 @@ npm run lint -- --fix
 
 ## progress
 
-* [2019-05-15]
+* [2019-07-15]
 
 Add data interface.
 
