@@ -10,7 +10,7 @@
       <router-link to="/create">
         <el-button class="btn-main btn-wide" round>Create a  new  decentralized organization</el-button>
       </router-link>
-      <div class="tip"><a href="https://bbs.comunion.io/" target="_blank">How to create</a></div>
+      <div class="tip"><a href="https://docs.comunion.io/" target="_blank">How to create</a></div>
 
       <div class="tip bold">Retrieve an existing organization</div>
 
