@@ -7,7 +7,7 @@
       </div>
       <div class="tip" />
       <!-- You can create a new decentralized organization. -->
-      <router-link to="/create">
+      <router-link to="/create" target="_blank">
         <el-button class="btn-main btn-wide" round>Create a  new  decentralized organization</el-button>
       </router-link>
       <div class="tip"><a href="https://docs.comunion.io/" target="_blank">How to create</a></div>
@@ -97,7 +97,10 @@ export default {
     },
     openOrg() {
       if (this.isOrgNameExist) {
-        this.$router.push(`/dao/info?id=${this.orgForm._id}`)
+        // this.$router.push(`/dao/info?id=${this.orgForm._id}`)
+        // open a new tap
+        let routeData = this.$router.resolve({name: 'dao-info', query: {id: this.orgForm._id}});
+        window.open(routeData.href, '_blank');
       }
     }
     // handleDelOrgName() {
