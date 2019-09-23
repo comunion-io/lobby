@@ -29,15 +29,16 @@
       </div>
 
       <div class="section-card">
-        <div class="card-tool">
-          <svg v-if="!isAboutInEdit" class="icon" aria-hidden="true" @click="handleClickEdit('isAboutInEdit')">
-            <use xlink:href="#icon-edit" />
-          </svg>
-          <svg v-else class="icon" aria-hidden="true" @click="handleUpdate('about')">
-            <use xlink:href="#icon-check" />
-          </svg>
+        <div class="card-title">About
+          <div class="card-tool">
+            <svg v-if="!isAboutInEdit" class="icon" aria-hidden="true" @click="handleClickEdit('isAboutInEdit')">
+              <use xlink:href="#icon-edit" />
+            </svg>
+            <svg v-else class="icon" aria-hidden="true" @click="handleUpdate('about')">
+              <use xlink:href="#icon-check" />
+            </svg>
+          </div>
         </div>
-        <div class="card-title">About</div>
         <div class="card-content">
           <el-form-item label="Mission">
             <div v-if="!isAboutInEdit" class="el-input fake">{{ orgForm.mission }}</div>
@@ -55,7 +56,8 @@
       </div>
 
       <div class="section-card">
-        <div class="card-tool">
+        <div class="card-title">Contact
+          <div class="card-tool">
           <svg v-if="!isContactInEdit" class="icon" aria-hidden="true" @click="handleClickEdit('isContactInEdit')">
             <use xlink:href="#icon-edit" />
           </svg>
@@ -63,7 +65,7 @@
             <use xlink:href="#icon-check" />
           </svg>
         </div>
-        <div class="card-title">Contact</div>
+        </div>
         <div class="card-content">
           <el-form-item label="Office Website">
             <div v-if="!isContactInEdit" class="el-input fake">
@@ -239,5 +241,4 @@ export default {
       line-height: 46px;
     }
   }
-
 </style>

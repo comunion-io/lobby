@@ -11,15 +11,16 @@
     </div>
     <el-form ref="form" :model="userInfo">
       <div v-show="curTab==='account'" class="section-card">
-        <div class="card-tool">
-          <svg v-if="!isInEdit" class="icon" aria-hidden="true" @click="isInEdit=true">
-            <use xlink:href="#icon-edit" />
-          </svg>
-          <svg v-else class="icon" aria-hidden="true" @click="handleSave">
-            <use xlink:href="#icon-check" />
-          </svg>
+        <div class="card-title">Personal Information
+          <div class="card-tool">
+            <svg v-if="!isInEdit" class="icon" aria-hidden="true" @click="isInEdit=true">
+              <use xlink:href="#icon-edit" />
+            </svg>
+            <svg v-else class="icon" aria-hidden="true" @click="handleSave">
+              <use xlink:href="#icon-check" />
+            </svg>
+          </div>
         </div>
-        <div class="card-title">Personal Information</div>
         <div class="card-content">
           <el-form-item label="Profile Photo">
             <div v-show="isShowLogo" class="user-avatar">
@@ -305,9 +306,6 @@ export default {
       display: flex;
       padding: 30px 0;
       border-top: 1px solid rgba(55, 64, 89, 0.1);
-      .card-tool {
-        top: 60px;
-      }
       .wallet-img {
         position: relative;
         margin-bottom: 20px;

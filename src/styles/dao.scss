@@ -53,10 +53,16 @@
   padding: 30px;
   color: #374059;
   background: #fff;
+  // .card-tool {
+  //   position: absolute;
+  //   top: 30px;
+  //   right: 30px;
+  //   cursor: pointer;
+  // }
   .card-tool {
-    position: absolute;
-    top: 30px;
-    right: 30px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 20px;
     cursor: pointer;
   }
   .card-title {
