@@ -131,7 +131,11 @@
                 </svg>
               </div>
               <div class="wallet-meta">
-                <div class="wallet-name">{{ getBalance(wallet.address) }} {{ wallet.name.toUpperCase() }}<span class="usage">{{ wallet.usage }}</span></div>
+                <div class="wallet-name">
+                  {{ getBalance(wallet.address) }}
+                  {{ wallet.name.toUpperCase() }}
+                  <span class="usage">{{ wallet.usage }}</span>
+                </div>
                 <div class="wallet-address">{{ wallet.address }}
                   <a :href="'https://etherscan.io/address/'+wallet.address" target="_blanck"><el-button class="btn-tag" plain round>view</el-button></a>
                 </div>
@@ -176,6 +180,7 @@ export default {
   },
   created() {
     if (!this.userInfo._id) {
+      debugger
       this.$store.dispatch('user/getInfo').then(res => {
         console.log(res)
       })
