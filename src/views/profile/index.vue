@@ -52,6 +52,9 @@
           <el-form-item label="Email">
             <div class="el-input fake">{{ userInfo.email }}</div>
           </el-form-item>
+          <el-form-item label="Password">
+            <span class="forget" @click="showChangePwdDialog">Change password</span>
+          </el-form-item>
           <el-form-item label="Skill">
             <div v-if="isInEdit" class="skill-add">
               <el-input v-model="newSkill" />
@@ -140,17 +143,21 @@
     </el-form>
 
     <dialog-add-address ref="dialogWallet" @saveWallet="handleSaveWallet" />
+
+    <reset-pwd-dialog ref="resetPwdDialog"></reset-pwd-dialog> 
   </div>
 </template>
 
 <script>
 import DialogAddAddress from './dialog-add-update-address'
+import ResetPwdDialog from './reset-passward-dialog'
 import { mapGetters } from 'vuex'
 
 export default {
   name: 'Profile',
   components: {
-    DialogAddAddress
+    DialogAddAddress,
+    ResetPwdDialog
   },
   data() {
     return {
@@ -174,6 +181,9 @@ export default {
     }
   },
   methods: {
+    showChangePwdDialog() {
+      this.$refs.resetPwdDialog.init(true);
+    },
     getBalance(address) {
       return web3.eth.getBalance(address, (err, res) => {
         console.log(err, res)
@@ -270,6 +280,13 @@ export default {
         top: 6px;
         margin-right: 30px;
       }
+    }
+    .forget {
+      position: relative;
+      top: 3px;
+      font-size: 14px;
+      color:#7B88FF;
+      cursor: pointer
     }
     .add-media {
       cursor: pointer;
