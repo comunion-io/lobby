@@ -105,7 +105,7 @@
                 <li v-for="social in orgForm.social" :key="social.name">
                   <a :href="social.value" target="_blank">
                     <svg class="icon" aria-hidden="true">
-                      <use :xlink:href="'#icon-'+social.name" />
+                      <use :xlink:href="'#icon-'+ social.name.toLowerCase()" />
                     </svg>
                   </a>
                 </li>
@@ -139,7 +139,7 @@ export default {
       isOwner: false,
       isAboutInEdit: false,
       isContactInEdit: false,
-      socialList: ['twitter', 'facebook', 'instagram', 'youtube'],
+      socialList: ['Twitter', 'Facebook', 'Instagram', 'YouTube'],
       newSocial: {
         name: '',
         value: ''

@@ -31,7 +31,7 @@
           <div class="el-input fake">{{ user&& user.email?user.email:'' }}</div>
         </el-form-item>
         <el-form-item label="Wallet Address">
-          <!-- <div class="el-input fake">{{ user&&user.address?user.address:'' }}</div> -->
+          <div class="el-input fake">{{ user&&user.address?user.address:'' }}</div>
           <div v-for="(wallet,index) in user.wallet" :key="index" class="el-input fake">
             {{ wallet.name?wallet.name.toUpperCase():'' }}  {{ wallet.address }}
           </div>

@@ -267,7 +267,7 @@ export default {
         value: 'Personal',
         label: 'Personal'
       }],
-      socialList: ['twitter', 'facebook', 'instagram', 'youtube'],
+      socialList: ['Twitter', 'Facebook', 'Instagram', 'YouTube'],
       curStep: 'step1',
       curInfo: 'info1',
       isOrgNameInCheck: false,
@@ -626,7 +626,7 @@ export default {
     font-weight: 500;
   }
 }
-.el-dialog__footer {
-  text-align: center;
-}
+// .el-dialog__footer {
+//   text-align: center;
+// }
 </style>

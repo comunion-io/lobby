@@ -166,7 +166,7 @@ export default {
   },
   data() {
     return {
-      socialList: ['twitter', 'facebook', 'instagram', 'youtube'],
+      socialList: ['Twitter', 'Facebook', 'Instagram', 'YouTube'],
       curTab: 'account',
       isInEdit: false,
       newSkill: '',
@@ -180,7 +180,6 @@ export default {
   },
   created() {
     if (!this.userInfo._id) {
-      debugger
       this.$store.dispatch('user/getInfo').then(res => {
         console.log(res)
       })
