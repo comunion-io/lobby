@@ -99,8 +99,8 @@ export default {
       if (this.isOrgNameExist) {
         // this.$router.push(`/dao/info?id=${this.orgForm._id}`)
         // open a new tap
-        let routeData = this.$router.resolve({name: 'dao-info', query: {id: this.orgForm._id}});
-        window.open(routeData.href, '_blank');
+        const routeData = this.$router.resolve({ name: 'dao-info', query: { id: this.orgForm._id }})
+        window.open(routeData.href, '_blank')
       }
     }
     // handleDelOrgName() {

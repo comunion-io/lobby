@@ -78,7 +78,7 @@
                 <li v-for="social in userInfo.social" :key="social.name">
                   <a :href="social.value" target="_blank">
                     <svg class="icon" aria-hidden="true">
-                      <use :xlink:href="'#icon-'+social.name" />
+                      <use :xlink:href="'#icon-'+social.name.toLowerCase()" />
                     </svg>
                   </a>
                 </li>
@@ -108,7 +108,7 @@
         <div class="card-title">Total Balance</div>
         <div class="card-content">
           <div class="wallet-title">
-            <div class="ratio">0.00 BTC = $ 0.00</div>
+            <div class="ratio">0.00 ETH = $ 0.00</div>
             <el-button class="btn-main" round @click="handleAddAddress">
               Add Address
             </el-button>
@@ -149,7 +149,7 @@
 
     <dialog-add-address ref="dialogWallet" @saveWallet="handleSaveWallet" />
 
-    <reset-pwd-dialog ref="resetPwdDialog"></reset-pwd-dialog> 
+    <reset-pwd-dialog ref="resetPwdDialog" />
   </div>
 </template>
 
@@ -187,7 +187,7 @@ export default {
   },
   methods: {
     showChangePwdDialog() {
-      this.$refs.resetPwdDialog.init(true);
+      this.$refs.resetPwdDialog.init(true)
     },
     getBalance(address) {
       return web3.eth.getBalance(address, (err, res) => {

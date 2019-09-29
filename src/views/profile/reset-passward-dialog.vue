@@ -1,11 +1,11 @@
 <template>
   <el-dialog
-      class="reset-pwd-dialog"
-      title="Reset Password"
-      :visible.sync="show"
-      width="500px"
-      :before-close="handleClose"
-    >
+    class="reset-pwd-dialog"
+    title="Reset Password"
+    :visible.sync="show"
+    width="500px"
+    :before-close="handleClose"
+  >
     <el-form ref="resetPwdForm" :model="resetPwdForm" :rules="resetRules">
       <el-form-item label="Email" prop="email">
         <el-input v-model="resetPwdForm.email" placeholder="Please input your email" />
@@ -49,7 +49,7 @@ export default {
       resetPwdForm: {
         _vCode: '',
         email: '',
-        passward: '',
+        passward: ''
       },
       countdown: 0,
       show: false,
@@ -63,7 +63,7 @@ export default {
         password: [
           { required: true, validator: checkPwd, trigger: 'blur' }
         ]
-      },
+      }
     }
   },
   methods: {

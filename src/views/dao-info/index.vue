@@ -58,13 +58,13 @@
       <div class="section-card">
         <div class="card-title">Contact
           <div class="card-tool">
-          <svg v-if="!isContactInEdit" class="icon" aria-hidden="true" @click="handleClickEdit('isContactInEdit')">
-            <use xlink:href="#icon-edit" />
-          </svg>
-          <svg v-else class="icon" aria-hidden="true" @click="handleUpdate('contact')">
-            <use xlink:href="#icon-check" />
-          </svg>
-        </div>
+            <svg v-if="!isContactInEdit" class="icon" aria-hidden="true" @click="handleClickEdit('isContactInEdit')">
+              <use xlink:href="#icon-edit" />
+            </svg>
+            <svg v-else class="icon" aria-hidden="true" @click="handleUpdate('contact')">
+              <use xlink:href="#icon-check" />
+            </svg>
+          </div>
         </div>
         <div class="card-content">
           <el-form-item label="Office Website">

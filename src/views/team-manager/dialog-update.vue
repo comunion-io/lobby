@@ -28,7 +28,7 @@
             <li v-for="social in user.social" :key="social.name">
               <a :href="social.value" target="_blank">
                 <svg class="icon" aria-hidden="true">
-                  <use :xlink:href="'#icon-'+social.name" />
+                  <use :xlink:href="'#icon-'+social.name.toLowerCase()" />
                 </svg>
               </a>
             </li>
