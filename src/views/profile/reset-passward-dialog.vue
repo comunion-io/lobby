@@ -4,7 +4,7 @@
     title="Reset Password"
     :visible.sync="show"
     width="500px"
-    :before-close="handleClose"
+    :close-on-click-modal="false"
   >
     <el-form ref="resetPwdForm" :model="resetPwdForm" :rules="resetRules">
       <el-form-item label="Email" prop="email">
@@ -74,9 +74,6 @@ export default {
         email: '',
         passward: ''
       }
-    },
-    handleClose() {
-      this.show = false
     },
     handleResetPwd() {
       this.$refs.resetPwdForm.validate(valid => {

@@ -96,6 +96,26 @@ export const constantRoutes = [
     }]
   },
   {
+    path: '/dao/token-manager',
+    component: Layout,
+    children: [{
+      path: '',
+      name: 'token-manager',
+      component: () => import('@/views/token-manager/index'),
+      meta: { title: 'Token Manager', icon: 'finance' }
+    }]
+  },
+  {
+    path: '/dao/finance',
+    component: Layout,
+    children: [{
+      path: '',
+      name: 'Finance',
+      component: () => import('@/views/finance/index'),
+      meta: { title: 'Finance', icon: 'finance' }
+    }]
+  },
+  {
     path: '/dao/profile',
     component: Layout,
     children: [{
@@ -106,16 +126,6 @@ export const constantRoutes = [
       meta: { title: 'Profile', icon: 'dashboard' }
     }]
   },
-  // {
-  //   path: '/dao/finance',
-  //   component: Layout,
-  //   children: [{
-  //     path: '',
-  //     name: 'Finance',
-  //     component: () => import('@/views/dashboard/index'),
-  //     meta: { title: 'Finance', icon: 'finance' }
-  //   }]
-  // },
   // {
   //   path: '/dao/voting',
   //   component: Layout,

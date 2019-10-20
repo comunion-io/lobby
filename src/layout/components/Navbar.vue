@@ -51,6 +51,7 @@
       :title="type[curType]"
       :visible.sync="isDialogVisible"
       width="500px"
+      :close-on-click-modal="false"
     >
       <el-form v-show="curType==='login'" ref="loginForm" :model="loginForm" :rules="loginRules">
         <el-form-item label="Email" prop="email">

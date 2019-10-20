@@ -422,6 +422,7 @@ export default {
       })
     },
     submitForm(formName) {
+      console.log(this.coinbase)
       if (this.coinbase) {
         this.newOrg.wallet.push({
           name: 'eth',
