@@ -11,7 +11,6 @@ import GetInfo from '@/mixins/GetInfo';
 import { async } from 'q';
 
 export default {
-  components: { UserGuide, PublishTokenForm },
   mixins: [MetaMaskInstall, GetInfo],
   data() {
     return {
