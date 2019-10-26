@@ -1,7 +1,7 @@
 <template>
   <div class="team-manager">
     <div class="search-row">
-      <el-button class="btn-main" round @click="handleClickAdd">
+      <el-button v-if="isOwner" class="btn-main" round @click="handleClickAdd">
         Add Member
       </el-button>
       <!-- <el-input v-model="query" placeholder="Enter a member's email address or wallet address to search for members" class="input-with-select">
@@ -11,7 +11,7 @@
 
     <el-form v-if="orgForm.members.length > 0" ref="form">
       <div class="card-wrapper">
-        <user-card v-for="user in orgForm.members" :key="user._id" :user="user" :editible="true" @clickEdit="handleClickEdiit" @clickDelete="handleClickDelete" />
+        <user-card v-for="user in orgForm.members" :key="user._id" :user="user" :editible="isOwner" @clickEdit="handleClickEdiit" @clickDelete="handleClickDelete" />
         <el-card class="box-card fake" />
         <el-card class="box-card fake" />
       </div>

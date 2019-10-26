@@ -9,7 +9,7 @@
         <ol class="list">
           <li>
             Make sure you have installed Metamask.
-            <el-button type="text">Click here</el-button>to check.
+            <el-button type="text" @click="handleCheck">Click here</el-button> to check.
           </li>
           <li>Adding Token will need a deployment transaction with amount of 0. However, it consumes gas fee. Make sure you have some ETH in your address.</li>
           <li>Fill up info about your token. You will need a logo, a name, an abbreviation and amount of token.</li>
@@ -17,7 +17,7 @@
           <li>Done.</li>
         </ol>
         <div class="yes-btn">
-          <el-button round class="btn-main">I understand</el-button>
+          <el-button round class="btn-main" @click="handleDone">I understand</el-button>
         </div>
       </div>
     </el-card>
@@ -25,12 +25,22 @@
 </template>
 
 <script>
+
 export default {
   name: "TokenUserGuide",
   data() {
     return {};
   },
-  methods: {}
+  props: {
+  },
+  methods: {
+    handleDone() {
+      this.$emit('clickDone');
+    },
+    handleCheck() {
+      this.$emit('clickCheck');
+    }
+  }
 };
 </script>
 

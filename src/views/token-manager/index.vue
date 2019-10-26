@@ -1,10 +1,13 @@
 <template>
   <div class="token-manager">
     <div class="title">Publish Token</div>
-    <div class="token-manager-user-guide" v-if="false">
-      <UserGuide />
+    <div class="token-manager-user-guide" v-if="showGuide">
+      <UserGuide
+        @clickDone="closeGuide"
+        @clickCheck="handleMetaMaskLogin"
+        />
     </div>
-    <div class="token-manage-form">
+    <div class="token-manage-form" v-else>
       <PublishTokenForm />
     </div>
   </div>
@@ -13,15 +16,32 @@
 <script>
 import UserGuide from "./user-guide";
 import PublishTokenForm from "./publish-token-form";
+import { mapGetters } from 'vuex';
+import MetaMaskInstall from '@/mixins/MetaMaskInstall.vue';
 
 export default {
   components: { UserGuide, PublishTokenForm },
+  mixins: [MetaMaskInstall],
   data() {
-    return {};
+    return {
+      showGuide: true,
+    };
   },
-  computed: {},
-  created() {}
-};
+  computed: {
+    ...mapGetters([
+      'coinbase',
+      'orgForm'
+    ])
+  },
+  created() {
+    
+  },
+  methods: {
+    closeGuide() {
+      this.showGuide = false;
+    },
+  }
+}
 </script>
 
 <style lang="scss">

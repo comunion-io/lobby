@@ -283,17 +283,6 @@ export default {
       dialogVisible: false
     }
   },
-  // computed: {
-  //   // coinbase: {
-  //   // get() {
-  //   //   console.log(55, this.$store.getters.coinbase)
-  //   //   return this.$store.getters.coinbase
-  //   // },
-  //   // set(val) {
-  //   //   this.$store.commit('coinbase/SET_COINBASE', val)
-  //   // }
-  //   // }
-  // },
   computed: {
     ...mapGetters([
       'coinbase',
@@ -422,7 +411,6 @@ export default {
       })
     },
     submitForm(formName) {
-      console.log(this.coinbase)
       if (this.coinbase) {
         this.newOrg.wallet.push({
           name: 'eth',
@@ -547,7 +535,6 @@ export default {
         /* To see if the injected provider is from MetaMask */
         if (web3.currentProvider.isMetaMask) {
           console.log('The injected provider is from MetaMask！')
-
           this.getCoinBase()
         }
       } else {
