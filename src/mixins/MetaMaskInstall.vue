@@ -16,7 +16,7 @@ export default {
   data() {
     return {
       isMetaMaskInstalled: false,
-      dialogVisible: false
+      dialogVisible: true
     };
   },
   computed: {

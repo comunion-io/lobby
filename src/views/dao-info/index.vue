@@ -85,7 +85,12 @@
             >
               <use xlink:href="#icon-edit" />
             </svg>
-            <svg v-if="isContactInEdit && isOwner" class="icon" aria-hidden="true" @click="handleUpdate('contact')">
+            <svg
+              v-if="isContactInEdit && isOwner"
+              class="icon"
+              aria-hidden="true"
+              @click="handleUpdate('contact')"
+            >
               <use xlink:href="#icon-check" />
             </svg>
           </div>
@@ -181,7 +186,6 @@ export default {
   },
   created() {
     this.getOrgInfo();
-    // console.log(0, this.token, this.userInfo.orgs)
     // if (this.token && this.userInfo) {
     //   if (this.userInfo.orgs[0] && this.userInfo.orgs[0]._id === getCurOrgId()) {
     //     this.isOwner = true
@@ -228,6 +232,7 @@ export default {
               });
             }
           }
+          console.log(111, this.userInfo.orgs, this.isOwner)
         });
       } else {
         this.$notify({

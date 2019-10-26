@@ -17,7 +17,7 @@
       </div>
     </el-form>
     <div v-else class="no-member">
-      Click Add Member to add members
+      {{isOwner ? 'Click Add Member to add members' : 'Do you want to be the first member?'}}
     </div>
 
     <el-dialog
