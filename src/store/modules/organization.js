@@ -15,6 +15,7 @@ const state = {
   transactionHash: '',
   social: [],
   members: [],
+  token: null,
   status: 1
 }
 

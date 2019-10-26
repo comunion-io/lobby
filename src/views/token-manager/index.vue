@@ -6,49 +6,64 @@
         @clickDone="closeGuide"
         @clickCheck="clickCheck"
         v-loading.fullscreen.lock="loading"
-        />
+      />
     </div>
     <div class="token-manage-form" v-else>
       <PublishTokenForm />
     </div>
+    <el-dialog title :visible.sync="dialogVisible" width="30%">
+      <div v-if="isMetaMaskInstalled">
+        <div class="message">You have installed MetaMask Yet!</div>
+      </div>
+      <div v-else>
+        <div class="message">You have not installed MetaMask Yet!</div>
+        <span slot="footer" class="dialog-footer">
+          <el-button class="btn-main btn-wide" round>
+            <a
+              href="https://docs.comunion.io/guide/untitled"
+              target="_blank"
+            >View installation tutorial</a>
+          </el-button>
+        </span>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import UserGuide from "./user-guide";
 import PublishTokenForm from "./publish-token-form";
-import { mapGetters } from 'vuex';
-import MetaMaskInstall from '@/components/MetaMaskInstall';
-import GetInfo from '@/mixins/GetInfo';
-import { async } from 'q';
-
+import { mapGetters } from "vuex";
+import MetaMaskInstall from "@/mixins/MetaMaskInstall";
+import GetInfo from "@/mixins/GetInfo";
+import { async } from "q";
 
 export default {
   components: { UserGuide, PublishTokenForm },
-  mixins: [GetInfo],
+  mixins: [GetInfo, MetaMaskInstall],
   data() {
     return {
       showGuide: true,
-      loading: false
+      loading: false,
+      dialogVisible: false
     };
   },
   computed: {
-    ...mapGetters([
-      'coinbase',
-      'orgForm'
-    ])
+    ...mapGetters(["coinbase", "orgForm"])
   },
-  created() {
-    
-  },
+  created() {},
   methods: {
     closeGuide() {
       this.showGuide = false;
     },
     clickCheck() {
+      this.checkIfInstallMataMask();
+      this.dialogVisible = true;
+      // console.log('installed?', this.isMetaMaskInstalled);
+      // this.handleMetaMaskLogin();
     }
   }
-}
+};
 </script>
 
 <style lang="scss">
@@ -64,5 +79,8 @@ export default {
     font-weight: bold;
     color: #45588c;
   }
+}
+.message {
+  margin-bottom: 20px;
 }
 </style>
