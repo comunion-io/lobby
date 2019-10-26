@@ -15,6 +15,18 @@ export default {
   created() {
     this.getOrgInfo();
   },
+  watch: {
+    "userInfo.orgs": {
+      handler(val) {
+        if (this.userInfo.orgs.map(item => item._id).includes(getCurOrgId())) {
+          this.isOwner = true;
+        } else {
+          this.isOwner = false;
+        }
+      },
+      deep: true
+    }
+  },
   methods: {
     getOrgInfo() {
       let id = "";
@@ -29,14 +41,16 @@ export default {
           if (this.token) {
             if (this.userInfo._id) {
               if (
-                  this.userInfo.orgs.map(item => item._id).includes(getCurOrgId())
+                this.userInfo.orgs.map(item => item._id).includes(getCurOrgId())
               ) {
                 this.isOwner = true;
               }
             } else {
               this.$store.dispatch("user/getInfo").then(res => {
                 if (
-                  this.userInfo.orgs.map(item => item._id).includes(getCurOrgId())
+                  this.userInfo.orgs
+                    .map(item => item._id)
+                    .includes(getCurOrgId())
                 ) {
                   this.isOwner = true;
                 }

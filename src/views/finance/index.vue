@@ -6,12 +6,11 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import MetaMaskInstall from '@/mixins/MetaMaskInstall';
 import GetInfo from '@/mixins/GetInfo';
 import { async } from 'q';
 
 export default {
-  mixins: [MetaMaskInstall, GetInfo],
+  mixins: [GetInfo],
   data() {
     return {
       showGuide: true,

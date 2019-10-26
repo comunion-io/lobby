@@ -1,6 +1,5 @@
 <template>
   <div class="token-manager">
-    <div v-if="isOwner">You r owner</div>
     <div class="title">Publish Token</div>
     <div class="token-manager-user-guide" v-if="showGuide">
       <UserGuide
@@ -19,14 +18,14 @@
 import UserGuide from "./user-guide";
 import PublishTokenForm from "./publish-token-form";
 import { mapGetters } from 'vuex';
-import MetaMaskInstall from '@/mixins/MetaMaskInstall';
+import MetaMaskInstall from '@/components/MetaMaskInstall';
 import GetInfo from '@/mixins/GetInfo';
 import { async } from 'q';
 
 
 export default {
   components: { UserGuide, PublishTokenForm },
-  mixins: [MetaMaskInstall, GetInfo],
+  mixins: [GetInfo],
   data() {
     return {
       showGuide: true,
@@ -47,16 +46,6 @@ export default {
       this.showGuide = false;
     },
     clickCheck() {
-      const check = async () => {
-        // this.loading = true;
-        await this.checkIfInstallMataMask();
-        // await this.handleMetaMaskLogin();
-        // this.loading = false;
-      }
-      this.checkIfInstallMataMask();
-      this.handleMetaMaskLogin();
-
-      // check();
     }
   }
 }
