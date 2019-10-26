@@ -166,9 +166,11 @@
 import { mapGetters } from "vuex";
 import { updateOrgInfo } from "@/api/organization";
 import { getCurOrgId, setCurOrgId } from "@/utils/auth";
+import GetInfo from '@/mixins/GetInfo';
 
 export default {
   name: "Dashboard",
+  mixins: [GetInfo],
   data() {
     return {
       isOwner: false,
@@ -185,12 +187,6 @@ export default {
     ...mapGetters(["orgForm", "token", "userInfo"])
   },
   created() {
-    this.getOrgInfo();
-    // if (this.token && this.userInfo) {
-    //   if (this.userInfo.orgs[0] && this.userInfo.orgs[0]._id === getCurOrgId()) {
-    //     this.isOwner = true
-    //   }
-    // }
   },
   methods: {
     handleClickEdit(section) {
@@ -199,44 +195,6 @@ export default {
       } else {
         this.$notify({
           message: "Please log in to edit the organization!",
-          type: "warning"
-        });
-      }
-    },
-    getOrgInfo() {
-      let id = "";
-      if (this.$route.query.id) {
-        id = this.$route.query.id;
-        setCurOrgId(id);
-      } else {
-        id = getCurOrgId();
-      }
-      if (id) {
-        this.$store.dispatch("organization/getOrgInfo", id).then(res => {
-          if (this.token) {
-            if (this.userInfo._id) {
-              if (
-                this.userInfo.orgs[0] &&
-                this.userInfo.orgs[0]._id === getCurOrgId()
-              ) {
-                this.isOwner = true;
-              }
-            } else {
-              this.$store.dispatch("user/getInfo").then(res => {
-                if (
-                  this.userInfo.orgs[0] &&
-                  this.userInfo.orgs[0]._id === getCurOrgId()
-                ) {
-                  this.isOwner = true;
-                }
-              });
-            }
-          }
-          console.log(111, this.userInfo.orgs, this.isOwner)
-        });
-      } else {
-        this.$notify({
-          message: "Please select an organization to continue!",
           type: "warning"
         });
       }

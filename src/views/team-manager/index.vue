@@ -55,8 +55,11 @@ import AddUpdateDialog from './dialog-update'
 import UserCard from '@/components/UserCard'
 import { getCurOrgId, setCurOrgId } from '@/utils/auth'
 import { updateOrgMember } from '@/api/organization'
+import GetInfo from '@/mixins/GetInfo'
+
 export default {
   components: { AddUpdateDialog, UserCard },
+  mixins: [GetInfo],
   data() {
     return {
       isOwner: false,
@@ -77,40 +80,8 @@ export default {
     ])
   },
   created() {
-    this.getOrgInfo()
   },
   methods: {
-    getOrgInfo() {
-      let id = ''
-      if (this.$route.query.id) {
-        id = this.$route.query.id
-        setCurOrgId(id)
-      } else {
-        id = getCurOrgId()
-      }
-      if (id) {
-        this.$store.dispatch('organization/getOrgInfo', id).then(res => {
-          if (this.token) {
-            if (this.userInfo) {
-              if (this.userInfo.orgs[0] && this.userInfo.orgs[0]._id === getCurOrgId()) {
-                this.isOwner = true
-              }
-            } else {
-              this.$store.dispatch('user/getInfo').then(res => {
-                if (this.userInfo.orgs[0] && this.userInfo.orgs[0]._id === getCurOrgId()) {
-                  this.isOwner = true
-                }
-              })
-            }
-          }
-        })
-      } else {
-        this.$notify({
-          message: 'Please select an organization to continue!',
-          type: 'warning'
-        })
-      }
-    },
     handleSearchUser() {
       // this.isDialogAddVisible = false
       getUserInfoByEmail(this.searchEmail).then(res => {
