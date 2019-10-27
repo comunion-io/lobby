@@ -12,10 +12,7 @@
       <PublishTokenForm />
     </div>
     <el-dialog title :visible.sync="dialogVisible" width="30%">
-      <div v-if="isMetaMaskInstalled">
-        <div class="message">You have installed MetaMask Yet!</div>
-      </div>
-      <div v-else>
+      <div>
         <div class="message">You have not installed MetaMask Yet!</div>
         <span slot="footer" class="dialog-footer">
           <el-button class="btn-main btn-wide" round>
@@ -58,7 +55,11 @@ export default {
     },
     clickCheck() {
       this.checkIfInstallMataMask();
-      this.dialogVisible = true;
+      if (this.isMetaMaskInstalled) {
+        this.$message.success('You have installed MetaMask Yet!');
+      } else {
+        this.dialogVisible = true;
+      }
       // console.log('installed?', this.isMetaMaskInstalled);
       // this.handleMetaMaskLogin();
     }
@@ -79,6 +80,10 @@ export default {
     font-weight: bold;
     color: #45588c;
   }
+  .token-manage-form {
+    margin-left: 17px;
+  }
+
 }
 .message {
   margin-bottom: 20px;

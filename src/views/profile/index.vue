@@ -30,7 +30,7 @@
                 <i class="el-icon-delete" />
               </div>
             </div>
-            <div v-show="isInEdit&&!isShowLogo">
+            <div v-show="isInEdit&&!isShowLogo" class="common-upload-style">
               <el-upload
                 action="http://178.128.221.42:8080/a/upload"
                 name="upload"

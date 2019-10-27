@@ -54,7 +54,7 @@
                       />
                     </el-select>
                   </el-form-item>
-                  <el-form-item label="Organization Logo" prop="logo">
+                  <el-form-item label="Organization Logo" class="common-upload-style" prop="logo">
                     <el-upload
                       action="http://178.128.221.42:8080/a/upload"
                       name="upload"

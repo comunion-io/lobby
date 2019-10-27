@@ -273,27 +273,28 @@
   overflow: hidden;
 }
 
-/* style for file upload element-ui modification */
-.el-upload-list--picture-card .el-upload-list__item {
-  width: 40px;
-  height: 40px;
-}
-.el-upload--picture-card {
-  width: 40px;
-  height: 40px;
-  i {
+.common-upload-style {
+  /* style for file upload element-ui modification */
+  .el-upload-list--picture-card .el-upload-list__item {
+    width: 40px;
+    height: 40px;
+  }
+  .el-upload--picture-card {
+    width: 40px;
+    height: 40px;
+    i {
+      position: relative;
+      top: -48px;
+    }
+  }
+  .el-icon-plus:before {
+    font-size: 20px;
+    font-weight: bold;
     position: relative;
-    top: -48px;
+    top: -4px;
+    color: #7B88FF;
   }
 }
-.el-icon-plus:before {
-  font-size: 20px;
-  font-weight: bold;
-  position: relative;
-  top: -4px;
-  color: #7B88FF;
-}
-
 
 /* style for iconfont */
 .icon {
