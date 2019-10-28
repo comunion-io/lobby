@@ -6,7 +6,8 @@ const state = {
   name: '',
   email: '',
   type: '',
-  logo: '',
+  logo: '', // org logo url
+  icon: '', // token icon url
   wallet: [],
   website: '',
   mission: '',
@@ -15,7 +16,7 @@ const state = {
   transactionHash: '',
   social: [],
   members: [],
-  token: null,
+  tokenInfo: null,
   status: 1
 }
 
@@ -37,13 +38,21 @@ const mutations = {
     state.social = data.social
     // state.members = data.members
     state.status = data.status
+    state.icon = data.icon
+    state.tokenInfo = data.tokenInfo
   },
   SET_MEMBERS: (state, data) => {
     state.members = data
   },
   SET_MEMBER: (state, members) => {
     state.members = members
-  }
+  },
+  SET_TOKEN_INFO: (state, tokenInfo) => {
+    state.tokenInfo = tokenInfo
+  },
+  SET_ICON: (state, icon) => {
+    state.icon = icon
+  },
   // ADD_MEMBER: (state, member) => {
   //   state.members.push(member)
   // },
@@ -59,6 +68,22 @@ const actions = {
         if (!response.err) {
           commit('SET_ID', response.entity._id)
           commit('SET_INFO', response.entity)
+        } else {
+          console.log(response.msg)
+        }
+
+        resolve()
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+  addToken({ commit, state }, tokenInfo, icon, hash) {
+    return new Promise((resolve, reject) => {
+      updateOrgInfo(state._id, { tokenInfo: tokenInfo, icon: icon, transactionHash: hash }).then(response => {
+        if (!response.err) {
+          commit('SET_TOKEN_INFO', tokenInfo)
+          commit('SET_ICON', icon)
         } else {
           console.log(response.msg)
         }

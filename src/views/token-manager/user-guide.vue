@@ -47,10 +47,6 @@ export default {
 <style lang="scss" scoped>
 .user-guide {
   width: 90%;
-  .el-card.is-always-shadow {
-    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.02);
-    border-radius: 6px;
-  }
   &-card {
     color: #45588c;
   }

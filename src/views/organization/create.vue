@@ -184,7 +184,7 @@
     >
       <div class="message">You have not installed MetaMask Yet!</div>
       <span slot="footer" class="dialog-footer">
-        <el-button class="btn-main btn-wide" round><a href="https://docs.comunion.io/" target="_blank">View installation tutorial</a></el-button>
+        <el-button class="btn-main btn-wide" round><a href="https://wiki.comunion.io/guide/metamask-guide" target="_blank">View installation tutorial</a></el-button>
       </span>
     </el-dialog>
   </div>

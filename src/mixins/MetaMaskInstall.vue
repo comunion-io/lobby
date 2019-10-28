@@ -17,7 +17,7 @@ export default {
     getCoinBase() {
       const coinbase = web3.eth.accounts[0];
       if (coinbase) {
-        this.$store.commit("coinbase/SET_COINBASE", coinbase);
+        this.$store.commit('coinbase/SET_COINBASE', coinbase)
       }
     },
     checkIfInstallMataMask() {
@@ -40,13 +40,19 @@ export default {
       }
     },
     handleMetaMaskLogin() {
+      this.checkIfInstallMataMask();
+      if (!this.isMetaMaskInstalled) {
+        this.dialogVisible = true;
+        return;
+      } 
       this.metaMaskLogin().then(res => {
-        console.log("login res", res);
         const coinbase = web3.eth.accounts[0];
-        this.$store.commit("coinbase/SET_COINBASE", coinbase);
+        if (coinbase) {
+          this.$store.commit('coinbase/SET_COINBASE', coinbase)
+        }
       });
     },
-    metaMaskLogin: async () => {
+    async metaMaskLogin () {
       try {
         // Request account access if needed
         await window.ethereum.enable();
@@ -58,7 +64,8 @@ export default {
         console.log("metamask login error", error);
 
         this.$notify({
-          message: "You need to allow MetaMask!",
+          title: "Metamask Warning",
+          message: error && error.message || "You need to allow MetaMask!",
           type: "warning"
         });
       }

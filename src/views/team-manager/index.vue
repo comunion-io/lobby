@@ -74,7 +74,6 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'token',
       'userInfo',
       'orgForm'
     ])
