@@ -16,7 +16,7 @@ const state = {
   transactionHash: '',
   social: [],
   members: [],
-  tokenInfo: null,
+  asset: null,
   status: 1
 }
 
@@ -39,7 +39,7 @@ const mutations = {
     // state.members = data.members
     state.status = data.status
     state.icon = data.icon
-    state.tokenInfo = data.tokenInfo
+    state.asset = data.asset
   },
   SET_MEMBERS: (state, data) => {
     state.members = data
@@ -47,8 +47,8 @@ const mutations = {
   SET_MEMBER: (state, members) => {
     state.members = members
   },
-  SET_TOKEN_INFO: (state, tokenInfo) => {
-    state.tokenInfo = tokenInfo
+  SET_ASSET: (state, asset) => {
+    state.asset = asset
   },
   SET_ICON: (state, icon) => {
     state.icon = icon
@@ -78,11 +78,11 @@ const actions = {
       })
     })
   },
-  addToken({ commit, state }, tokenInfo, icon, hash) {
+  addAsset({ commit, state }, asset, icon, hash) {
     return new Promise((resolve, reject) => {
-      updateOrgInfo(state._id, { tokenInfo: tokenInfo, icon: icon, transactionHash: hash }).then(response => {
+      updateOrgInfo(state._id, { asset: asset, icon: icon, transactionHash: hash }).then(response => {
         if (!response.err) {
-          commit('SET_TOKEN_INFO', tokenInfo)
+          commit('SET_ASSET', asset)
           commit('SET_ICON', icon)
         } else {
           console.log(response.msg)
