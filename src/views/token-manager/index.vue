@@ -1,6 +1,6 @@
 <template>
   <div class="token-manager">
-    <div class="token-details" v-if="hasToken">{{ tokenInfo }}</div>
+    <div class="token-details" v-if="hasToken">{{ asset }}</div>
     <div class="center-tip" v-else-if="!isOwner">Sorry, there is no token.</div>
     <div v-else>
       <div class="title">Publish Token</div>
@@ -77,7 +77,7 @@ import { mapGetters } from "vuex";
 import MetaMaskInstall from "@/mixins/MetaMaskInstall";
 import GetInfo from "@/mixins/GetInfo";
 import { async } from "q";
-import { getDeployData } from "@/api/token";
+import { getDeployData } from "@/api/asset";
 
 export default {
   components: { UserGuide, PublishTokenForm },
@@ -92,7 +92,7 @@ export default {
       percentage: 0,
       transactionHash: "",
       hasToken: false,
-      tokenInfo: null,
+      asset: null,
       icon: "",
       isCreateSuccess: false,
       isTransactionSuccess: false
@@ -102,7 +102,7 @@ export default {
     ...mapGetters(["coinbase", "orgForm"])
   },
   created() {
-    if (this.orgForm.tokenInfo) {
+    if (this.orgForm.asset) {
       this.hasToken = true;
     } else {
       this.showGuide = true;
@@ -124,7 +124,7 @@ export default {
     handlePublish(formParams) {
       this.showForm = false;
       this.showTrans = true;
-      this.tokenInfo = {
+      this.asset = {
         name: formParams.name,
         symbol: formParams.symbol,
         supply: formParams.supply
@@ -139,7 +139,7 @@ export default {
         });
         return;
       }
-      getDeployData(this.tokenInfo).then(data => {
+      getDeployData(this.asset).then(data => {
         try {
           web3.eth.sendTransaction(
             {
@@ -168,8 +168,8 @@ export default {
 
                 this.$store
                   .dispatch(
-                    "organization/addToken",
-                    this.tokenInfo,
+                    "organization/addAsset",
+                    this.asset,
                     this.icon,
                     this.transactionHash
                   )

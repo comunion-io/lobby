@@ -17,9 +17,11 @@ export function removeToken() {
 export function getCurOrgId() {
   return Cookies.get('cur_org_id')
 }
+
 export function setCurOrgId(id) {
   return Cookies.set('cur_org_id', id)
 }
+
 export function removeCurOrgId() {
   return Cookies.remove('cur_org_id')
 }
