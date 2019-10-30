@@ -1,6 +1,13 @@
 <template>
-  <div class="finance">
-    <h1>finance</h1>
+  <div id="finance">
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span>卡片名称</span>
+      </div>
+      <div v-for="o in 4" :key="o" class="text item">
+        {{'列表内容 ' + o }}
+      </div>
+    </el-card>
   </div>
 </template>
 
@@ -47,8 +54,18 @@ export default {
 </script>
 
 <style lang="scss">
-  .finance {
-    list-style: none;
+
+  /* global style */
+  .box-card {
+    width: 100%;
+
+    .el-card__header {
+      padding: 22px 30px;
+      font-family: Helvetica Neue;
+      font-size: 20px;
+      line-height: 24px;
+      color: #45588C;
+    }
   }
 
 </style>

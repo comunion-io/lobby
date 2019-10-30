@@ -47,20 +47,23 @@ export const constantRoutes = [
     component: () => import('@/views/organization/index'),
     redirect: '/home',
     hidden: true,
-    children: [{
-      path: 'home',
-      component: () => import('@/views/organization/home')
-    }, {
-      path: 'create',
-      component: () => import('@/views/organization/create')
-    }, {
-      path: 'list',
-      component: () => import('@/views/organization/list')
-    }
-    // {
-    //   path: 'search',
-    //   component: () => import('@/views/organization/search')
-    // }
+    children: [
+      {
+        path: 'home',
+        component: () => import('@/views/organization/home')
+      },
+      {
+        path: 'create',
+        component: () => import('@/views/organization/create')
+      },
+      {
+        path: 'list',
+        component: () => import('@/views/organization/list')
+      }
+      // {
+      //   path: 'search',
+      //   component: () => import('@/views/organization/search')
+      // }
     ]
   },
   // {
@@ -77,54 +80,64 @@ export const constantRoutes = [
   {
     path: '/dao/info',
     component: Layout,
-    children: [{
-      path: '',
-      name: 'dao-info',
-      component: () => import('@/views/dao-info/index'),
-      meta: { title: 'DAO Info', icon: 'info' }
-    }]
+    children: [
+      {
+        path: '',
+        name: 'dao-info',
+        component: () => import('@/views/dao-info/index'),
+        meta: { title: 'DAO Info', icon: 'info' }
+      }
+    ]
   },
   {
     path: '/dao/team-manager',
     component: Layout,
-    children: [{
-      path: '',
-      name: 'team-manager',
-      alwaysShow: true,
-      component: () => import('@/views/team-manager/index'),
-      meta: { title: 'Team Manager', icon: 'user' }
-    }]
+    children: [
+      {
+        path: '',
+        name: 'team-manager',
+        alwaysShow: true,
+        component: () => import('@/views/team-manager/index'),
+        meta: { title: 'Team Manager', icon: 'user' }
+      }
+    ]
   },
   {
     path: '/dao/token-manager',
     component: Layout,
-    children: [{
-      path: '',
-      name: 'token-manager',
-      component: () => import('@/views/token-manager/index'),
-      meta: { title: 'Token Manager', icon: 'finance' }
-    }]
+    children: [
+      {
+        path: '',
+        name: 'token-manager',
+        component: () => import('@/views/token-manager/index'),
+        meta: { title: 'Token Manager', icon: 'finance' }
+      }
+    ]
   },
   {
     path: '/dao/finance',
     component: Layout,
-    children: [{
-      path: '',
-      name: 'Finance',
-      component: () => import('@/views/finance/index'),
-      meta: { title: 'Finance', icon: 'finance' }
-    }]
+    children: [
+      {
+        path: '',
+        name: 'finance',
+        component: () => import('@/views/finance/index'),
+        meta: { title: 'Finance', icon: 'finance' }
+      }
+    ]
   },
   {
     path: '/dao/profile',
     component: Layout,
-    children: [{
-      path: '',
-      name: 'profile',
-      hidden: true,
-      component: () => import('@/views/profile/index'),
-      meta: { title: 'Profile', icon: 'dashboard' }
-    }]
+    children: [
+      {
+        path: '',
+        name: 'profile',
+        hidden: true,
+        component: () => import('@/views/profile/index'),
+        meta: { title: 'Profile', icon: 'dashboard' }
+      }
+    ]
   },
   // {
   //   path: '/dao/voting',
@@ -186,11 +199,12 @@ export const constantRoutes = [
   { path: '*', redirect: '/404', hidden: true }
 ]
 
-const createRouter = () => new Router({
-  // mode: 'history', // require service support
-  scrollBehavior: () => ({ y: 0 }),
-  routes: constantRoutes
-})
+const createRouter = () =>
+  new Router({
+    // mode: 'history', // require service support
+    scrollBehavior: () => ({ y: 0 }),
+    routes: constantRoutes
+  })
 
 const router = createRouter()
 
