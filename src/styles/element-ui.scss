@@ -55,7 +55,20 @@
                 font-size: 20px;
                 line-height: 24px;
                 color: $titleColor;
+                margin: 0;
             }
+        }
+
+        .el-card__body {
+            padding: 20px 30px;
+        }
+    }
+}
+
+.el-pagination.is-background {
+    &.cu-pagination {
+        .el-pager li:not(.disabled).active {
+            background-color: $menuActiveText;
         }
     }
 }

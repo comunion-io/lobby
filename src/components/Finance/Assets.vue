@@ -81,6 +81,9 @@ export default {
 .assets {
   .asset-list {
     list-style-type: none;
+    margin: 0;
+    padding: 0;
+
     li {
       display: flex;
       align-items: center;

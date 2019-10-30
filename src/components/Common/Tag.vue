@@ -1,12 +1,12 @@
 <template>
-  <label class="tag" :class="[color ? color : '']">{{ text }}</label>
+  <label class="tag" :class="[type ? type : '']">{{ text }}</label>
 </template>
 
 <script>
 export default {
   props: {
     text: String,
-    color: String
+    type: String
   }
 }
 </script>
@@ -21,7 +21,7 @@ export default {
   background: rgba(55, 64, 89, 0.05);
   color: rgba(55, 64, 89, 0.4);
 
-  &.blue {
+  &.primary {
     color: #7b88ff;
     background: #f2f3ff;
   }

@@ -1,13 +1,11 @@
 <template>
-  <button class="btn" :class="[flat ? 'flat' : '', color]">{{ text }}</button>
+  <button class="btn">{{ text }}</button>
 </template>
 
 <script>
 export default {
   props: {
-    text: String,
-    flat: Boolean,
-    color: String
+    text: String
   }
 }
 </script>
