@@ -1,8 +1,6 @@
 <template>
   <div id="dao-finance">
-    <total-balance />
-    <assets />
-    <record />
+    <router-view></router-view>
   </div>
 </template>
 
@@ -10,15 +8,9 @@
 import { mapGetters } from 'vuex'
 import GetInfo from '@/mixins/GetInfo'
 import { async } from 'q'
-import { TotalBalance, Record, Assets } from '@/components/Finance'
 
 export default {
   mixins: [GetInfo],
-  components: {
-    TotalBalance,
-    Record,
-    Assets
-  },
   data() {
     return {
       showGuide: true,

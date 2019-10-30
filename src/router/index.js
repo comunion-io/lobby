@@ -122,7 +122,20 @@ export const constantRoutes = [
         path: '',
         name: 'finance',
         component: () => import('@/views/finance/index'),
-        meta: { title: 'Finance', icon: 'finance' }
+        children: [
+          {
+            path: '',
+            name: 'finance-view',
+            component: () => import('@/views/finance/View'),
+            meta: { title: 'Finance', icon: 'finance' }
+          },
+          {
+            path: 'assign-token/:id',
+            props: true,
+            name: 'assign-token',
+            component: () => import('@/views/finance/AssignToken')
+          }
+        ]
       }
     ]
   },

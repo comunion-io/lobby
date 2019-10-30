@@ -16,7 +16,7 @@
           <router-link
             v-if="asset.balance > 0"
             class="assign-token"
-            :to="{ name: 'assign-token', params: asset.id }"
+            :to="{ name: 'assign-token', params: { id: asset.id } }"
           >
             <cu-button class="btn-assign-token" text="Assign token" />
           </router-link>

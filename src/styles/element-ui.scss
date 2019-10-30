@@ -61,6 +61,26 @@
 
         .el-card__body {
             padding: 20px 30px;
+
+            // rerefine form style
+            .el-form {
+                .el-form-item {
+                    margin-bottom: 20px;
+                    width: 50%;
+
+                    .el-form-item__label {
+                        line-height: 1;
+                    }
+
+                    .el-form-item__content {
+                        // use for select
+                        .el-select {
+                            width: 100%;
+                        }
+                    }
+                }
+            } // end: el-form
+       
         }
     }
 }
