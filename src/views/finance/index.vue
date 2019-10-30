@@ -1,51 +1,47 @@
 <template>
-  <div id="finance">
-    <el-card class="box-card">
-      <div slot="header" class="clearfix">
-        <span>卡片名称</span>
-      </div>
-      <div v-for="o in 4" :key="o" class="text item">
-        {{'列表内容 ' + o }}
-      </div>
-    </el-card>
+  <div id="dao-finance">
+    <total-balance />
+    <assets />
+    <record />
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-import GetInfo from '@/mixins/GetInfo';
-import { async } from 'q';
+import { mapGetters } from 'vuex'
+import GetInfo from '@/mixins/GetInfo'
+import { async } from 'q'
+import { TotalBalance, Record, Assets } from '@/components/Finance'
 
 export default {
   mixins: [GetInfo],
+  components: {
+    TotalBalance,
+    Record,
+    Assets
+  },
   data() {
     return {
       showGuide: true,
       loading: false
-    };
+    }
   },
   computed: {
-    ...mapGetters([
-      'coinbase',
-      'orgForm'
-    ])
+    ...mapGetters(['coinbase', 'orgForm'])
   },
-  created() {
-    
-  },
+  created() {},
   methods: {
     closeGuide() {
-      this.showGuide = false;
+      this.showGuide = false
     },
     clickCheck() {
       const check = async () => {
         // this.loading = true;
-        await this.checkIfInstallMataMask();
+        await this.checkIfInstallMataMask()
         // await this.handleMetaMaskLogin();
         // this.loading = false;
       }
-      this.checkIfInstallMataMask();
-      this.handleMetaMaskLogin();
+      this.checkIfInstallMataMask()
+      this.handleMetaMaskLogin()
 
       // check();
     }
@@ -54,18 +50,4 @@ export default {
 </script>
 
 <style lang="scss">
-
-  /* global style */
-  .box-card {
-    width: 100%;
-
-    .el-card__header {
-      padding: 22px 30px;
-      font-family: Helvetica Neue;
-      font-size: 20px;
-      line-height: 24px;
-      color: #45588C;
-    }
-  }
-
 </style>
