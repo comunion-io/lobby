@@ -6,6 +6,7 @@
         prop="icon"
       >
         <br />
+        <!-- action="http://178.128.221.42:8080/a/upload" -->
         <el-upload
           class="icon-uploader"
           action="http://178.128.221.42:8080/a/upload"
@@ -37,7 +38,7 @@
         ></el-input>
       </el-form-item>
       <el-form-item label="Total supply" prop="supply">
-        <el-input v-model.number="formParams.supply" class="input-width" placeholder="Total supply"></el-input>
+        <el-input v-model="formParams.supply" class="input-width" placeholder="Total supply"></el-input>
       </el-form-item>
       <el-button class="btn-main btn-width" @click="submitForm('tokenPublishForm')" round>Publish</el-button>
     </el-form>
@@ -46,93 +47,117 @@
 
 <script>
 export default {
-  name: "publish-token-form",
+  name: 'publish-token-form',
   data() {
     return {
-      imageUrl: "",
+      imageUrl: '',
       formParams: {
-        icon: "",
-        name: "Hello",
-        symbol: "HLO",
-        supply: 20000
+        icon: '',
+        name: '',
+        symbol: '',
+        supply: ''
       },
       formRules: {
         icon: [
           {
             required: true,
-            message: "Please upload token logo",
-            trigger: "change"
+            message: 'Please upload the logo of the token',
+            trigger: 'change'
           }
         ],
         name: [
           {
             required: true,
-            message: "Please input token name",
-            trigger: "blur"
+            validator: this.checkInputName
           }
         ],
         symbol: [
           {
             required: true,
-            message: "Please input token symbol",
-            trigger: "blur"
+            validator: this.checkInputSymbol
           }
         ],
         supply: [
           {
             required: true,
-            message: "Please input token supply",
-            trigger: "blur"
-          },
-          { type: "number", message: "supply must be a number" }
+            validator: this.checkInputSupply
+          }
         ]
       }
-    };
+    }
   },
   methods: {
-    checkInput(rule, value, callback) {
-      var regp =/^(?=.*[a-zA-Z]+)(?=.*[0-9]+)[a-zA-Z0-9]+$/;
-      if (!regp.test(value)) {
-        return callback(new Error("Only support letter and number"));
+    checkInputName(rule, value, callback) {
+      var regp = /[^A-Za-z0-9]+/g
+      if (!value) {
+        return callback(new Error('Please input the full name of the token'))
+      } else if (regp.test(value)) {
+        return callback(new Error('Only letters and numbers'))
+      } else {
+        return callback()
+      }
+    },
+    checkInputSymbol(rule, value, callback) {
+      var regp = /[^A-Za-z0-9]+/g
+      if (!value) {
+        return callback(
+          new Error('Please input the abbreviation name of the token')
+        )
+      } else if (regp.test(value)) {
+        return callback(new Error('Only letters and numbers'))
+      } else {
+        return callback()
+      }
+    },
+    checkInputSupply(rule, value, callback) {
+      var regp = /[^0-9]+/g
+      if (!value) {
+        return callback(new Error('Please input the supply of the token'))
+      } else if (value.length > 20) {
+        return callback(new Error('Length less than 20 digits'))
+      } else if (regp.test(value)) {
+        return callback(new Error('Only numbers'))
+      } else {
+        return callback()
       }
     },
     handleAvatarSuccess(res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw);
+      this.imageUrl = URL.createObjectURL(file.raw)
     },
     handleFileChange(file, fileList) {
       if (fileList.length === 1) {
-        document.querySelector(".el-upload--picture-card").style.visibility =
-          "hidden";
+        document.querySelector('.el-upload--picture-card').style.visibility =
+          'hidden'
       }
     },
     handleFileRemove(file) {
-      document.querySelector(".el-upload--picture-card").style.visibility =
-        "visible";
-      this.formParams.logo = "";
+      document.querySelector('.el-upload--picture-card').style.visibility =
+        'visible'
+      this.formParams.logo = ''
     },
     beforeAvatarUpload(file) {
-      const isLt1M = file.size / 1024 / 1024 < 1;
+      const isLt1M = file.size / 1024 / 1024 < 1
       if (!isLt1M) {
-        this.$message.error("Picture size can not exceed 1MB!");
+        this.$message.error('Picture size can not exceed 1MB!')
       }
-      return isLt1M;
+      return isLt1M
     },
     handleUploadSuccess(response, file, fileList) {
-      this.formParams.icon = response.url;
-      this.$refs.tokenPublishForm.validateField("icon");
+      this.formParams.icon = response.url
+      this.$refs.tokenPublishForm.validateField('icon')
     },
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          this.$emit('clickPublish', this.formParams);
+          this.$emit('clickPublish', this.formParams)
         } else {
-          console.log("error submit!!");
-          return false;
+          console.log('error submit!!')
+          return false
         }
-      });
+      })
     }
   }
-};
+}
 </script>
 
 <style lang="scss">
@@ -148,7 +173,7 @@ export default {
       border-radius: 50%;
       height: 72px;
       width: 72px;
-      line-height: 77px;
+      line-height: 83px;
       background: #cbced7;
       border: none;
     }
