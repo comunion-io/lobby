@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "axios": "0.18.1",
+    "comunion-dao": "0.0.10",
+    "dns": "^0.2.2",
     "element-ui": "2.7.2",
     "ethjs": "^0.4.0",
     "ethjs-contract": "^0.2.3",

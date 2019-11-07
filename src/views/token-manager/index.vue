@@ -77,7 +77,7 @@ import { mapGetters } from "vuex";
 import MetaMaskInstall from "@/mixins/MetaMaskInstall";
 import GetInfo from "@/mixins/GetInfo";
 import { async } from "q";
-import { getDeployData } from "@/api/asset";
+import { Organization } from 'comunion-dao'
 
 export default {
   components: { UserGuide, PublishTokenForm },
@@ -131,6 +131,13 @@ export default {
       };
       this.icon = formParams.icon;
     },
+    getDeployData(item) {
+      return new Promise(() => {
+        let deployData = Organization.genDeployData(...item);
+        // debugger
+        resolve(deployData);
+      });
+    },
     publishToken() {
       if (!this.coinbase) {
         this.$notify({
@@ -139,14 +146,14 @@ export default {
         });
         return;
       }
-      getDeployData(this.asset).then(data => {
+      getDeployData(this.asset).then(deployData => {
         try {
           web3.eth.sendTransaction(
             {
               from: this.coinbase,
               to: "0x0e9a89bb07b7c4E4628E042A1dfC2554d1d8b7ca",
               value: "80000000",
-              data: data.deployData
+              data: deployData
             },
             (err, data) => {
               if (data) {
@@ -217,6 +224,8 @@ export default {
         } catch (error) {
           console.log(error);
         }
+      }).catch((error) => {
+        console.log(error, 'failed to get deployData');
       });
     }
   }
