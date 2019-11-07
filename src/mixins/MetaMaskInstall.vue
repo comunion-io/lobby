@@ -1,7 +1,8 @@
-<template>
-</template>
+<template></template>
 <script>
 import { mapGetters } from "vuex";
+import Web3 from 'web3'
+
 export default {
   data() {
     return {
@@ -14,13 +15,33 @@ export default {
   created() {
   },
   methods: {
-    getCoinBase() {
-      const coinbase = web3.eth.accounts[0];
+    async getCoinBase() {
+      // const coinbase = web3.eth.accounts[0];
+      const coinbase = (await web3.eth.getAccounts())[0]
       if (coinbase) {
         this.$store.commit('coinbase/SET_COINBASE', coinbase)
       }
     },
+
+    // new
     checkIfInstallMataMask() {
+      if (window.ethereum) {
+        window.web3 = new Web3(ethereum);
+        try {
+          this.isMetaMaskInstalled = true;
+          // await ethereum.enable();
+        } catch (error) {
+          // TODO:
+        }
+      } else if (window.web3) {
+        window.web3 = new Web3(web3.currentProvider);
+        this.isMetaMaskInstalled = true;
+      } else {
+        this.isMetaMaskInstalled = false;
+      }
+    },
+
+    checkIfInstallMataMaskNew() {
       if (window.web3 || window.ethereum) {
         // Use the browser's ethereum provider
         this.isMetaMaskInstalled = true;
@@ -46,10 +67,7 @@ export default {
         return;
       } 
       this.metaMaskLogin().then(res => {
-        const coinbase = web3.eth.accounts[0];
-        if (coinbase) {
-          this.$store.commit('coinbase/SET_COINBASE', coinbase)
-        }
+        this.getCoinBase();
       });
     },
     async metaMaskLogin () {
