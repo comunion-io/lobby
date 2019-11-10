@@ -1,18 +1,22 @@
 <template></template>
 <script>
 import { mapGetters } from "vuex";
-import Web3 from 'web3'
+import web3 from 'web3';
+import { EthUtils, Daos, Organization, OrgToken } from 'comunion-dao';
 
 export default {
   data() {
     return {
-      isMetaMaskInstalled: false
+      isMetaMaskInstalled: false,
+      daos: null,
+      daosAddress: '0x7284C823ea3AD29bEDfd09Ede1107981E9519896'
     };
   },
   computed: {
     ...mapGetters(["coinbase"])
   },
   created() {
+    this.daos = new Daos(EthUtils, this.daosAddress);
   },
   methods: {
     async getCoinBase() {
@@ -41,22 +45,13 @@ export default {
     },
 
     checkIfInstallMataMaskOld() {
-      if (window.web3 || window.ethereum) {
-        // Use the browser's ethereum provider
-        this.isMetaMaskInstalled = true;
-        web3 = new Web3(web3.currentProvider);
-        /* To see if the injected provider is from MetaMask */
-        if (web3.currentProvider.isMetaMask) {
-          console.log("The injected provider is from MetaMask！");
-          this.getCoinBase();
-        }
-      } else {
-        this.isMetaMaskInstalled = false;
-        // this.$notify({
-        //   message: "No web3? You should consider trying MetaMask!",
-        //   type: "warning",
-        //   duration: 0
-        // });
+      this.checkIfInstallMataMask();
+      if (!this.isMetaMaskInstalled) {
+        this.$notify({
+          message: "No web3? You should consider trying MetaMask!",
+          type: "warning",
+          duration: 0
+        });
       }
     },
     handleMetaMaskLogin() {
