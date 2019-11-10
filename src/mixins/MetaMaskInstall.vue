@@ -16,7 +16,6 @@ export default {
   },
   methods: {
     async getCoinBase() {
-      // const coinbase = web3.eth.accounts[0];
       const coinbase = (await web3.eth.getAccounts())[0]
       if (coinbase) {
         this.$store.commit('coinbase/SET_COINBASE', coinbase)
@@ -41,7 +40,7 @@ export default {
       }
     },
 
-    checkIfInstallMataMaskNew() {
+    checkIfInstallMataMaskOld() {
       if (window.web3 || window.ethereum) {
         // Use the browser's ethereum provider
         this.isMetaMaskInstalled = true;
