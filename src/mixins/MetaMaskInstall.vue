@@ -20,6 +20,8 @@ export default {
   },
   methods: {
     async getCoinBase() {
+      console.log(web3, web3.eth)
+      debugger
       const coinbase = (await web3.eth.getAccounts())[0]
       if (coinbase) {
         this.$store.commit('coinbase/SET_COINBASE', coinbase)

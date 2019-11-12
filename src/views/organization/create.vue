@@ -533,8 +533,6 @@ export default {
                 from: this.coinbase,
                 value: '0',
                 data: deployData
-                // to: '0x0e9a89bb07b7c4E4628E042A1dfC2554d1d8b7ca',
-                // value: '80000000'
               },
               (err, data) => {
                 if (data) {
@@ -565,8 +563,9 @@ export default {
 
                       this.isCreateSuccess = true
                       const checkOrgStatusTimer = setInterval(() => {
-                        EthUtils.getTransactionReceipt(this.newOrg.transactionHash).then(result => {
-                        // getOrgStatus(this.orgForm._id).then(statusRes => {
+                        EthUtils.getTransactionReceipt(
+                          this.newOrg.transactionHash
+                        ).then(result => {
                           console.log('on chain', result)
                           if (statusRes.err) {
                             this.$notify({
@@ -582,7 +581,14 @@ export default {
                             // clearInterval(progressTimer)
                             clearInterval(this.checkOrgStatusTimer)
                           }
-                        })
+                        }).catch(error => {
+                            this.$notify({
+                              message: 'error',
+                              type: 'warning'
+                            })
+                            clearInterval(progressTimer)
+                            clearInterval(checkOrgStatusTimer)
+                        });
                       }, 5000)
                       this.$once('hook:beforeDestroy', () => {
                         console.log('before destroy')
@@ -625,10 +631,6 @@ export default {
           console.log('valid value:', valid)
           if (valid) {
             console.log(web3.eth)
-            const deployData = Organization.genDeployData(
-              this.daosAddress,
-              this.newOrg.name
-            )
             web3.eth.sendTransaction(
               {
                 from: this.coinbase,

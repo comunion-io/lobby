@@ -96,6 +96,7 @@ import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import { userRegister, sendVeriCode, resetPwd } from '@/api/user'
 import { getOrgStatus } from '@/api/organization'
+import {getUserId, getToken} from '@/utils/auth'
 
 export default {
   components: {
@@ -166,7 +167,7 @@ export default {
     ])
   },
   created() {
-    if (this.token && !this.userInfo._id) {
+    if (getToken() && !this.userInfo._id) {
       this.$store.dispatch('user/getInfo')
     }
   },

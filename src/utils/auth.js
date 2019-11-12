@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie'
 
-const TokenKey = 'comunion_token'
+const TokenKey = 'token'
 
 export function getToken() {
   return Cookies.get(TokenKey)
@@ -24,4 +24,16 @@ export function setCurOrgId(id) {
 
 export function removeCurOrgId() {
   return Cookies.remove('cur_org_id')
+}
+
+export function getUserId() {
+  return Cookies.get('user_id')
+}
+
+export function setUserId(id) {
+  return Cookies.set('user_id', id)
+}
+
+export function removeUserId() {
+  return Cookies.remove('user_id')
 }

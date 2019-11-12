@@ -1,9 +1,9 @@
 import { login, getInfo, update } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, setToken, removeToken, getUserId, setUserId, removeUserId } from '@/utils/auth'
 // import { resetRouter } from '@/router'
 
 const state = {
-  token: getToken(),
+  // token: getToken(),
   _id: '',
   email: '',
   name: '',
@@ -16,8 +16,11 @@ const state = {
 }
 
 const mutations = {
-  SET_TOKEN: (state, token) => {
-    state.token = token
+  // SET_TOKEN: (state, token) => {
+  //   state.token = token
+  // },
+  SET_ID: (state, id) => {
+    state._id = id
   },
   SET_INFO: (state, userInfo) => {
     state._id = userInfo._id
@@ -40,14 +43,16 @@ const actions = {
       login(userInfo).then(response => {
         // commit('SET_TOKEN', data.token)
         // setToken(data.token)
+        console.log('login', response)
 
         if (!response.err) {
-          commit('SET_TOKEN', response.user._id)
-          setToken(response.user._id)
+          commit('SET_ID', response.user._id)
+          setUserId(response.user._id)
           commit('SET_INFO', response.user)
         } else {
           console.log('login error', response.msg)
-          commit('SET_TOKEN', '')
+          commit('SET_ID', '')
+          setUserId('')
           setToken('')
           commit('SET_INFO', {})
         }
@@ -60,12 +65,13 @@ const actions = {
 
   // get user info
   getInfo({ commit, state }) {
+    console.log('userid', getUserId());
+    if (!getUserId()) return;
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
+      getInfo(getUserId()).then(response => {
         if (!response.entity) {
           reject('Verification failed, please Login again.')
         }
-
         commit('SET_INFO', response.entity)
         resolve('success')
       }).catch(error => {
@@ -91,7 +97,7 @@ const actions = {
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      commit('SET_TOKEN', '')
+      commit('SET_ID', '')
       setToken('')
       commit('SET_INFO', {})
       resolve()
@@ -101,7 +107,7 @@ const actions = {
   // remove token
   resetToken({ commit }) {
     return new Promise(resolve => {
-      commit('SET_TOKEN', '')
+      commit('SET_ID', '')
       commit('SET_ROLES', [])
       removeToken()
       resolve()
