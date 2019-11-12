@@ -254,11 +254,12 @@
 </template>
 
 <script>
-import { checkOrgName } from '@/api/organization'
+import { checkOrgName, getOrgStatus } from '@/api/organization'
 import _ from 'lodash'
 import { mapGetters } from 'vuex'
-import { getOrgStatus } from '@/api/organization'
 import MetaMaskInstall from '@/mixins/MetaMaskInstall'
+import Web3 from 'web3';
+import { EthUtils, Daos, Organization, OrgToken } from 'comunion-dao';
 
 export default {
   mixins: [MetaMaskInstall],
@@ -563,9 +564,7 @@ export default {
 
                       this.isCreateSuccess = true
                       const checkOrgStatusTimer = setInterval(() => {
-                        EthUtils.getTransactionReceipt(
-                          this.newOrg.transactionHash
-                        ).then(result => {
+                        getOrgStatus(this.orgForm._id).then(statusRes => {
                           console.log('on chain', result)
                           if (statusRes.err) {
                             this.$notify({
@@ -581,14 +580,7 @@ export default {
                             // clearInterval(progressTimer)
                             clearInterval(this.checkOrgStatusTimer)
                           }
-                        }).catch(error => {
-                            this.$notify({
-                              message: 'error',
-                              type: 'warning'
-                            })
-                            clearInterval(progressTimer)
-                            clearInterval(checkOrgStatusTimer)
-                        });
+                        })
                       }, 5000)
                       this.$once('hook:beforeDestroy', () => {
                         console.log('before destroy')

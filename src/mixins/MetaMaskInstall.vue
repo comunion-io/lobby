@@ -1,7 +1,7 @@
 <template></template>
 <script>
 import { mapGetters } from "vuex";
-import web3 from 'web3';
+import Web3 from 'web3';
 import { EthUtils, Daos, Organization, OrgToken } from 'comunion-dao';
 
 export default {
@@ -20,8 +20,6 @@ export default {
   },
   methods: {
     async getCoinBase() {
-      console.log(web3, web3.eth)
-      debugger
       const coinbase = (await web3.eth.getAccounts())[0]
       if (coinbase) {
         this.$store.commit('coinbase/SET_COINBASE', coinbase)
