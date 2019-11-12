@@ -524,7 +524,6 @@ export default {
         this.$refs[formName].validate(valid => {
           console.log('valid value:', valid)
           if (valid) {
-            console.log(web3.eth)
             const deployData = Organization.genDeployData(
               this.daosAddress,
               this.newOrg.name
@@ -565,7 +564,6 @@ export default {
                       this.isCreateSuccess = true
                       const checkOrgStatusTimer = setInterval(() => {
                         getOrgStatus(this.orgForm._id).then(statusRes => {
-                          console.log('on chain', result)
                           if (statusRes.err) {
                             this.$notify({
                               message: statusRes.msg,
@@ -574,100 +572,7 @@ export default {
                             clearInterval(progressTimer)
                             clearInterval(checkOrgStatusTimer)
                           } else if (statusRes.status === 1) {
-                            this.isTransactionSuccess = true
-                            clearInterval(checkOrgStatusTimer)
-                          } else if (statusRes.status === -1) {
-                            // clearInterval(progressTimer)
-                            clearInterval(this.checkOrgStatusTimer)
-                          }
-                        })
-                      }, 5000)
-                      this.$once('hook:beforeDestroy', () => {
-                        console.log('before destroy')
-                        clearInterval(checkOrgStatusTimer)
-                      })
-                    })
-                } else {
-                  this.isCreateSuccess = false
-                  this.$notify({
-                    message: err,
-                    type: 'warning'
-                  })
-                }
-              }
-            )
-          } else {
-            this.$notify({
-              message: 'Please complete organization info to create!',
-              type: 'warning'
-            })
-            return false
-          }
-        })
-      } else {
-        this.$notify({
-          message: 'please log in first!',
-          type: 'warning'
-        })
-      }
-    },
-    submitFormOld(formName) {
-      if (this.coinbase) {
-        this.newOrg.wallet.push({
-          name: 'eth',
-          value: this.coinbase
-        })
-        console.log(this.newOrg)
-
-        this.$refs[formName].validate(valid => {
-          console.log('valid value:', valid)
-          if (valid) {
-            console.log(web3.eth)
-            web3.eth.sendTransaction(
-              {
-                from: this.coinbase,
-                to: '0x0e9a89bb07b7c4E4628E042A1dfC2554d1d8b7ca',
-                value: '80000000'
-              },
-              (err, data) => {
-                if (data) {
-                  this.newOrg.transactionHash = data
-
-                  console.log('transaction hash', data)
-                  const _this = this
-                  const progressTimer = setInterval(() => {
-                    if (_this.percentage < 90) {
-                      _this.percentage++
-                    } else {
-                      clearInterval(progressTimer)
-                    }
-                  }, 2000)
-                  this.$once('hook:beforeDestroy', () => {
-                    console.log('before destroy')
-                    clearInterval(progressTimer)
-                  })
-
-                  this.newOrg.website = this.newOrg.website.replace(
-                    /(http\:\/\/)|(https\:\/\/)/,
-                    ''
-                  )
-                  this.$store
-                    .dispatch('organization/newOrg', this.newOrg)
-                    .then(res => {
-                      console.log('res', res)
-
-                      this.isCreateSuccess = true
-                      const checkOrgStatusTimer = setInterval(() => {
-                        getOrgStatus(this.orgForm._id).then(statusRes => {
-                          console.log('on chain', result)
-                          if (statusRes.err) {
-                            this.$notify({
-                              message: statusRes.msg,
-                              type: 'warning'
-                            })
-                            clearInterval(progressTimer)
-                            clearInterval(checkOrgStatusTimer)
-                          } else if (statusRes.status === 1) {
+                            console.log('isTrans', this.isTransactionSuccess)
                             this.isTransactionSuccess = true
                             clearInterval(checkOrgStatusTimer)
                           } else if (statusRes.status === -1) {

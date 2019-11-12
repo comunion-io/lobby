@@ -53,6 +53,14 @@
           </div>
         </div>
       </el-card>
+      <div v-if="!showTrans && isTransactionSuccess" class="inner-content">
+        <div class="success">
+          <img src="~@/assets/success.png" alt />
+        </div>
+        <div class="success-txt">Congratulations!</div>
+        <div class="success-txt">You have created a decentralized organization.</div>
+        <el-button class="btn-main btn-wide" round @click="handleGetStart">Get Start</el-button>
+      </div>
     </div>
     <el-dialog title :visible.sync="dialogVisible" width="30%">
       <div>
