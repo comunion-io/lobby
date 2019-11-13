@@ -79,12 +79,12 @@
 </template>
 
 <script>
-import UserGuide from "./user-guide";
-import PublishTokenForm from "./publish-token-form";
-import { mapGetters } from "vuex";
-import MetaMaskInstall from "@/mixins/MetaMaskInstall";
-import GetInfo from "@/mixins/GetInfo";
-import { async } from "q";
+import UserGuide from './user-guide'
+import PublishTokenForm from './publish-token-form'
+import { mapGetters } from 'vuex'
+import MetaMaskInstall from '@/mixins/MetaMaskInstall'
+import GetInfo from '@/mixins/GetInfo'
+import { async } from 'q'
 import { Organization, OrgToken } from 'comunion-dao'
 
 export default {
@@ -98,151 +98,157 @@ export default {
       showTrans: false,
       showForm: false,
       percentage: 0,
-      transactionHash: "",
+      transactionHash: '',
       hasToken: false,
       asset: null,
-      icon: "",
+      icon: '',
       isCreateSuccess: false,
       isTransactionSuccess: false
-    };
+    }
   },
   computed: {
-    ...mapGetters(["coinbase", "orgForm"])
+    ...mapGetters(['coinbase', 'orgForm'])
   },
   created() {
     if (this.orgForm.asset) {
-      this.hasToken = true;
+      this.hasToken = true
     } else {
-      this.showGuide = true;
+      this.showGuide = true
     }
   },
   methods: {
     closeGuide() {
-      this.showGuide = false;
-      this.showForm = true;
+      this.showGuide = false
+      this.showForm = true
     },
     clickCheck() {
-      this.checkIfInstallMataMask();
+      this.checkIfInstallMataMask()
       if (this.isMetaMaskInstalled) {
-        this.$message.success("You have installed MetaMask Yet!");
+        this.$message.success('You have installed MetaMask Yet!')
       } else {
-        this.dialogVisible = true;
+        this.dialogVisible = true
       }
     },
     handlePublish(formParams) {
-      this.showForm = false;
-      this.showTrans = true;
+      this.showForm = false
+      this.showTrans = true
       this.asset = {
         name: formParams.name,
         symbol: formParams.symbol,
         supply: formParams.supply
-      };
-      this.icon = formParams.icon;
+      }
+      this.icon = formParams.icon
     },
     getDeployData(item) {
       return new Promise(() => {
         // let deployData = Organization.getDeployData(item);
         // console.log(this.orgForm)
         // debugger
-        let deployData = OrgToken.genDeployData(this.orgForm.transactionHash, item.name, item.symbol, item.supply);
+        let deployData = OrgToken.genDeployData(
+          this.orgForm.contract,
+          item.name,
+          item.symbol,
+          item.supply
+        )
 
         // debugger
-        resolve(deployData);
-      });
+        resolve(deployData)
+      })
     },
     publishToken() {
       if (!this.coinbase) {
         this.$notify({
-          message: "please log in first!",
-          type: "warning"
-        });
-        return;
+          message: 'please log in first!',
+          type: 'warning'
+        })
+        return
       }
-      this.getDeployData(this.asset).then(deployData => {
-        // debugger
-        try {
-          web3.eth.sendTransaction(
-            {
-              from: this.coinbase,
-              // to: "0x0e9a89bb07b7c4E4628E042A1dfC2554d1d8b7ca",
-              value: "0",
-              data: deployData
-            },
-            (err, data) => {
-              if (data) {
-                this.transactionHash = data;
+      this.getDeployData(this.asset)
+        .then(deployData => {
+          // debugger
+          try {
+            web3.eth.sendTransaction(
+              {
+                from: this.coinbase,
+                // to: "0x0e9a89bb07b7c4E4628E042A1dfC2554d1d8b7ca",
+                value: '0',
+                data: deployData
+              },
+              (err, data) => {
+                if (data) {
+                  this.transactionHash = data
 
-                console.log("transaction hash", data);
-                const _this = this;
-                const progressTimer = setInterval(() => {
-                  if (_this.percentage < 90) {
-                    _this.percentage++;
-                  } else {
-                    clearInterval(progressTimer);
-                  }
-                }, 2000);
-                this.$once("hook:beforeDestroy", () => {
-                  console.log("before destroy");
-                  clearInterval(progressTimer);
-                });
+                  console.log('transaction hash', data)
+                  const _this = this
+                  const progressTimer = setInterval(() => {
+                    if (_this.percentage < 90) {
+                      _this.percentage++
+                    } else {
+                      clearInterval(progressTimer)
+                    }
+                  }, 2000)
+                  this.$once('hook:beforeDestroy', () => {
+                    console.log('before destroy')
+                    clearInterval(progressTimer)
+                  })
 
-                this.$store
-                  .dispatch(
-                    "organization/addAsset",
-                    this.asset,
-                    this.icon,
-                    this.transactionHash
-                  )
-                  .then(res => {
-                    console.log("res", res);
+                  this.$store
+                    .dispatch(
+                      'organization/addAsset',
+                      this.asset,
+                      this.icon,
+                      this.transactionHash
+                    )
+                    .then(res => {
+                      console.log('res', res)
 
-                    this.isCreateSuccess = true;
-                    const checkOrgStatusTimer = setInterval(() => {
-                      getOrgStatus(this.orgForm._id).then(statusRes => {
-                        console.log(44, statusRes);
-                        if (statusRes.err) {
-                          this.$notify({
-                            message: statusRes.msg,
-                            type: "warning"
-                          });
-                          clearInterval(progressTimer);
-                          clearInterval(checkOrgStatusTimer);
-                        } else if (statusRes.status === 1) {
-                          // has written in the chain
-                          this.isTransactionSuccess = true;
-                          this.showTrans = false;
-                          this.hasToken = true;
+                      this.isCreateSuccess = true
+                      const checkOrgStatusTimer = setInterval(() => {
+                        this.$store
+                          .dispatch('organization/getOrgInfo', this.orgForm._id)
+                          .then(() => {
+                            console.log(this.orgForm, this.orgForm)
+                            if (this.orgForm && this.orgForm.contract) {
+                              // has written in the chain
+                              this.isTransactionSuccess = true
+                              this.showTrans = false
+                              this.hasToken = true
 
-                          clearInterval(checkOrgStatusTimer);
-                        } else if (statusRes.status === -1) {
-                          // clearInterval(progressTimer)
-                          clearInterval(this.checkOrgStatusTimer);
-                        }
-                      });
-                    }, 5000);
-                    this.$once("hook:beforeDestroy", () => {
-                      console.log("before destroy");
-                      clearInterval(checkOrgStatusTimer);
+                              clearInterval(checkOrgStatusTimer)
+                            }
+                          })
+                      }, 5000)
+                      this.$once('hook:beforeDestroy', () => {
+                        console.log('before destroy')
+                        clearInterval(checkOrgStatusTimer)
+                      })
+                    }).catch(err => {
+                       this.$notify({
+                          message: statusRes.msg,
+                          type: 'warning'
+                        })
+                        clearInterval(progressTimer)
+                        clearInterval(checkOrgStatusTimer)
                     });
-                  });
-              } else {
-                this.isCreateSuccess = false;
-                this.$notify({
-                  message: err,
-                  type: "warning"
-                });
+                } else {
+                  this.isCreateSuccess = false
+                  this.$notify({
+                    message: err,
+                    type: 'warning'
+                  })
+                }
               }
-            }
-          );
-        } catch (error) {
-          console.log(error);
-        }
-      }).catch((error) => {
-        console.log(error, 'failed to get deployData');
-      });
+            )
+          } catch (error) {
+            console.log(error)
+          }
+        })
+        .catch(error => {
+          console.log(error, 'failed to get deployData')
+        })
     }
   }
-};
+}
 </script>
 
 <style lang="scss">

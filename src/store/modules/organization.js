@@ -17,7 +17,8 @@ const state = {
   social: [],
   members: [],
   asset: null,
-  status: 1
+  status: 1,
+  contract: ''
 }
 
 const mutations = {
@@ -40,6 +41,7 @@ const mutations = {
     state.status = data.status
     state.icon = data.icon
     state.asset = data.asset
+    state.contract = data.contract
   },
   SET_MEMBERS: (state, data) => {
     state.members = data
