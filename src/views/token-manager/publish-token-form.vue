@@ -52,7 +52,7 @@ export default {
     return {
       imageUrl: '',
       formParams: {
-        icon: 'hhh',
+        icon: '',
         name: 'HelloWorld',
         symbol: 'HW',
         supply: '102400'
