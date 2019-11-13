@@ -208,7 +208,7 @@ export default {
                           .dispatch('organization/getOrgInfo', this.orgForm._id)
                           .then(() => {
                             console.log(this.orgForm, this.orgForm)
-                            if (this.orgForm && this.orgForm.contract) {
+                            if (this.orgForm.asset && this.orgForm.asset.contract) {
                               // has written in the chain
                               this.isTransactionSuccess = true
                               this.showTrans = false
