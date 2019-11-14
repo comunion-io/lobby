@@ -1,6 +1,6 @@
 <template>
   <div class="token-manager">
-    <div class="token-details" v-if="hasToken">{{ asset }}</div>
+    <div class="token-details" v-if="hasToken">token{{ asset }}</div>
     <div class="center-tip" v-else-if="!isOwner">Sorry, there is no token.</div>
     <div v-else>
       <div class="title">Publish Token</div>
@@ -12,7 +12,7 @@
         />
       </div>
       <div class="token-manage-form" v-if="showForm">
-        <PublishTokenForm @clickPublish="handlePublish" />
+        <PublishTokenForm @clickPublish="publishToken" />
       </div>
       <el-card class="tip" v-if="showTrans">
         <div class="deploy-trans">
@@ -58,7 +58,7 @@
           <img src="~@/assets/success.png" alt />
         </div>
         <div class="success-txt">Congratulations!</div>
-        <div class="success-txt">You have created a decentralized organization.</div>
+        <div class="success-txt">You have created a token.</div>
         <el-button class="btn-main btn-wide" round @click="handleGetStart">Get Start</el-button>
       </div>
     </div>
@@ -117,6 +117,9 @@ export default {
     }
   },
   methods: {
+    handleGetStart() {
+      this.hasToken = true
+    },
     closeGuide() {
       this.showGuide = false
       this.showForm = true
@@ -155,6 +158,20 @@ export default {
         resolve(deployData)
       })
     },
+    tryPublish() {
+      setTimeout(() => {
+        this.showForm = false
+        this.showTrans = true
+        this.transactionHash = 1
+        setTimeout(() => {
+          this.isCreateSuccess = true
+          setTimeout(() => {
+            this.isTransactionSuccess = true
+            this.showTrans = false
+          }, 2000)
+        }, 2000)
+      }, 2000)
+    },
     publishToken() {
       if (!this.coinbase) {
         this.$notify({
@@ -177,7 +194,8 @@ export default {
               (err, data) => {
                 if (data) {
                   this.transactionHash = data
-
+                  this.showForm = false
+                  this.showTrans = true
                   console.log('transaction hash', data)
                   const _this = this
                   const progressTimer = setInterval(() => {
@@ -208,11 +226,14 @@ export default {
                           .dispatch('organization/getOrgInfo', this.orgForm._id)
                           .then(() => {
                             console.log(this.orgForm, this.orgForm)
-                            if (this.orgForm.asset && this.orgForm.asset.contract) {
+                            if (
+                              this.orgForm.asset &&
+                              this.orgForm.asset.contract
+                            ) {
                               // has written in the chain
                               this.isTransactionSuccess = true
                               this.showTrans = false
-                              this.hasToken = true
+                              // this.hasToken = true
 
                               clearInterval(checkOrgStatusTimer)
                             }
@@ -222,14 +243,15 @@ export default {
                         console.log('before destroy')
                         clearInterval(checkOrgStatusTimer)
                       })
-                    }).catch(err => {
-                       this.$notify({
-                          message: statusRes.msg,
-                          type: 'warning'
-                        })
-                        clearInterval(progressTimer)
-                        clearInterval(checkOrgStatusTimer)
-                    });
+                    })
+                    .catch(err => {
+                      this.$notify({
+                        message: statusRes.msg,
+                        type: 'warning'
+                      })
+                      clearInterval(progressTimer)
+                      clearInterval(checkOrgStatusTimer)
+                    })
                 } else {
                   this.isCreateSuccess = false
                   this.$notify({
