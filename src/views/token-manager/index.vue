@@ -12,7 +12,7 @@
         />
       </div>
       <div class="token-manage-form" v-if="showForm">
-        <PublishTokenForm @clickPublish="publishToken" />
+        <PublishTokenForm @clickPublish="handlePublish" />
       </div>
       <el-card class="tip" v-if="showTrans">
         <div class="deploy-trans">
@@ -142,21 +142,24 @@ export default {
       }
       this.icon = formParams.icon
     },
-    getDeployData(item) {
-      return new Promise(() => {
-        // let deployData = Organization.getDeployData(item);
-        // console.log(this.orgForm)
-        // debugger
-        let deployData = OrgToken.genDeployData(
-          this.orgForm.contract,
-          item.name,
-          item.symbol,
-          item.supply
-        )
+    async getDeployData(assetInfo, contract) {
+      let deployData = await OrgToken.genDeployData(
+        contract,
+        assetInfo.name,
+        assetInfo.symbol,
+        assetInfo.supply
+      )
+      return Promise.resolve(deployData)
+      // return new Promise(() => {
+      //   let deployData = OrgToken.genDeployData(
+      //     contract,
+      //     assetInfo.name,
+      //     assetInfo.symbol,
+      //     assetInfo.supply
+      //   )
+      //   // debugger
 
-        // debugger
-        resolve(deployData)
-      })
+      // })
     },
     tryPublish() {
       setTimeout(() => {
@@ -180,9 +183,8 @@ export default {
         })
         return
       }
-      this.getDeployData(this.asset)
+      this.getDeployData(this.asset, this.orgForm.contract)
         .then(deployData => {
-          // debugger
           try {
             web3.eth.sendTransaction(
               {

@@ -89,7 +89,6 @@ const actions = {
         } else {
           console.log(response.msg)
         }
-
         resolve()
       }).catch(error => {
         reject(error)
