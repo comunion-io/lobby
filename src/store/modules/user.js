@@ -99,6 +99,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       commit('SET_ID', '')
       setToken('')
+      setUserId('')
       commit('SET_INFO', {})
       resolve()
     })
