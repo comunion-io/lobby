@@ -143,23 +143,17 @@ export default {
       this.icon = formParams.icon
     },
     async getDeployData(assetInfo, contract) {
-      let deployData = await OrgToken.genDeployData(
-        contract,
-        assetInfo.name,
-        assetInfo.symbol,
-        assetInfo.supply
-      )
-      return Promise.resolve(deployData)
-      // return new Promise(() => {
-      //   let deployData = OrgToken.genDeployData(
-      //     contract,
-      //     assetInfo.name,
-      //     assetInfo.symbol,
-      //     assetInfo.supply
-      //   )
-      //   // debugger
-
-      // })
+      try {
+        let deployData = await OrgToken.genDeployData(
+          contract,
+          assetInfo.name,
+          assetInfo.symbol,
+          assetInfo.supply
+        )
+        return Promise.resolve(deployData)
+      } catch(err) {
+        return Promise.reject();
+      }
     },
     tryPublish() {
       setTimeout(() => {
