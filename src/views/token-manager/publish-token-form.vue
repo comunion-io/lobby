@@ -53,9 +53,9 @@ export default {
       imageUrl: '',
       formParams: {
         icon: '',
-        name: 'HelloWorld',
-        symbol: 'HW',
-        supply: '102400'
+        name: '',
+        symbol: '',
+        supply: ''
       },
       formRules: {
         icon: [
