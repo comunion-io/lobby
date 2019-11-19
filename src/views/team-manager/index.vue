@@ -1,12 +1,11 @@
 <template>
   <div class="team-manager">
+          <MetamaskInstallLogin></MetamaskInstallLogin>
+
     <div class="search-row">
       <el-button v-if="isOwner" class="btn-main" round @click="handleClickAdd">
         Add Member
       </el-button>
-      <!-- <el-input v-model="query" placeholder="Enter a member's email address or wallet address to search for members" class="input-with-select">
-        <el-button slot="prepend" icon="el-icon-search" />
-      </el-input> -->
     </div>
 
     <el-form v-if="orgForm.members.length > 0" ref="form">
@@ -56,9 +55,10 @@ import UserCard from '@/components/UserCard'
 import { getCurOrgId, setCurOrgId } from '@/utils/auth'
 import { updateOrgMember } from '@/api/organization'
 import GetInfo from '@/mixins/GetInfo'
+import MetamaskInstallLogin from '@/components/Common/MetaInstallLogin'
 
 export default {
-  components: { AddUpdateDialog, UserCard },
+  components: { AddUpdateDialog, UserCard, MetamaskInstallLogin },
   mixins: [GetInfo],
   data() {
     return {
