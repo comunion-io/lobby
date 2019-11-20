@@ -54,6 +54,7 @@ export default {
         });
       }
     },
+  
     handleMetaMaskLogin() {
       this.checkIfInstallMataMask();
       if (!this.isMetaMaskInstalled) {

@@ -6,7 +6,7 @@
           <div class="section-card">
             <div class="card-title">Deploy Transaction</div>
             <div class="tip nomargin left">
-              This is the last step : ) &nbsp; You will need to sign the transaction to {{'actionName'}}.
+              This is the last step : ) &nbsp; You will need to sign the transaction to {{actionName}}.
               <br />Continue with your web wallet.
             </div>
             <div v-if="!transactionHash" class="card-content">
@@ -74,32 +74,45 @@ export default {
   mixins: [MetaMaskInstall],
   data() {
     return {
-      dialogVisible: false,
-      showTrans: true,
-      percentage: 0,
-      isCreateSuccess: false,
-      isTransactionSuccess: false,
-
-      transactionHash: '',
+      dialogVisible: false
     }
   },
   props: {
-      getDeployData: {
-          type: Promise
-      },
-      actionName: {
-          type: String,
-          default: 'add the member'
-      },
-      transactionData: {
-          type: Object,
-      },
-      updateDataBase: {
-          type: Promise
-      },
-      pollMethod: {
-          type: Promise
-      }
+    // what do you use trans to do
+    actionName: {
+      type: String,
+      default: 'add the member'
+    },
+    // after installing the metamask and login and bundling and get the coinbase,
+    // to do the data things
+    handlePublish: {
+      type: Function,
+    },
+    // web3 transation hash
+    transactionHash: {
+      type: String,
+      default: ''
+    },
+    // progress bar
+    percentage: {
+      type: Number,
+      default: 0
+    },
+    // finish putting data to database
+    isCreateSuccess: {
+      type: Boolean,
+      default:false
+    },
+    // success to add data to the chain     
+    isTransactionSuccess: {
+      type: Boolean,
+      default:false
+    },
+    // begin trans     
+    showTrans: {
+      type: Boolean,
+      default: true
+    },
   },
   computed: {
     ...mapGetters(['coinbase', 'orgForm'])
@@ -107,7 +120,7 @@ export default {
   created() {},
   methods: {
     handleGetStart() {
-      this.isTransactionSuccess = false
+      this.$emit('handleGetStart');
     },
     clickCheck() {
       this.checkIfInstallMataMask()
@@ -117,42 +130,15 @@ export default {
         this.dialogVisible = true
       }
     },
-    handlePublish(formParams) {
-      this.showForm = false
-      this.showTrans = true
-      this.asset = {
-        name: formParams.name,
-        symbol: formParams.symbol,
-        supply: formParams.supply
+    tryPublish() {
+      if (!this.coinbase) {
+        this.$notify({
+          message: 'please log in first!',
+          type: 'warning'
+        })
+        return
       }
-      this.icon = formParams.icon
-    },
-    sleeper() {
-      return this.$store.dispatch('organization/getOrgInfo', this.orgForm._id)
-    },
-    async tryPublish() {
-        
-      await this.getDeployData()
-      this.showForm = false
-      this.showTrans = true
-      await this.sleeper()
-      this.isCreateSuccess = true
-      await this.sleeper()
-      this.isTransactionSuccess = true
-      this.showTrans = false
-
-      //   setTimeout(() => {
-      //     this.showForm = false
-      //     this.showTrans = true
-      //     this.transactionHash = 1
-      //     setTimeout(() => {
-      //       this.isCreateSuccess = true
-      //       setTimeout(() => {
-      //         this.isTransactionSuccess = true
-      //         this.showTrans = false
-      //       }, 2000)
-      //     }, 2000)
-      //   }, 2000)
+      this.handlePublish()
     },
     handleAction() {},
     publishToken() {
@@ -163,16 +149,11 @@ export default {
         })
         return
       }
-      this.getDeployData(this.asset, this.orgForm.contract)
+      this.getDeployData()
         .then(deployData => {
           try {
             web3.eth.sendTransaction(
-              {
-                from: this.coinbase,
-                // to: "0x0e9a89bb07b7c4E4628E042A1dfC2554d1d8b7ca",
-                value: '0',
-                data: deployData
-              },
+              deployData,
               (err, data) => {
                 if (data) {
                   this.transactionHash = data
