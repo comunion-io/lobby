@@ -14,7 +14,19 @@
       <div class="token-manage-form" v-if="showForm">
         <PublishTokenForm @clickPublish="handlePublish" />
       </div>
-      <el-card class="tip" v-if="showTrans">
+
+      <MetamaskInstallLogin
+        :showTrans="showTrans"
+        :percentage="percentage"
+        :isCreateSuccess="isCreateSuccess"
+        :isTransactionSuccess="isTransactionSuccess"
+        :transactionHash="transactionHash"
+        :handlePublish="publishToken"
+        @handleGetStart="handleGetStart"
+        actionName="add the token"
+    ></MetamaskInstallLogin>
+
+      <!-- <el-card class="tip" v-if="showTrans">
         <div class="deploy-trans">
           <div class="inner-content">
             <div class="section-card">
@@ -60,9 +72,9 @@
         <div class="success-txt">Congratulations!</div>
         <div class="success-txt">You have created a token.</div>
         <el-button class="btn-main btn-wide" round @click="handleGetStart">Get Start</el-button>
-      </div>
+      </div> -->
     </div>
-    <el-dialog title :visible.sync="dialogVisible" width="30%">
+    <!-- <el-dialog title :visible.sync="dialogVisible" width="30%">
       <div>
         <div class="message">You have not installed MetaMask Yet!</div>
         <span slot="footer" class="dialog-footer">
@@ -74,7 +86,7 @@
           </el-button>
         </span>
       </div>
-    </el-dialog>
+    </el-dialog> -->
   </div>
 </template>
 
@@ -86,9 +98,10 @@ import MetaMaskInstall from '@/mixins/MetaMaskInstall'
 import GetInfo from '@/mixins/GetInfo'
 import { async } from 'q'
 import { Organization, OrgToken } from 'comunion-dao'
+import MetamaskInstallLogin from '@/components/Common/MetaInstallLogin'
 
 export default {
-  components: { UserGuide, PublishTokenForm },
+  components: { UserGuide, PublishTokenForm, MetamaskInstallLogin },
   mixins: [GetInfo, MetaMaskInstall],
   data() {
     return {
@@ -155,35 +168,20 @@ export default {
         return Promise.reject();
       }
     },
-    tryPublish() {
-      setTimeout(() => {
-        this.showForm = false
-        this.showTrans = true
-        this.transactionHash = 1
-        setTimeout(() => {
-          this.isCreateSuccess = true
-          setTimeout(() => {
-            this.isTransactionSuccess = true
-            this.showTrans = false
-          }, 2000)
-        }, 2000)
-      }, 2000)
-    },
     publishToken() {
-      if (!this.coinbase) {
-        this.$notify({
-          message: 'please log in first!',
-          type: 'warning'
-        })
-        return
-      }
+      // if (!this.coinbase) {
+      //   this.$notify({
+      //     message: 'please log in first!',
+      //     type: 'warning'
+      //   })
+      //   return
+      // }
       this.getDeployData(this.asset, this.orgForm.contract)
         .then(deployData => {
           try {
             web3.eth.sendTransaction(
               {
                 from: this.coinbase,
-                // to: "0x0e9a89bb07b7c4E4628E042A1dfC2554d1d8b7ca",
                 value: '0',
                 data: deployData
               },
@@ -242,11 +240,11 @@ export default {
                     })
                     .catch(err => {
                       this.$notify({
-                        message: statusRes.msg,
+                        message: err.msg || 'update database failed',
                         type: 'warning'
                       })
-                      clearInterval(progressTimer)
-                      clearInterval(checkOrgStatusTimer)
+                      progressTimer && clearInterval(progressTimer)
+                      checkOrgStatusTimer && clearInterval(checkOrgStatusTimer)
                     })
                 } else {
                   this.isCreateSuccess = false
