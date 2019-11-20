@@ -1,24 +1,37 @@
 <template>
   <div class="team-manager">
+    <MetamaskInstallLogin
+      :showTrans="showTrans"
+      :percentage="percentage"
+      :isCreateSuccess="isCreateSuccess"
+      :isTransactionSuccess="isTransactionSuccess"
+      :transactionHash="transactionHash"
+      :handlePublish="handlePublish"
+      @handleGetStart="handleGetStart"
+    ></MetamaskInstallLogin>
+
     <div class="search-row">
-      <el-button v-if="isOwner" class="btn-main" round @click="handleClickAdd">
-        Add Member
-      </el-button>
-      <!-- <el-input v-model="query" placeholder="Enter a member's email address or wallet address to search for members" class="input-with-select">
-        <el-button slot="prepend" icon="el-icon-search" />
-      </el-input> -->
+      <el-button v-if="isOwner" class="btn-main" round @click="handleClickAdd">Add Member</el-button>
     </div>
 
     <el-form v-if="orgForm.members.length > 0" ref="form">
       <div class="card-wrapper">
-        <user-card v-for="user in orgForm.members" :key="user._id" :user="user" :editible="isOwner" @clickEdit="handleClickEdiit" @clickDelete="handleClickDelete" />
+        <user-card
+          v-for="user in orgForm.members"
+          :key="user._id"
+          :user="user"
+          :editible="isOwner"
+          @clickEdit="handleClickEdit"
+          @clickDelete="handleClickDelete"
+        />
         <el-card class="box-card fake" />
         <el-card class="box-card fake" />
       </div>
     </el-form>
-    <div v-else class="no-member">
-      {{isOwner ? 'Click Add Member to add members' : 'Do you want to be the first member?'}}
-    </div>
+    <div
+      v-else
+      class="no-member"
+    >{{isOwner ? 'Click Add Member to add members' : 'Do you want to be the first member?'}}</div>
 
     <el-dialog
       ref="addDialog"
@@ -44,7 +57,12 @@
       </div>
     </el-dialog>
 
-    <add-update-dialog ref="editDialog" :user="curUser" :visible="isDialogEditVisible" @saveUser="handleUpdateMember" />
+    <add-update-dialog
+      ref="editDialog"
+      :user="curUser"
+      :visible="isDialogEditVisible"
+      @saveUser="handleUpdateMember"
+    />
   </div>
 </template>
 
@@ -56,9 +74,10 @@ import UserCard from '@/components/UserCard'
 import { getCurOrgId, setCurOrgId } from '@/utils/auth'
 import { updateOrgMember } from '@/api/organization'
 import GetInfo from '@/mixins/GetInfo'
+import MetamaskInstallLogin from '@/components/Common/MetaInstallLogin'
 
 export default {
-  components: { AddUpdateDialog, UserCard },
+  components: { AddUpdateDialog, UserCard, MetamaskInstallLogin },
   mixins: [GetInfo],
   data() {
     return {
@@ -69,20 +88,44 @@ export default {
       isDialogEditVisible: false,
       isDialogAddVisible: false,
 
-      curUser: null
+      curUser: null,
+
+      // publish
+      showTrans: true,
+      percentage: 0,
+      isCreateSuccess: false,
+      isTransactionSuccess: false,
+      transactionHash: ''
     }
   },
   computed: {
-    ...mapGetters([
-      'userInfo',
-      'orgForm'
-    ])
+    ...mapGetters(['userInfo', 'orgForm'])
   },
-  created() {
-  },
+  created() {},
   methods: {
+    handlePublish() {
+      //获取deployData后trans成功
+      setTimeout(() => {
+        this.showForm = false
+        this.showTrans = true
+        this.transactionHash = '1'
+        //更新数据库信息
+        setTimeout(() => {
+          this.isCreateSuccess = true
+          //轮询结果上链了
+          setTimeout(() => {
+            this.isTransactionSuccess = true
+            this.showTrans = false
+          }, 2000)
+        }, 2000)
+      }, 2000)
+    },
+    handleGetStart() {
+      this.isTransactionSuccess = false
+    },
+
+// old member handle logic
     handleSearchUser() {
-      // this.isDialogAddVisible = false
       getUserInfoByEmail(this.searchEmail).then(res => {
         if (res.entity) {
           this.searchEmail = ''
@@ -111,7 +154,7 @@ export default {
         }
       })
     },
-    handleClickEdiit(user) {
+    handleClickEdit(user) {
       if (this.isOwner) {
         this.isDialogEditVisible = true
         this.$refs.editDialog.init(user)
@@ -124,16 +167,18 @@ export default {
     },
     handleClickDelete(email) {
       if (this.isOwner) {
-        this.$store.dispatch('organization/deleteOrgMember', email).then(res => {
-        // if (res === 'success') {
-        //   this.isDialogAddVisible = false
-        // } else {
-        //   this.$notify({
-        //     message: res,
-        //     type: 'warning'
-        //   })
-        // }
-        })
+        this.$store
+          .dispatch('organization/deleteOrgMember', email)
+          .then(res => {
+            // if (res === 'success') {
+            //   this.isDialogAddVisible = false
+            // } else {
+            //   this.$notify({
+            //     message: res,
+            //     type: 'warning'
+            //   })
+            // }
+          })
       } else {
         this.$notify({
           message: 'Please log in to delete member!',
@@ -158,12 +203,12 @@ export default {
       })
     },
     handleClickAdd() {
-      // this.$router.push('/team-manager/profile')
       if (this.isOwner) {
         this.isDialogAddVisible = true
       } else {
         this.$notify({
-          message: 'Make sure you are the creator of this organization and have logged in!',
+          message:
+            'Make sure you are the creator of this organization and have logged in!',
           type: 'warning'
         })
       }
@@ -179,49 +224,48 @@ export default {
 </script>
 
 <style lang="scss">
-  .team-manager {
-    padding: 30px;
-    .search-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 30px;
-      .input-with-select {
-        width: 40%;
-      }
+.team-manager {
+  padding: 30px;
+  .search-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    .input-with-select {
+      width: 40%;
     }
-    .card-wrapper {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      .box-card.fake {
-        visibility: hidden;
-      }
-    }
-
-    .search-email-input {
-      width: 74%;
-      margin-right: 20px;
-    }
-
-    .no-member {
-      text-align: center;
-      color: #45588C;
-      margin-top: calc(20%);
-    }
-    .no-tip {
-      margin-top: 20px;
-    }
-    .search-result {
-      margin-top: 20px;
-      /deep/ .box-card {
-        margin: 30px auto 10px auto;
-      }
-      .btn-main {
-        position: relative;
-        left: calc(50% - 170px);
-        margin-top: 20px;
-      }
+  }
+  .card-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    .box-card.fake {
+      visibility: hidden;
     }
   }
 
+  .search-email-input {
+    width: 74%;
+    margin-right: 20px;
+  }
+
+  .no-member {
+    text-align: center;
+    color: #45588c;
+    margin-top: calc(20%);
+  }
+  .no-tip {
+    margin-top: 20px;
+  }
+  .search-result {
+    margin-top: 20px;
+    /deep/ .box-card {
+      margin: 30px auto 10px auto;
+    }
+    .btn-main {
+      position: relative;
+      left: calc(50% - 170px);
+      margin-top: 20px;
+    }
+  }
+}
 </style>
