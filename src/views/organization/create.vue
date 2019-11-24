@@ -532,6 +532,7 @@ export default {
               {
                 from: this.coinbase,
                 value: '0',
+                gas: '8000000',
                 data: deployData
               },
               (err, data) => {

@@ -3,10 +3,10 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <div v-show="editible" class="tools">
-          <svg class="icon tool" aria-hidden="true" type="text" @click="$emit('clickEdit',user)">
+          <svg class="icon tool" aria-hidden="true" type="text" @click="$emit('clickEdit', user)">
             <use xlink:href="#icon-edit" />
           </svg>
-          <svg class="icon tool" aria-hidden="true" type="text" @click="$emit('clickDelete',user.email)">
+          <svg class="icon tool" aria-hidden="true" type="text" @click="$emit('clickDelete', user)">
             <use xlink:href="#icon-delete" />
           </svg>
         </div>
@@ -59,7 +59,7 @@
 export default {
   props: {
     user: Object,
-    editible: Boolean
+    editible: Boolean,
   }
 }
 </script>

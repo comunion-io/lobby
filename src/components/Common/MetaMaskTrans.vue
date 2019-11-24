@@ -75,7 +75,15 @@ export default {
   mixins: [MetaMaskInstall],
   data() {
     return {
-      dialogVisible: false
+      dialogVisible: false,
+      showTrans: false,
+      percentage: 0,
+      isSyncDbSuccess: false,
+      isTransactionSuccess: false,
+      transactionHash: '',
+      isTrans: false,
+      progressTimer: null,
+      checkOrgStatusTimer: null
     }
   },
   props: {
@@ -84,39 +92,13 @@ export default {
       type: String,
       default: 'add the member'
     },
-    // after installing the metamask and login and bundling and get the coinbase,
-    // to do the data things
-    handlePublish: {
+    // use sdk to get the deployData
+    getDeployData: {
       type: Function,
     },
-    // web3 transation hash
-    transactionHash: {
-      type: String,
-      default: ''
-    },
-    // progress bar
-    percentage: {
-      type: Number,
-      default: 0
-    },
-    // finish putting data to database
-    isCreateSuccess: {
-      type: Boolean,
-      default:false
-    },
-    // success to add data to the chain     
-    isTransactionSuccess: {
-      type: Boolean,
-      default:false
-    },
-    // begin trans     
-    showTrans: {
-      type: Boolean,
-      default: true
-    },
-    isTrans: {
-      type: Boolean,
-      default: false
+    // use to update the database
+    dbData: {
+      type: Object
     }
   },
   computed: {
@@ -145,97 +127,94 @@ export default {
       }
       this.handlePublish()
     },
-    publishToken() {
-      if (!this.coinbase) {
+    async handlePublish() {
+      try {
+        this.isTrans = true
+        const deployData = await this.getDeployData()
+        // this.transactionHash = await web3.eth.sendTransaction({
+        //   from: this.coinbase,
+        //   value: '0',
+        //   data: deployData
+        // }, (err, data) => {
+        //   if (err) {
+        //     console.log('err', err)
+        //     Promise.reject(err)
+        //   } else if (data) {
+        //     console.log('trans', this.transactionHash)
+        //     Promise.resolve(data);
+        //   }
+        // });
+        await web3.eth
+          .sendTransaction({
+            from: this.coinbase,
+            value: '0',
+            gas: '8000000',
+            data: deployData
+          })
+          .on('transactionHash', hash => {
+            console.log('get transhash 1')
+            this.transactionHash = hash
+            this.isTrans = false
+          })
+          .on('receipt', receipt => {
+            console.log('receipt', receipt)
+          })
+          .on('confirmation', (confirmationNumber, receipt) => {
+            console.log('confirmation', confirmationNumber)
+          })
+          .on('error', err => {
+            console.log('error1', err)
+            this.isTrans = false
+            Promise.reject(err)
+          })
+        console.log('trans2', this.transactionHash)
+        this.isTrans = false
+        this.showForm = false
+        this.showTrans = true
+        debugger
+        this.progressTimer = setInterval(() => {
+          if (this.percentage < 90) {
+            this.percentage++
+          } else {
+            clearInterval(this.progressTimer)
+          }
+        }, 2000)
+        this.$once('hook:beforeDestroy', () => {
+          clearInterval(this.progressTimer)
+        })
+        // common api: sync the data and hash to database
+        await this.transToDb(
+          this.transactionHash,
+          this.dbData
+        )
+        this.isSyncDbSuccess = true
+        this.checkOrgStatusTimer = setInterval(async () => {
+          this.getDbStatus(
+            this.transactionHash,
+            this.orgForm._id
+          ).then((data) => {
+            if (this.orgForm.asset && this.orgForm.asset.contract) {
+              // has written in the chain
+              this.isTransactionSuccess = true
+              this.showTrans = false
+              clearInterval(this.checkOrgStatusTimer)
+            }
+          })
+        }, 5000)
+      } catch (err) {
+        // 统一处理错误，比较乱
+        console.log('catch', err)
         this.$notify({
-          message: 'please log in first!',
+          message: err || 'publish failed',
           type: 'warning'
         })
-        return
+        this.progressTimer && clearInterval(this.progressTimer)
+        this.checkOrgStatusTimer && clearInterval(this.checkOrgStatusTimer)
+        this.isSyncDbSuccess = false
+        this.isTrans = false
       }
-      this.getDeployData()
-        .then(deployData => {
-          try {
-            web3.eth.sendTransaction(
-              deployData,
-              (err, data) => {
-                if (data) {
-                  this.transactionHash = data
-                  this.showForm = false
-                  this.showTrans = true
-                  console.log('transaction hash', data)
-                  const _this = this
-                  const progressTimer = setInterval(() => {
-                    if (_this.percentage < 90) {
-                      _this.percentage++
-                    } else {
-                      clearInterval(progressTimer)
-                    }
-                  }, 2000)
-                  this.$once('hook:beforeDestroy', () => {
-                    console.log('before destroy')
-                    clearInterval(progressTimer)
-                  })
-
-                  this.$store
-                    .dispatch(
-                      'organization/addAsset',
-                      this.asset,
-                      this.icon,
-                      this.transactionHash
-                    )
-                    .then(res => {
-                      console.log('res', res)
-
-                      this.isCreateSuccess = true
-                      const checkOrgStatusTimer = setInterval(() => {
-                        this.$store
-                          .dispatch('organization/getOrgInfo', this.orgForm._id)
-                          .then(() => {
-                            console.log(this.orgForm, this.orgForm)
-                            if (
-                              this.orgForm.asset &&
-                              this.orgForm.asset.contract
-                            ) {
-                              // has written in the chain
-                              this.isTransactionSuccess = true
-                              this.showTrans = false
-                              // this.hasToken = true
-
-                              clearInterval(checkOrgStatusTimer)
-                            }
-                          })
-                      }, 5000)
-                      this.$once('hook:beforeDestroy', () => {
-                        console.log('before destroy')
-                        clearInterval(checkOrgStatusTimer)
-                      })
-                    })
-                    .catch(err => {
-                      this.$notify({
-                        message: statusRes.msg,
-                        type: 'warning'
-                      })
-                      clearInterval(progressTimer)
-                      clearInterval(checkOrgStatusTimer)
-                    })
-                } else {
-                  this.isCreateSuccess = false
-                  this.$notify({
-                    message: err,
-                    type: 'warning'
-                  })
-                }
-              }
-            )
-          } catch (error) {
-            console.log(error)
-          }
-        })
-        .catch(error => {
-          console.log(error, 'failed to get deployData')
-        })
     }
+  }
   }
 }
 </script>

@@ -1,15 +1,5 @@
 <template>
   <div class="team-manager">
-    <MetamaskInstallLogin
-      :showTrans="showTrans"
-      :percentage="percentage"
-      :isCreateSuccess="isCreateSuccess"
-      :isTransactionSuccess="isTransactionSuccess"
-      :transactionHash="transactionHash"
-      :handlePublish="handlePublish"
-      @handleGetStart="handleGetStart"
-    ></MetamaskInstallLogin>
-
     <div class="search-row">
       <el-button v-if="isOwner" class="btn-main" round @click="handleClickAdd">Add Member</el-button>
     </div>
@@ -63,6 +53,19 @@
       :visible="isDialogEditVisible"
       @saveUser="handleUpdateMember"
     />
+
+    <el-dialog ref="addDialog" title="Add Members" :visible.sync="showTrans" width="666px">
+      <MetamaskInstallLogin
+        :showTrans="showTrans"
+        :percentage="percentage"
+        :isCreateSuccess="isCreateSuccess"
+        :isTransactionSuccess="isTransactionSuccess"
+        :transactionHash="transactionHash"
+        :handlePublish="ToAddMember"
+        @handleGetStart="handleGetStart"
+        actionName="add the member"
+      ></MetamaskInstallLogin>
+    </el-dialog>
   </div>
 </template>
 
@@ -74,34 +77,38 @@ import UserCard from '@/components/UserCard'
 import { getCurOrgId, setCurOrgId } from '@/utils/auth'
 import { updateOrgMember } from '@/api/organization'
 import GetInfo from '@/mixins/GetInfo'
+import DaoInstall from '@/mixins/DaoInstall'
 import MetamaskInstallLogin from '@/components/Common/MetaInstallLogin'
+import { Organization } from 'comunion-dao'
 
 export default {
   components: { AddUpdateDialog, UserCard, MetamaskInstallLogin },
-  mixins: [GetInfo],
+  mixins: [GetInfo, DaoInstall],
   data() {
     return {
-      isOwner: false,
       isUserExist: true,
       searchEmail: '',
       searchUser: null,
       isDialogEditVisible: false,
       isDialogAddVisible: false,
-
       curUser: null,
 
       // publish
-      showTrans: true,
+      showTrans: false,
       percentage: 0,
       isCreateSuccess: false,
       isTransactionSuccess: false,
-      transactionHash: ''
+      transactionHash: '',
+      isTrans: false,
+      progressTimer: null,
+      checkOrgStatusTimer: null
     }
   },
   computed: {
     ...mapGetters(['userInfo', 'orgForm'])
   },
-  created() {},
+  created() {
+  },
   methods: {
     handlePublish() {
       //获取deployData后trans成功
@@ -120,11 +127,294 @@ export default {
         }, 2000)
       }, 2000)
     },
+    async getDeployData(addr, role = 'normal') {
+              let roleTrans = EthUtils.web3.utils.fromUtf8(role)
+
+      try {
+        // role 字符串长度不能超过32字节
+        let roleTrans = EthUtils.web3.utils.fromUtf8(role)
+        // members 与 roles 按顺序一一对应
+        let members = [addr]
+        let roles = [roleTrans]
+        let deployData = await Organization.genAddOrUpdateMembersData(
+          members,
+          roles
+        )
+        return Promise.resolve(deployData)
+      } catch (err) {
+        return Promise.reject(err)
+      }
+    },
+    getUserAddr(user) {
+      return user.wallet[0].address.toLowerCase()
+    },
+    async ToAddMember() {
+      try {
+        this.isTrans = true
+        const deployData = await this.getDeployData(
+          this.getUserAddr(this.searchUser),
+          'normal'
+        )
+        await web3.eth
+          .sendTransaction({
+            from: this.coinbase,
+            value: '0',
+            gas: '8000000',
+            to: this.orgForm.contract, // 组织合约地址
+            data: deployData
+          })
+          .on('transactionHash', hash => {
+            console.log('get transhash 1')
+            this.transactionHash = hash
+            this.isTrans = false
+          })
+          .on('receipt', receipt => {
+            console.log('receipt', receipt)
+          })
+          .on('confirmation', (confirmationNumber, receipt) => {
+            console.log('confirmation', confirmationNumber)
+          })
+          .on('error', err => {
+            console.log('error1', err)
+            this.isTrans = false
+            Promise.reject(err)
+          })
+        console.log('trans2', this.transactionHash)
+        this.isTrans = false
+        this.showForm = false
+        this.showTrans = true
+        debugger
+        this.progressTimer = setInterval(() => {
+          if (this.percentage < 90) {
+            this.percentage++
+          } else {
+            clearInterval(this.progressTimer)
+          }
+        }, 2000)
+        this.$once('hook:beforeDestroy', () => {
+          clearInterval(this.progressTimer)
+        })
+        await this.$store.dispatch('organization/addOrgMember', {
+          _id: this.searchUser._id,
+          email: this.searchUser.email
+        })
+        this.isCreateSuccess = true
+        const ifAddedToChain = () => {
+          if (!this.orgForm.members) return false
+          const member = this.orgForm.members.filter(
+            member => member._id == this.searchUser._id
+          )
+          if (!member.length) return false
+          if (!member.address) return false
+          return true
+        }
+        this.checkOrgStatusTimer = setInterval(async () => {
+          await this.$store.dispatch(
+            'organization/getOrgInfo',
+            this.orgForm._id
+          )
+          if (ifAddedToChain()) {
+            // has written in the chain
+            this.isTransactionSuccess = true
+            this.showTrans = false
+            clearInterval(this.checkOrgStatusTimer)
+          }
+        }, 5000)
+      } catch (err) {
+        // 统一处理错误，比较乱
+        console.log('catch', err)
+        this.$notify({
+          message: err || 'publish failed',
+          type: 'warning'
+        })
+        this.progressTimer && clearInterval(this.progressTimer)
+        this.checkOrgStatusTimer && clearInterval(this.checkOrgStatusTimer)
+        this.isCreateSuccess = false
+        this.isTrans = false
+      }
+    },
+    async ToEditMember(user) {
+      try {
+        this.isTrans = true
+        const deployData = await this.getDeployData(
+          this.getUserAddr(user),
+          user.role
+        )
+        await web3.eth
+          .sendTransaction({
+            from: this.coinbase,
+            value: '0',
+            gas: '8000000',
+            to: this.orgForm.contract, // 组织合约地址
+            data: deployData
+          })
+          .on('transactionHash', hash => {
+            console.log('get transhash 1')
+            this.transactionHash = hash
+            this.isTrans = false
+          })
+          .on('receipt', receipt => {
+            console.log('receipt', receipt)
+          })
+          .on('confirmation', (confirmationNumber, receipt) => {
+            console.log('confirmation', confirmationNumber)
+          })
+          .on('error', err => {
+            console.log('error1', err)
+            this.isTrans = false
+            Promise.reject(err)
+          })
+        console.log('trans2', this.transactionHash)
+        this.isTrans = false
+        this.showForm = false
+        this.showTrans = true
+        debugger
+        this.progressTimer = setInterval(() => {
+          if (this.percentage < 90) {
+            this.percentage++
+          } else {
+            clearInterval(this.progressTimer)
+          }
+        }, 2000)
+        this.$once('hook:beforeDestroy', () => {
+          clearInterval(this.progressTimer)
+        })
+
+        const data = {
+          q: {
+            _id: this.orgForm._id,
+            'members.email': user.email
+          },
+          op: {
+            'members.$.role': user.role,
+            'members.$.description': user.description
+          }
+        }
+        await updateOrgMember(data)
+        this.isCreateSuccess = true
+        const ifAddedToChain = () => {
+          if (!this.orgForm.members) return false
+          const member = this.orgForm.members.filter(
+            member => member._id == user._id
+          )
+          if (!member.length) return false
+          if (!member.address) return false
+          return true
+        }
+        this.checkOrgStatusTimer = setInterval(async () => {
+          await this.$store.dispatch(
+            'organization/getOrgInfo',
+            this.orgForm._id
+          )
+          if (ifAddedToChain()) {
+            // has written in the chain
+            this.isTransactionSuccess = true
+            this.showTrans = false
+            clearInterval(this.checkOrgStatusTimer)
+          }
+        }, 5000)
+      } catch (err) {
+        // 统一处理错误，比较乱
+        console.log('catch', err)
+        this.$notify({
+          message: err || 'publish failed',
+          type: 'warning'
+        })
+        this.progressTimer && clearInterval(this.progressTimer)
+        this.checkOrgStatusTimer && clearInterval(this.checkOrgStatusTimer)
+        this.isCreateSuccess = false
+        this.isTrans = false
+      }
+    },
+    async getDeployDataDeleteMember(addr) {
+      let members = [addr]
+      let removeMembersData = await Organization.genRemoveMembersData(members);
+      return removeMembersData
+    },
+    async ToDeleteMember(user) {
+      try {
+        this.isTrans = true
+        const deployData = await this.getDeployDataDeleteMember(this.getUserAddr(user))
+        await web3.eth
+          .sendTransaction({
+            from: this.coinbase,
+            value: '0',
+            gas: '8000000',
+            to: this.orgForm.contract, // 组织合约地址
+            data: deployData
+          })
+          .on('transactionHash', hash => {
+            console.log('get transhash 1')
+            this.transactionHash = hash
+            this.isTrans = false
+          })
+          .on('receipt', receipt => {
+            console.log('receipt', receipt)
+          })
+          .on('confirmation', (confirmationNumber, receipt) => {
+            console.log('confirmation', confirmationNumber)
+          })
+          .on('error', err => {
+            console.log('error1', err)
+            this.isTrans = false
+            Promise.reject(err)
+          })
+        console.log('trans2', this.transactionHash)
+        this.isTrans = false
+        this.showForm = false
+        this.showTrans = true
+        debugger
+        this.progressTimer = setInterval(() => {
+          if (this.percentage < 90) {
+            this.percentage++
+          } else {
+            clearInterval(this.progressTimer)
+          }
+        }, 2000)
+        this.$once('hook:beforeDestroy', () => {
+          clearInterval(this.progressTimer)
+        })
+        await this.$store.dispatch('organization/deleteOrgMember', user.email)
+        this.isCreateSuccess = true
+        const ifAddedToChain = () => {
+          if (!this.orgForm.members) return false
+          const member = this.orgForm.members.filter(
+            member => member._id == user._id
+          )
+          if (!member.length) return false
+          if (!member.address) return false
+          return true
+        }
+        this.checkOrgStatusTimer = setInterval(async () => {
+          await this.$store.dispatch(
+            'organization/getOrgInfo',
+            this.orgForm._id
+          )
+          if (ifAddedToChain()) {
+            // has written in the chain
+            this.isTransactionSuccess = true
+            this.showTrans = false
+            clearInterval(this.checkOrgStatusTimer)
+          }
+        }, 5000)
+      } catch (err) {
+        // 统一处理错误，比较乱
+        console.log('catch', err)
+        this.$notify({
+          message: err || 'publish failed',
+          type: 'warning'
+        })
+        this.progressTimer && clearInterval(this.progressTimer)
+        this.checkOrgStatusTimer && clearInterval(this.checkOrgStatusTimer)
+        this.isCreateSuccess = false
+        this.isTrans = false
+      }
+    },
     handleGetStart() {
       this.isTransactionSuccess = false
     },
 
-// old member handle logic
+    // old member handle logic
     handleSearchUser() {
       getUserInfoByEmail(this.searchEmail).then(res => {
         if (res.entity) {
@@ -137,6 +427,9 @@ export default {
       })
     },
     handleAddMember() {
+      this.showTrans = true
+    },
+    handleAddMemberOld() {
       const member = {
         _id: this.searchUser._id,
         email: this.searchUser.email
@@ -165,20 +458,9 @@ export default {
         })
       }
     },
-    handleClickDelete(email) {
+    handleClickDelete(user) {
       if (this.isOwner) {
-        this.$store
-          .dispatch('organization/deleteOrgMember', email)
-          .then(res => {
-            // if (res === 'success') {
-            //   this.isDialogAddVisible = false
-            // } else {
-            //   this.$notify({
-            //     message: res,
-            //     type: 'warning'
-            //   })
-            // }
-          })
+        this.$store.dispatch('organization/deleteOrgMember', user.email)
       } else {
         this.$notify({
           message: 'Please log in to delete member!',
