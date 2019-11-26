@@ -1,9 +1,5 @@
 <template>
   <div class="organization">
-    <!--    <div class="back">-->
-    <!--      <el-button class="btn-grey" round>&lt; Back</el-button>-->
-    <!--    </div>-->
-
     <el-form
       v-if="!isTransactionSuccess"
       ref="newOrg"

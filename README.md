@@ -75,3 +75,26 @@ Add organization module, including organization search, create, login and displa
 Complete the frontend framework structure of Comunion 1.0.
 
 Add team manager, profile module.
+
+## Components
+*[@/components/Common/MetaMaskTrans]
+to handle the action that have to use the metamask and write down at the chain.
+include:
+1. check if the browser has installed metamask
+2. check if login the metamask and connect to the comunion account,
+   then we will get the address of the wallet => this.coinbase
+3. to wake up the metamask to do the transation
+4. send info to server
+5. begin to show the progress bar, setInterval to get info until the server tells us the info has written to the chain, then close the progress bar
+6. show action successful tip
+
+*[@/mixins/GetInfo]
+to get if the user is the owner of current organization
+us e=> this.isOwner
+
+*[@/mixins/MetaMaskInstall]
+add single function respectively to check
+1. check if the browser has installed metamask
+2. check if login the metamask and connect to the comunion account,
+   then we will get the address of the wallet => this.coinbase
+3. to Login the metamask

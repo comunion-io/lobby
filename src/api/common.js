@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function addTransation(params) {
+function addTransation(params) {
   return request({
     url: '/r/tx',
     method: 'post',
@@ -8,9 +8,14 @@ export function addTransation(params) {
   })
 }
 
-export function getTransation(txhash) {
+function getTransation(txhash) {
   return request({
     url: `/r/tx/receipt/${txhash}`,
     method: 'get'
   })
+}
+
+export default {
+  addTransation,
+  getTransation
 }

@@ -66,13 +66,14 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import MetaMaskInstall from '@/mixins/MetaMaskInstall'
+import DaoInstall from '@/mixins/DaoInstall'
 import { async } from 'q'
 import { Organization, OrgToken } from 'comunion-dao'
 import { stringify } from 'querystring'
+import { addTransation, getTransation } from '@/api/common'
 
 export default {
-  mixins: [MetaMaskInstall],
+  mixins: [DaoInstall],
   data() {
     return {
       dialogVisible: false,
@@ -90,24 +91,33 @@ export default {
     // what do you use trans to do
     actionName: {
       type: String,
-      default: 'add the member'
+      required
+    },
+    // what do you use trans to do
+    actionType: {
+      type: String,
+      required
     },
     // use sdk to get the deployData
     getDeployData: {
-      type: Function,
+      type: Function
     },
     // use to update the database
     dbData: {
       type: Object
+    },
+    defaultStatus: {
+      type: Number,
+      default: 2
     }
   },
   computed: {
-    ...mapGetters(['coinbase', 'orgForm'])
+    ...mapGetters(['coinbase', 'orgForm', 'userInfo'])
   },
   created() {},
   methods: {
     handleGetStart() {
-      this.$emit('handleGetStart');
+      this.$emit('handleGetStart')
     },
     clickCheck() {
       this.checkIfInstallMataMask()
@@ -183,27 +193,28 @@ export default {
           clearInterval(this.progressTimer)
         })
         // common api: sync the data and hash to database
-        await this.transToDb(
-          this.transactionHash,
-          this.dbData
-        )
+        await addTransation({
+          txhash: this.transactionHash,
+          userId: this.userInfo._id || '',
+          type: this.actionType,
+          data: this.dbData,
+          status: this.defaultStatus
+        })
         this.isSyncDbSuccess = true
         this.checkOrgStatusTimer = setInterval(async () => {
-          this.getDbStatus(
-            this.transactionHash,
-            this.orgForm._id
-          ).then((data) => {
-            if (this.orgForm.asset && this.orgForm.asset.contract) {
-              // has written in the chain
+          this.getTransation(this.transactionHash).then(data => {
+            if (data.status === 1) {
               this.isTransactionSuccess = true
               this.showTrans = false
               clearInterval(this.checkOrgStatusTimer)
+            } else if (data.status === 3) {
+              throw 'fail to add to chain'
             }
           })
         }, 5000)
       } catch (err) {
         // 统一处理错误，比较乱
-        console.log('catch', err)
+        console.log('catch: ', err)
         this.$notify({
           message: err || 'publish failed',
           type: 'warning'
@@ -214,7 +225,6 @@ export default {
         this.isTrans = false
       }
     }
-  }
   }
 }
 </script>
@@ -230,6 +240,11 @@ export default {
 }
 .message {
   margin-bottom: 20px;
+}
+.success-txt {
+  font-size: 20px;
+  color: rgba(55, 64, 89, 0.85);
+  margin: 30px auto;
 }
 .el-card.is-always-shadow {
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.02);
