@@ -14,80 +14,15 @@
       <div class="token-manage-form" v-if="showForm">
         <PublishTokenForm @clickPublish="handlePublish" />
       </div>
-
-      <MetamaskInstallLogin
-        :showTrans="showTrans"
-        :percentage="percentage"
-        :isCreateSuccess="isCreateSuccess"
-        :isTransactionSuccess="isTransactionSuccess"
-        :transactionHash="transactionHash"
-        :handlePublish="publishToken"
-        :isTrans="isTrans"
-        @handleGetStart="handleGetStart"
+      <MetaMaskTrans
+        v-if="showMM"
         actionName="add the token"
-      ></MetamaskInstallLogin>
-
-      <!-- <el-card class="tip" v-if="showTrans">
-        <div class="deploy-trans">
-          <div class="inner-content">
-            <div class="section-card">
-              <div class="card-title">Deploy Transaction</div>
-              <div class="tip nomargin left">
-                This is the last step : ) &nbsp; You will need to sign the transaction to publish the token.
-                <br />Continue with your web wallet.
-              </div>
-              <div v-if="!transactionHash" class="card-content">
-                <div class="tip">Open your web wallet</div>
-
-                <div class="wallet-logo">
-                  <svg class="icon" aria-hidden="true">
-                    <use :xlink:href="'#icon-metamask'+(isMetaMaskInstalled?1:'')" />
-                  </svg>
-                </div>
-                <el-button
-                  :class="['btn-wide', isMetaMaskInstalled?'btn-main':'btn-grey']"
-                  round
-                  @click="publishToken"
-                >MetaMask</el-button>
-                <div v-if="!coinbase" class="tip" @click="handleMetaMaskLogin">
-                  click
-                  <a>log in</a> to wake up your MetaMask
-                </div>
-                <div v-else class="tip black">Address: {{ coinbase }}</div>
-              </div>
-              <div v-else>
-                <div class="success">
-                  <el-progress type="circle" color="#7B88FF" :percentage="percentage" />
-                </div>
-                <div class="tip">It takes a few minutes to confirm on the chain.</div>
-                <div class="tip">Do not close this page...</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </el-card>
-      <div v-if="!showTrans && isTransactionSuccess" class="inner-content">
-        <div class="success">
-          <img src="~@/assets/success.png" alt />
-        </div>
-        <div class="success-txt">Congratulations!</div>
-        <div class="success-txt">You have created a token.</div>
-        <el-button class="btn-main btn-wide" round @click="handleGetStart">Get Start</el-button>
-      </div>-->
+        actionType="SetTokenData"
+        :getDeployData="getDeployData"
+        :dbData="dbData"
+        @transSuccess="handleSuccess"
+      ></MetaMaskTrans>
     </div>
-    <!-- <el-dialog title :visible.sync="dialogVisible" width="30%">
-      <div>
-        <div class="message">You have not installed MetaMask Yet!</div>
-        <span slot="footer" class="dialog-footer">
-          <el-button class="btn-main btn-wide" round>
-            <a
-              href="https://wiki.comunion.io/guide/metamask-guide"
-              target="_blank"
-            >View installation tutorial</a>
-          </el-button>
-        </span>
-      </div>
-    </el-dialog>-->
   </div>
 </template>
 
@@ -96,31 +31,32 @@ import UserGuide from './user-guide'
 import PublishTokenForm from './publish-token-form'
 import { mapGetters } from 'vuex'
 import MetaMaskInstall from '@/mixins/MetaMaskInstall'
+import DaoInstall from '@/mixins/DaoInstall'
+import MetaMaskTrans from '@/components/Common/MetaMaskTrans'
 import GetInfo from '@/mixins/GetInfo'
 import { async } from 'q'
 import { Organization, OrgToken } from 'comunion-dao'
-import MetamaskInstallLogin from '@/components/Common/MetaInstallLogin'
 
 export default {
-  components: { UserGuide, PublishTokenForm, MetamaskInstallLogin },
-  mixins: [GetInfo, MetaMaskInstall],
+  components: {
+    UserGuide,
+    PublishTokenForm,
+    MetaMaskTrans
+  },
+  mixins: [GetInfo, MetaMaskInstall, DaoInstall],
   data() {
     return {
-      isTrans: false,
-      showGuide: false,
       loading: false,
-      dialogVisible: false,
-      showTrans: false,
       showForm: false,
-      percentage: 0,
-      transactionHash: '',
       hasToken: false,
       asset: null,
       icon: '',
       isCreateSuccess: false,
       isTransactionSuccess: false,
       progressTimer: null,
-      checkOrgStatusTimer: null
+      checkOrgStatusTimer: null,
+      dbData: null,
+      showMM: false
     }
   },
   computed: {
@@ -149,7 +85,7 @@ export default {
     this.checkOrgStatusTimer && clearInterval(this.checkOrgStatusTimer)
   },
   methods: {
-    handleGetStart() {
+    handleSuccess() {
       this.hasToken = true
     },
     closeGuide() {
@@ -165,22 +101,26 @@ export default {
       }
     },
     handlePublish(formParams) {
-      this.showForm = false
-      this.showTrans = true
       this.asset = {
         name: formParams.name,
         symbol: formParams.symbol,
         supply: formParams.supply
       }
       this.icon = formParams.icon
+      this.dbData = {
+        asset: this.asset,
+        icon: this.icon
+      }
+      this.showForm = false
+      this.showMM = true
     },
-    async getDeployData(assetInfo, contract) {
+    async getDeployData() {
       try {
         let deployData = await OrgToken.genDeployData(
-          contract,
-          assetInfo.name,
-          assetInfo.symbol,
-          assetInfo.supply
+          this.orgForm.contract,
+          this.asset.name,
+          this.asset.symbol,
+          this.asset.supply
         )
         return Promise.resolve(deployData)
       } catch (err) {

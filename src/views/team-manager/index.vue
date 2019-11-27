@@ -54,17 +54,14 @@
       @saveUser="handleUpdateMember"
     />
 
-    <el-dialog ref="addDialog" title="Add Members" :visible.sync="showTrans" width="666px">
-      <MetamaskInstallLogin
-        :showTrans="showTrans"
-        :percentage="percentage"
-        :isCreateSuccess="isCreateSuccess"
-        :isTransactionSuccess="isTransactionSuccess"
-        :transactionHash="transactionHash"
-        :handlePublish="ToAddMember"
-        @handleGetStart="handleGetStart"
+    <el-dialog ref="addDialog" title="Add Members" :visible.sync="showMMAddMember" width="666px">
+      <MetaMaskTrans
         actionName="add the member"
-      ></MetamaskInstallLogin>
+        actionType="SetMemberData"
+        :getDeployData="getDeployDataAddMember"
+        :dbData="dbDataAddMember"
+        @transSuccess="handleSuccessAddMember"
+      ></MetaMaskTrans>
     </el-dialog>
   </div>
 </template>
@@ -78,11 +75,11 @@ import { getCurOrgId, setCurOrgId } from '@/utils/auth'
 import { updateOrgMember } from '@/api/organization'
 import GetInfo from '@/mixins/GetInfo'
 import DaoInstall from '@/mixins/DaoInstall'
-import MetamaskInstallLogin from '@/components/Common/MetaInstallLogin'
+import MetaMaskTrans from '@/components/Common/MetaMaskTrans'
 import { Organization } from 'comunion-dao'
 
 export default {
-  components: { AddUpdateDialog, UserCard, MetamaskInstallLogin },
+  components: { AddUpdateDialog, UserCard, MetaMaskTrans },
   mixins: [GetInfo, DaoInstall],
   data() {
     return {
@@ -94,47 +91,25 @@ export default {
       curUser: null,
 
       // publish
-      showTrans: false,
-      percentage: 0,
-      isCreateSuccess: false,
-      isTransactionSuccess: false,
-      transactionHash: '',
-      isTrans: false,
-      progressTimer: null,
-      checkOrgStatusTimer: null
+      dbDataAddMember: null,
+      showMMAddMember: false
     }
   },
   computed: {
     ...mapGetters(['userInfo', 'orgForm'])
   },
-  created() {
-  },
+  created() {},
   methods: {
-    handlePublish() {
-      //获取deployData后trans成功
-      setTimeout(() => {
-        this.showForm = false
-        this.showTrans = true
-        this.transactionHash = '1'
-        //更新数据库信息
-        setTimeout(() => {
-          this.isCreateSuccess = true
-          //轮询结果上链了
-          setTimeout(() => {
-            this.isTransactionSuccess = true
-            this.showTrans = false
-          }, 2000)
-        }, 2000)
-      }, 2000)
+    handleSuccessAddMember() {
+      this.showMMAddMember = false
     },
-    async getDeployData(addr, role = 'normal') {
-              let roleTrans = EthUtils.web3.utils.fromUtf8(role)
-
+    async getDeployDataAddMember() {
+      let defaultRole = 'member';
       try {
         // role 字符串长度不能超过32字节
-        let roleTrans = EthUtils.web3.utils.fromUtf8(role)
+        let roleTrans = EthUtils.web3.utils.fromUtf8(defaultRole)
         // members 与 roles 按顺序一一对应
-        let members = [addr]
+        let members = [this.getUserAddr(this.searchUser)]
         let roles = [roleTrans]
         let deployData = await Organization.genAddOrUpdateMembersData(
           members,
@@ -159,7 +134,7 @@ export default {
           .sendTransaction({
             from: this.coinbase,
             value: '0',
-            gas: '8000000',
+            gas: '8000000',
             to: this.orgForm.contract, // 组织合约地址
             data: deployData
           })
@@ -244,7 +219,7 @@ export default {
           .sendTransaction({
             from: this.coinbase,
             value: '0',
-            gas: '8000000',
+            gas: '8000000',
             to: this.orgForm.contract, // 组织合约地址
             data: deployData
           })
@@ -328,18 +303,20 @@ export default {
     },
     async getDeployDataDeleteMember(addr) {
       let members = [addr]
-      let removeMembersData = await Organization.genRemoveMembersData(members);
+      let removeMembersData = await Organization.genRemoveMembersData(members)
       return removeMembersData
     },
     async ToDeleteMember(user) {
       try {
         this.isTrans = true
-        const deployData = await this.getDeployDataDeleteMember(this.getUserAddr(user))
+        const deployData = await this.getDeployDataDeleteMember(
+          this.getUserAddr(user)
+        )
         await web3.eth
           .sendTransaction({
             from: this.coinbase,
             value: '0',
-            gas: '8000000',
+            gas: '8000000',
             to: this.orgForm.contract, // 组织合约地址
             data: deployData
           })
@@ -427,6 +404,13 @@ export default {
       })
     },
     handleAddMember() {
+      this.dbDataAddMember = {
+        members: [
+          {
+
+          }
+        ]
+      },
       this.showTrans = true
     },
     handleAddMemberOld() {

@@ -87,7 +87,7 @@ export default {
     // after installing the metamask and login and bundling and get the coinbase,
     // to do the data things
     handlePublish: {
-      type: Function,
+      type: Function
     },
     // web3 transation hash
     transactionHash: {
@@ -102,14 +102,14 @@ export default {
     // finish putting data to database
     isCreateSuccess: {
       type: Boolean,
-      default:false
+      default: false
     },
-    // success to add data to the chain     
+    // success to add data to the chain
     isTransactionSuccess: {
       type: Boolean,
-      default:false
+      default: false
     },
-    // begin trans     
+    // begin trans
     showTrans: {
       type: Boolean,
       default: true
@@ -125,7 +125,8 @@ export default {
   created() {},
   methods: {
     handleGetStart() {
-      this.$emit('handleGetStart');
+      this.$store.dispatch('organization/getOrgInfo', this.orgForm._id)
+      this.$emit('handleGetStart')
     },
     clickCheck() {
       this.checkIfInstallMataMask()
@@ -156,78 +157,75 @@ export default {
       this.getDeployData()
         .then(deployData => {
           try {
-            web3.eth.sendTransaction(
-              deployData,
-              (err, data) => {
-                if (data) {
-                  this.transactionHash = data
-                  this.showForm = false
-                  this.showTrans = true
-                  console.log('transaction hash', data)
-                  const _this = this
-                  const progressTimer = setInterval(() => {
-                    if (_this.percentage < 90) {
-                      _this.percentage++
-                    } else {
-                      clearInterval(progressTimer)
-                    }
-                  }, 2000)
-                  this.$once('hook:beforeDestroy', () => {
-                    console.log('before destroy')
+            web3.eth.sendTransaction(deployData, (err, data) => {
+              if (data) {
+                this.transactionHash = data
+                this.showForm = false
+                this.showTrans = true
+                console.log('transaction hash', data)
+                const _this = this
+                const progressTimer = setInterval(() => {
+                  if (_this.percentage < 90) {
+                    _this.percentage++
+                  } else {
                     clearInterval(progressTimer)
-                  })
+                  }
+                }, 2000)
+                this.$once('hook:beforeDestroy', () => {
+                  console.log('before destroy')
+                  clearInterval(progressTimer)
+                })
 
-                  this.$store
-                    .dispatch(
-                      'organization/addAsset',
-                      this.asset,
-                      this.icon,
-                      this.transactionHash
-                    )
-                    .then(res => {
-                      console.log('res', res)
+                this.$store
+                  .dispatch(
+                    'organization/addAsset',
+                    this.asset,
+                    this.icon,
+                    this.transactionHash
+                  )
+                  .then(res => {
+                    console.log('res', res)
 
-                      this.isCreateSuccess = true
-                      const checkOrgStatusTimer = setInterval(() => {
-                        this.$store
-                          .dispatch('organization/getOrgInfo', this.orgForm._id)
-                          .then(() => {
-                            console.log(this.orgForm, this.orgForm)
-                            if (
-                              this.orgForm.asset &&
-                              this.orgForm.asset.contract
-                            ) {
-                              // has written in the chain
-                              this.isTransactionSuccess = true
-                              this.showTrans = false
-                              // this.hasToken = true
+                    this.isCreateSuccess = true
+                    const checkOrgStatusTimer = setInterval(() => {
+                      this.$store
+                        .dispatch('organization/getOrgInfo', this.orgForm._id)
+                        .then(() => {
+                          console.log(this.orgForm, this.orgForm)
+                          if (
+                            this.orgForm.asset &&
+                            this.orgForm.asset.contract
+                          ) {
+                            // has written in the chain
+                            this.isTransactionSuccess = true
+                            this.showTrans = false
+                            // this.hasToken = true
 
-                              clearInterval(checkOrgStatusTimer)
-                            }
-                          })
-                      }, 5000)
-                      this.$once('hook:beforeDestroy', () => {
-                        console.log('before destroy')
-                        clearInterval(checkOrgStatusTimer)
-                      })
-                    })
-                    .catch(err => {
-                      this.$notify({
-                        message: statusRes.msg,
-                        type: 'warning'
-                      })
-                      clearInterval(progressTimer)
+                            clearInterval(checkOrgStatusTimer)
+                          }
+                        })
+                    }, 5000)
+                    this.$once('hook:beforeDestroy', () => {
+                      console.log('before destroy')
                       clearInterval(checkOrgStatusTimer)
                     })
-                } else {
-                  this.isCreateSuccess = false
-                  this.$notify({
-                    message: err,
-                    type: 'warning'
                   })
-                }
+                  .catch(err => {
+                    this.$notify({
+                      message: statusRes.msg,
+                      type: 'warning'
+                    })
+                    clearInterval(progressTimer)
+                    clearInterval(checkOrgStatusTimer)
+                  })
+              } else {
+                this.isCreateSuccess = false
+                this.$notify({
+                  message: err,
+                  type: 'warning'
+                })
               }
-            )
+            })
           } catch (error) {
             console.log(error)
           }

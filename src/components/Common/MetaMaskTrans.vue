@@ -66,45 +66,47 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import DaoInstall from '@/mixins/DaoInstall'
+import MetaMaskInstall from '@/mixins/MetaMaskInstall'
 import { async } from 'q'
 import { Organization, OrgToken } from 'comunion-dao'
 import { stringify } from 'querystring'
 import { addTransation, getTransation } from '@/api/common'
 
 export default {
-  mixins: [DaoInstall],
+  mixins: [MetaMaskInstall],
   data() {
     return {
       dialogVisible: false,
-      showTrans: false,
+      showTrans: true,
       percentage: 0,
       isSyncDbSuccess: false,
       isTransactionSuccess: false,
       transactionHash: '',
       isTrans: false,
       progressTimer: null,
-      checkOrgStatusTimer: null
+      checkOrgStatusTimer: null,
     }
   },
   props: {
     // what do you use trans to do
     actionName: {
       type: String,
-      required
+      required: true
     },
     // what do you use trans to do
     actionType: {
       type: String,
-      required
+      required: true
     },
     // use sdk to get the deployData
     getDeployData: {
-      type: Function
+      type: Function,
+      required: true
     },
     // use to update the database
     dbData: {
-      type: Object
+      type: Object,
+      required: true
     },
     defaultStatus: {
       type: Number,
@@ -117,7 +119,7 @@ export default {
   created() {},
   methods: {
     handleGetStart() {
-      this.$emit('handleGetStart')
+      this.$emit('transSuccess')
     },
     clickCheck() {
       this.checkIfInstallMataMask()
@@ -143,6 +145,7 @@ export default {
         const deployData = await this.getDeployData()
         // this.transactionHash = await web3.eth.sendTransaction({
         //   from: this.coinbase,
+        //   gas: '8000000',
         //   value: '0',
         //   data: deployData
         // }, (err, data) => {
@@ -154,6 +157,7 @@ export default {
         //     Promise.resolve(data);
         //   }
         // });
+        debugger
         await web3.eth
           .sendTransaction({
             from: this.coinbase,
@@ -162,20 +166,9 @@ export default {
             data: deployData
           })
           .on('transactionHash', hash => {
-            console.log('get transhash 1')
+            console.log('get transhash 1', hash)
             this.transactionHash = hash
             this.isTrans = false
-          })
-          .on('receipt', receipt => {
-            console.log('receipt', receipt)
-          })
-          .on('confirmation', (confirmationNumber, receipt) => {
-            console.log('confirmation', confirmationNumber)
-          })
-          .on('error', err => {
-            console.log('error1', err)
-            this.isTrans = false
-            Promise.reject(err)
           })
         console.log('trans2', this.transactionHash)
         this.isTrans = false
