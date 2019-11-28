@@ -108,10 +108,15 @@ export default {
       type: Object,
       required: true
     },
+    // if we need to add the to attr when we call the metamask wallet to trans
+    transTo: {
+      type: String,
+      default: ''
+    },
     defaultStatus: {
       type: Number,
       default: 2
-    }
+    },
   },
   computed: {
     ...mapGetters(['coinbase', 'orgForm', 'userInfo'])
@@ -143,33 +148,36 @@ export default {
       try {
         this.isTrans = true
         const deployData = await this.getDeployData()
-        // this.transactionHash = await web3.eth.sendTransaction({
-        //   from: this.coinbase,
-        //   gas: '8000000',
-        //   value: '0',
-        //   data: deployData
-        // }, (err, data) => {
-        //   if (err) {
-        //     console.log('err', err)
-        //     Promise.reject(err)
-        //   } else if (data) {
-        //     console.log('trans', this.transactionHash)
-        //     Promise.resolve(data);
-        //   }
-        // });
-        debugger
-        await web3.eth
-          .sendTransaction({
-            from: this.coinbase,
-            value: '0',
-            gas: '8000000',
-            data: deployData
-          })
-          .on('transactionHash', hash => {
-            console.log('get transhash 1', hash)
-            this.transactionHash = hash
-            this.isTrans = false
-          })
+        const mmData = {
+          from: this.coinbase,
+          gas: '8000000',
+          value: '0',
+          data: deployData
+        };
+        if (this.transTo) {
+          mmData.to = this.transTo
+        }
+        this.transactionHash = await web3.eth.sendTransaction(mmData, (err, data) => {
+          if (err) {
+            console.log('err', err)
+            Promise.reject(err)
+          } else if (data) {
+            console.log('trans', this.transactionHash)
+            Promise.resolve(data);
+          }
+        });
+        // await web3.eth
+        //   .sendTransaction({
+        //     from: this.coinbase,
+        //     value: '0',
+        //     gas: '8000000',
+        //     data: deployData
+        //   })
+        //   .on('transactionHash', hash => {
+        //     console.log('get transhash 1', hash)
+        //     this.transactionHash = hash
+        //     this.isTrans = false
+        //   })
         console.log('trans2', this.transactionHash)
         this.isTrans = false
         this.showForm = false
@@ -205,9 +213,13 @@ export default {
             }
           })
         }, 5000)
+        this.$once('hook:beforeDestroy', () => {
+          console.log('before destroy')
+          clearInterval(this.checkOrgStatusTimer)
+        })
       } catch (err) {
         // 统一处理错误，比较乱
-        console.log('catch: ', err)
+        console.log('trans catch: \n ', err)
         this.$notify({
           message: err || 'publish failed',
           type: 'warning'

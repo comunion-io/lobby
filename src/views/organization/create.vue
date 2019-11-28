@@ -78,7 +78,7 @@
                   </el-form-item>
                   <el-form-item label="Organization Logo" class="common-upload-style" prop="logo">
                     <el-upload
-                      action="http://178.128.221.42:8080/a/upload"
+                      action="http://178.128.221.42:8090/a/upload"
                       name="upload"
                       list-type="picture-card"
                       :multiple="false"
@@ -255,7 +255,8 @@ import _ from 'lodash'
 import { mapGetters } from 'vuex'
 import MetaMaskInstall from '@/mixins/MetaMaskInstall'
 import Web3 from 'web3';
-import { EthUtils, Daos, Organization, OrgToken } from 'comunion-dao';
+import { Organization } from 'comunion-dao';
+import CommonApi from '@/api/common'
 
 export default {
   mixins: [MetaMaskInstall],
@@ -278,7 +279,7 @@ export default {
       newOrg: {
         name: '',
         type: '', // 没有该字段
-        logo: '',
+        logo: 'http://comunion-avatar.sgp1.digitaloceanspaces.com/avatar_jvQ04BG4EI.jpeg',
         email: '',
         wallet: [],
         website: '',
@@ -510,6 +511,103 @@ export default {
       })
     },
     submitForm(formName) {
+      if (this.coinbase) {
+        this.newOrg.wallet.push({
+          name: 'eth',
+          value: this.coinbase
+        })
+        console.log(this.newOrg)
+
+        this.$refs[formName].validate(valid => {
+          console.log('valid value:', valid)
+          if (valid) {
+            const deployData = Organization.genDeployData(
+              this.daosAddress,
+              this.newOrg.name
+            )
+            web3.eth.sendTransaction(
+              {
+                from: this.coinbase,
+                value: '0',
+                gas: '8000000',
+                data: deployData
+              },
+              (err, data) => {
+                if (data) {
+                  this.newOrg.transactionHash = data
+
+                  console.log('transaction hash', data)
+                  const _this = this
+                  const progressTimer = setInterval(() => {
+                    if (_this.percentage < 90) {
+                      _this.percentage++
+                    } else {
+                      clearInterval(progressTimer)
+                    }
+                  }, 2000)
+                  this.$once('hook:beforeDestroy', () => {
+                    console.log('before destroy')
+                    clearInterval(progressTimer)
+                  })
+
+                  this.newOrg.website = this.newOrg.website.replace(
+                    /(http\:\/\/)|(https\:\/\/)/,
+                    ''
+                  );
+                  CommonApi.addTransation({
+                    txhash: this.newOrg.transactionHash,
+                    userId: (this.userInfo && this.userInfo._id) || '',
+                    type: 'NewOrgData',
+                    data: this.newOrg,
+                    status: 2
+                  }).then(res => {
+                      console.log('add trans success', res)
+                      this.isCreateSuccess = true
+                      const checkOrgStatusTimer = setInterval(() => {
+                        CommonApi.getTransation(this.newOrg.transactionHash).then(data => {
+                          if (data.status === 1) {
+                            this.isTransactionSuccess = true
+                            clearInterval(checkOrgStatusTimer)
+                          } else if (data.status === 3) {
+                            this.$notify({
+                              message: 'fail to add to chain',
+                              type: 'warning'
+                            })
+                            clearInterval(progressTimer)
+                            clearInterval(checkOrgStatusTimer)
+                          }
+                        })
+                      }, 5000)
+                      this.$once('hook:beforeDestroy', () => {
+                        console.log('before destroy')
+                        clearInterval(checkOrgStatusTimer)
+                      })
+                    })
+                } else {
+                  this.isCreateSuccess = false
+                  this.$notify({
+                    message: err,
+                    type: 'warning'
+                  })
+                }
+              }
+            )
+          } else {
+            this.$notify({
+              message: 'Please complete organization info to create!',
+              type: 'warning'
+            })
+            return false
+          }
+        })
+      } else {
+        this.$notify({
+          message: 'please log in first!',
+          type: 'warning'
+        })
+      }
+    },
+    submitFormOld(formName) {
       if (this.coinbase) {
         this.newOrg.wallet.push({
           name: 'eth',

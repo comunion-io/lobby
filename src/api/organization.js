@@ -26,8 +26,8 @@ export function updateOrgMember(data) {
 
 export function getOrgList() {
   return request({
-    url: '/r/org',
-    method: 'get'
+    url: '/r/org?max=30',
+    method: 'get',
   })
 }
 

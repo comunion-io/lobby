@@ -61,6 +61,7 @@
         :getDeployData="getDeployDataAddMember"
         :dbData="dbDataAddMember"
         @transSuccess="handleSuccessAddMember"
+        :transTo="orgForm.contract"
       ></MetaMaskTrans>
     </el-dialog>
   </div>
@@ -76,7 +77,7 @@ import { updateOrgMember } from '@/api/organization'
 import GetInfo from '@/mixins/GetInfo'
 import DaoInstall from '@/mixins/DaoInstall'
 import MetaMaskTrans from '@/components/Common/MetaMaskTrans'
-import { Organization } from 'comunion-dao'
+import { Organization } from 'comunion-dao';
 
 export default {
   components: { AddUpdateDialog, UserCard, MetaMaskTrans },
@@ -84,7 +85,7 @@ export default {
   data() {
     return {
       isUserExist: true,
-      searchEmail: '',
+      searchEmail: 'heyiqing6@sina.com',
       searchUser: null,
       isDialogEditVisible: false,
       isDialogAddVisible: false,
@@ -92,26 +93,44 @@ export default {
 
       // publish
       dbDataAddMember: null,
-      showMMAddMember: false
+      showMMAddMember: false,
+
+      // common
+      daos: null,
+      daosAddress: '0x7284C823ea3AD29bEDfd09Ede1107981E9519896',
+      org: null,
     }
   },
   computed: {
     ...mapGetters(['userInfo', 'orgForm'])
   },
-  created() {},
+  created() {
+  },
+  watch: {
+    'orgForm.contract': {
+      handler: function(val) {
+        if (val && this.ethUtils) {
+          this.org = new Organization(this.ethUtils, val);
+        }
+      }
+    }
+  },
   methods: {
     handleSuccessAddMember() {
       this.showMMAddMember = false
     },
     async getDeployDataAddMember() {
-      let defaultRole = 'member';
+      let defaultRole = 'member'
       try {
+        if (!this.org) {
+          this.org = new Organization(this.ethUtils, this.orgForm.contract);
+        }
         // role 字符串长度不能超过32字节
-        let roleTrans = EthUtils.web3.utils.fromUtf8(defaultRole)
+        let roleTrans = this.ethUtils.web3.utils.fromUtf8(defaultRole)
         // members 与 roles 按顺序一一对应
         let members = [this.getUserAddr(this.searchUser)]
         let roles = [roleTrans]
-        let deployData = await Organization.genAddOrUpdateMembersData(
+        let deployData = await this.org.genAddOrUpdateMembersData(
           members,
           roles
         )
@@ -158,7 +177,6 @@ export default {
         this.isTrans = false
         this.showForm = false
         this.showTrans = true
-        debugger
         this.progressTimer = setInterval(() => {
           if (this.percentage < 90) {
             this.percentage++
@@ -169,6 +187,7 @@ export default {
         this.$once('hook:beforeDestroy', () => {
           clearInterval(this.progressTimer)
         })
+        debugger
         await this.$store.dispatch('organization/addOrgMember', {
           _id: this.searchUser._id,
           email: this.searchUser.email
@@ -399,19 +418,17 @@ export default {
           this.searchUser = res.entity
           this.isUserExist = true
         } else {
+          this.searchUser = null
           this.isUserExist = false
         }
       })
     },
     handleAddMember() {
       this.dbDataAddMember = {
-        members: [
-          {
-
-          }
-        ]
-      },
-      this.showTrans = true
+        userId: this.searchUser._id,
+        email: this.searchUser.email
+      }
+      this.showMMAddMember = true
     },
     handleAddMemberOld() {
       const member = {
