@@ -54,10 +54,22 @@
       @saveUser="handleUpdateMember"
     />
 
-    <el-dialog ref="addDialog" title="Add Members" :visible.sync="showMMAddMember" width="666px">
+    <el-dialog ref="addDialogMM" title="Add Members" :visible.sync="showMMAddMember" width="666px">
       <MetaMaskTrans
         actionName="add the member"
         successText="You have added the member"
+        actionType="SetMemberData"
+        :getDeployData="getDeployDataAddMember"
+        :dbData="dbDataAddMember"
+        @transSuccess="handleSuccessAddMember"
+        :transTo="orgForm.contract"
+      ></MetaMaskTrans>
+    </el-dialog>
+
+    <el-dialog ref="editDialogMM" title="Edit Members" :visible.sync="showMMAddMember" width="666px">
+      <MetaMaskTrans
+        actionName="edit the member"
+        successText="You have edited the member"
         actionType="SetMemberData"
         :getDeployData="getDeployDataAddMember"
         :dbData="dbDataAddMember"
@@ -92,9 +104,13 @@ export default {
       isDialogAddVisible: false,
       curUser: null,
 
-      // publish
+      // add
       dbDataAddMember: null,
       showMMAddMember: false,
+
+      // edit
+      dbDataEditMember: null,
+      showMMEditMember: false,
 
       // common
       daos: null,
@@ -118,6 +134,7 @@ export default {
   },
   methods: {
     handleSuccessAddMember() {
+      this.isDialogAddVisible = false
       this.showMMAddMember = false
     },
     async getDeployDataAddMember() {
@@ -142,91 +159,6 @@ export default {
     },
     getUserAddr(user) {
       return user.wallet[0].address.toLowerCase()
-    },
-    async ToAddMember() {
-      try {
-        this.isTrans = true
-        const deployData = await this.getDeployData(
-          this.getUserAddr(this.searchUser),
-          'normal'
-        )
-        await web3.eth
-          .sendTransaction({
-            from: this.coinbase,
-            value: '0',
-            gas: '8000000',
-            to: this.orgForm.contract, // 组织合约地址
-            data: deployData
-          })
-          .on('transactionHash', hash => {
-            console.log('get transhash 1')
-            this.transactionHash = hash
-            this.isTrans = false
-          })
-          .on('receipt', receipt => {
-            console.log('receipt', receipt)
-          })
-          .on('confirmation', (confirmationNumber, receipt) => {
-            console.log('confirmation', confirmationNumber)
-          })
-          .on('error', err => {
-            console.log('error1', err)
-            this.isTrans = false
-            Promise.reject(err)
-          })
-        console.log('trans2', this.transactionHash)
-        this.isTrans = false
-        this.showForm = false
-        this.showTrans = true
-        this.progressTimer = setInterval(() => {
-          if (this.percentage < 90) {
-            this.percentage++
-          } else {
-            clearInterval(this.progressTimer)
-          }
-        }, 2000)
-        this.$once('hook:beforeDestroy', () => {
-          clearInterval(this.progressTimer)
-        })
-        debugger
-        await this.$store.dispatch('organization/addOrgMember', {
-          _id: this.searchUser._id,
-          email: this.searchUser.email
-        })
-        this.isCreateSuccess = true
-        const ifAddedToChain = () => {
-          if (!this.orgForm.members) return false
-          const member = this.orgForm.members.filter(
-            member => member._id == this.searchUser._id
-          )
-          if (!member.length) return false
-          if (!member.address) return false
-          return true
-        }
-        this.checkOrgStatusTimer = setInterval(async () => {
-          await this.$store.dispatch(
-            'organization/getOrgInfo',
-            this.orgForm._id
-          )
-          if (ifAddedToChain()) {
-            // has written in the chain
-            this.isTransactionSuccess = true
-            this.showTrans = false
-            clearInterval(this.checkOrgStatusTimer)
-          }
-        }, 5000)
-      } catch (err) {
-        // 统一处理错误，比较乱
-        console.log('catch', err)
-        this.$notify({
-          message: err || 'publish failed',
-          type: 'warning'
-        })
-        this.progressTimer && clearInterval(this.progressTimer)
-        this.checkOrgStatusTimer && clearInterval(this.checkOrgStatusTimer)
-        this.isCreateSuccess = false
-        this.isTrans = false
-      }
     },
     async ToEditMember(user) {
       try {
