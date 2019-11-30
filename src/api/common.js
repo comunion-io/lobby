@@ -1,10 +1,10 @@
 import request from '@/utils/request'
 
-function addTransation(params) {
+function addTransation(data) {
   return request({
     url: '/r/tx',
     method: 'post',
-    params
+    data
   })
 }
 

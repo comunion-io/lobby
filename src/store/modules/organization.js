@@ -1,5 +1,10 @@
 // import { login, logout, getInfo } from '@/api/user'
-import { newOrg, getOrgInfo, getOrgMembers, updateOrgInfo } from '@/api/organization'
+import {
+  newOrg,
+  getOrgInfo,
+  getOrgMembers,
+  updateOrgInfo
+} from '@/api/organization'
 
 const state = {
   _id: '',
@@ -54,7 +59,7 @@ const mutations = {
   },
   SET_ICON: (state, icon) => {
     state.icon = icon
-  },
+  }
   // ADD_MEMBER: (state, member) => {
   //   state.members.push(member)
   // },
@@ -64,7 +69,24 @@ const mutations = {
 }
 
 const actions = {
-  newOrg({ commit, state }, data) {
+  newOrgInfo({
+    commit,
+    state
+  }, data) {
+    commit('SET_ID', data._id)
+    commit('SET_INFO', data.data)
+  },
+  newAsset({
+    commit,
+    state
+  }, asset, icon) {
+    commit('SET_ASSET', asset)
+    commit('SET_ICON', icon)
+  },
+  newOrg({
+    commit,
+    state
+  }, data) {
     return new Promise((resolve, reject) => {
       newOrg(data).then(response => {
         if (!response.err) {
@@ -73,16 +95,22 @@ const actions = {
         } else {
           console.log(response.msg)
         }
-
         resolve()
       }).catch(error => {
         reject(error)
       })
     })
   },
-  addAsset({ commit, state }, asset, icon, hash) {
+  addAsset({
+    commit,
+    state
+  }, asset, icon, hash) {
     return new Promise((resolve, reject) => {
-      updateOrgInfo(state._id, { asset: asset, icon: icon, transactionHash: hash }).then(response => {
+      updateOrgInfo(state._id, {
+        asset: asset,
+        icon: icon,
+        transactionHash: hash
+      }).then(response => {
         if (!response.err) {
           commit('SET_ASSET', asset)
           commit('SET_ICON', icon)
@@ -96,7 +124,10 @@ const actions = {
     })
   },
   // get user info
-  getOrgInfo({ commit, state }, _id) {
+  getOrgInfo({
+    commit,
+    state
+  }, _id) {
     return new Promise((resolve, reject) => {
       getOrgInfo(_id).then(response => {
         if (!response.err && response.entity) {
@@ -118,12 +149,17 @@ const actions = {
       })
     })
   },
-  addOrgMember({ commit, state }, member) {
+  addOrgMember({
+    commit,
+    state
+  }, member) {
     // state.members.push(member)
     const members = state.members.concat((member))
 
     return new Promise((resolve, reject) => {
-      updateOrgInfo(state._id, { members: members }).then(res => {
+      updateOrgInfo(state._id, {
+        members: members
+      }).then(res => {
         if (res.entity) {
           commit('SET_MEMBER', members)
 
@@ -137,13 +173,18 @@ const actions = {
       })
     })
   },
-  deleteOrgMember({ commit, state }, email) {
+  deleteOrgMember({
+    commit,
+    state
+  }, email) {
     const members = state.members
     const newMembers = members.filter(member => {
       return member.email !== email
     })
     return new Promise((resolve, reject) => {
-      updateOrgInfo(state._id, { members: newMembers }).then(res => {
+      updateOrgInfo(state._id, {
+        members: newMembers
+      }).then(res => {
         if (res.entity) {
           commit('SET_MEMBER', newMembers)
           resolve('success')
@@ -165,4 +206,3 @@ export default {
   mutations,
   actions
 }
-

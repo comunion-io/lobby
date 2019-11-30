@@ -57,6 +57,7 @@
     <el-dialog ref="addDialog" title="Add Members" :visible.sync="showMMAddMember" width="666px">
       <MetaMaskTrans
         actionName="add the member"
+        successText="You have added the member"
         actionType="SetMemberData"
         :getDeployData="getDeployDataAddMember"
         :dbData="dbDataAddMember"

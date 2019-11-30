@@ -26,8 +26,8 @@ export function updateOrgMember(data) {
 
 export function getOrgList() {
   return request({
-    url: '/r/org?max=30',
-    method: 'get',
+    url: '/r/org?max=200',
+    method: 'get'
   })
 }
 
@@ -66,4 +66,3 @@ export function checkOrgEmail(email) {
     method: 'get'
   })
 }
-

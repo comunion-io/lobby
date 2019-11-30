@@ -45,7 +45,7 @@
         <img src="~@/assets/success.png" alt />
       </div>
       <div class="success-txt">Congratulations!</div>
-      <div class="success-txt">You have created a token.</div>
+      <div class="success-txt">{{successText}}</div>
       <el-button class="btn-main btn-wide" round @click="handleGetStart">Get Start</el-button>
     </div>
     <el-dialog title :visible.sync="dialogVisible" width="30%">
@@ -70,7 +70,7 @@ import MetaMaskInstall from '@/mixins/MetaMaskInstall'
 import { async } from 'q'
 import { Organization, OrgToken } from 'comunion-dao'
 import { stringify } from 'querystring'
-import { addTransation, getTransation } from '@/api/common'
+import CommonApi from '@/api/common'
 
 export default {
   mixins: [MetaMaskInstall],
@@ -84,12 +84,16 @@ export default {
       transactionHash: '',
       isTrans: false,
       progressTimer: null,
-      checkOrgStatusTimer: null,
+      checkOrgStatusTimer: null
     }
   },
   props: {
     // what do you use trans to do
     actionName: {
+      type: String,
+      required: true
+    },
+    successText: {
       type: String,
       required: true
     },
@@ -116,7 +120,7 @@ export default {
     defaultStatus: {
       type: Number,
       default: 2
-    },
+    }
   },
   computed: {
     ...mapGetters(['coinbase', 'orgForm', 'userInfo'])
@@ -145,77 +149,76 @@ export default {
       this.handlePublish()
     },
     async handlePublish() {
+      this.isTrans = true
+      const deployData = await this.getDeployData()
+      const mmData = {
+        from: this.coinbase,
+        gas: '8000000',
+        value: '0',
+        data: deployData
+      }
+      if (this.transTo) {
+        mmData.to = this.transTo
+      }
       try {
-        this.isTrans = true
-        const deployData = await this.getDeployData()
-        const mmData = {
-          from: this.coinbase,
-          gas: '8000000',
-          value: '0',
-          data: deployData
-        };
-        if (this.transTo) {
-          mmData.to = this.transTo
-        }
-        this.transactionHash = await web3.eth.sendTransaction(mmData, (err, data) => {
+        web3.eth.sendTransaction(mmData, async (err, data) => {
           if (err) {
             console.log('err', err)
             Promise.reject(err)
           } else if (data) {
+            this.transactionHash = data
             console.log('trans', this.transactionHash)
-            Promise.resolve(data);
-          }
-        });
-        // await web3.eth
-        //   .sendTransaction({
-        //     from: this.coinbase,
-        //     value: '0',
-        //     gas: '8000000',
-        //     data: deployData
-        //   })
-        //   .on('transactionHash', hash => {
-        //     console.log('get transhash 1', hash)
-        //     this.transactionHash = hash
-        //     this.isTrans = false
-        //   })
-        console.log('trans2', this.transactionHash)
-        this.isTrans = false
-        this.showForm = false
-        this.showTrans = true
-        debugger
-        this.progressTimer = setInterval(() => {
-          if (this.percentage < 90) {
-            this.percentage++
-          } else {
-            clearInterval(this.progressTimer)
-          }
-        }, 2000)
-        this.$once('hook:beforeDestroy', () => {
-          clearInterval(this.progressTimer)
-        })
-        // common api: sync the data and hash to database
-        await addTransation({
-          txhash: this.transactionHash,
-          userId: this.userInfo._id || '',
-          type: this.actionType,
-          data: this.dbData,
-          status: this.defaultStatus
-        })
-        this.isSyncDbSuccess = true
-        this.checkOrgStatusTimer = setInterval(async () => {
-          this.getTransation(this.transactionHash).then(data => {
-            if (data.status === 1) {
-              this.isTransactionSuccess = true
-              this.showTrans = false
+            this.isTrans = false
+            this.showForm = false
+            this.showTrans = true
+            // debugger
+            this.progressTimer = setInterval(() => {
+              if (this.percentage < 90) {
+                this.percentage++
+              } else {
+                clearInterval(this.progressTimer)
+              }
+            }, 2000)
+            this.$once('hook:beforeDestroy', () => {
+              clearInterval(this.progressTimer)
+            })
+            // common api: sync the data and hash to database
+            await CommonApi.addTransation({
+              txHash: this.transactionHash,
+              userId: this.userInfo._id || '',
+              type: this.actionType,
+              data: this.dbData,
+              status: this.defaultStatus
+            })
+            this.isSyncDbSuccess = true
+            this.checkOrgStatusTimer = setInterval(() => {
+              CommonApi.getTransation(this.transactionHash).then(data => {
+                if (data.status === 1) {
+                  this.isTransactionSuccess = true
+                  this.showTrans = false
+                  clearInterval(this.checkOrgStatusTimer)
+                } else if (data.status === 0) {
+                  throw 'fail to add to chain'
+                } else if (data.err === 1) {
+                  throw data.msg
+                }
+              }).catch(err => {
+                console.log('get trans catch: \n ', err)
+                this.$notify({
+                  message: err || 'publish failed',
+                  type: 'warning'
+                })
+                this.progressTimer && clearInterval(this.progressTimer)
+                this.checkOrgStatusTimer && clearInterval(this.checkOrgStatusTimer)
+                this.isSyncDbSuccess = false
+                this.isTrans = false
+              })
+            }, 5000)
+            this.$once('hook:beforeDestroy', () => {
+              console.log('before destroy')
               clearInterval(this.checkOrgStatusTimer)
-            } else if (data.status === 3) {
-              throw 'fail to add to chain'
-            }
-          })
-        }, 5000)
-        this.$once('hook:beforeDestroy', () => {
-          console.log('before destroy')
-          clearInterval(this.checkOrgStatusTimer)
+            })
+          }
         })
       } catch (err) {
         // 统一处理错误，比较乱

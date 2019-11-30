@@ -254,8 +254,8 @@ import { checkOrgName, getOrgStatus } from '@/api/organization'
 import _ from 'lodash'
 import { mapGetters } from 'vuex'
 import MetaMaskInstall from '@/mixins/MetaMaskInstall'
-import Web3 from 'web3';
-import { Organization } from 'comunion-dao';
+import Web3 from 'web3'
+import { Organization } from 'comunion-dao'
 import CommonApi from '@/api/common'
 
 export default {
@@ -279,8 +279,9 @@ export default {
       newOrg: {
         name: '',
         type: '', // 没有该字段
-        logo: 'http://comunion-avatar.sgp1.digitaloceanspaces.com/avatar_jvQ04BG4EI.jpeg',
-        email: '',
+        logo:
+          'http://comunion-avatar.sgp1.digitaloceanspaces.com/avatar_jvQ04BG4EI.jpeg',
+        email: 'hi_zmj@163.com',
         wallet: [],
         website: '',
         mission: '',
@@ -379,7 +380,8 @@ export default {
       isCreateSuccess: false,
       isTransactionSuccess: false,
       percentage: 0,
-      dialogVisible: false
+      dialogVisible: false,
+      checkOrgStatusTimer: null
     }
   },
   computed: {
@@ -514,7 +516,7 @@ export default {
       if (this.coinbase) {
         this.newOrg.wallet.push({
           name: 'eth',
-          value: this.coinbase
+          value: this.coinbase.toLo
         })
         console.log(this.newOrg)
 
@@ -529,104 +531,7 @@ export default {
               {
                 from: this.coinbase,
                 value: '0',
-                gas: '8000000',
-                data: deployData
-              },
-              (err, data) => {
-                if (data) {
-                  this.newOrg.transactionHash = data
-
-                  console.log('transaction hash', data)
-                  const _this = this
-                  const progressTimer = setInterval(() => {
-                    if (_this.percentage < 90) {
-                      _this.percentage++
-                    } else {
-                      clearInterval(progressTimer)
-                    }
-                  }, 2000)
-                  this.$once('hook:beforeDestroy', () => {
-                    console.log('before destroy')
-                    clearInterval(progressTimer)
-                  })
-
-                  this.newOrg.website = this.newOrg.website.replace(
-                    /(http\:\/\/)|(https\:\/\/)/,
-                    ''
-                  );
-                  CommonApi.addTransation({
-                    txhash: this.newOrg.transactionHash,
-                    userId: (this.userInfo && this.userInfo._id) || '',
-                    type: 'NewOrgData',
-                    data: this.newOrg,
-                    status: 2
-                  }).then(res => {
-                      console.log('add trans success', res)
-                      this.isCreateSuccess = true
-                      const checkOrgStatusTimer = setInterval(() => {
-                        CommonApi.getTransation(this.newOrg.transactionHash).then(data => {
-                          if (data.status === 1) {
-                            this.isTransactionSuccess = true
-                            clearInterval(checkOrgStatusTimer)
-                          } else if (data.status === 3) {
-                            this.$notify({
-                              message: 'fail to add to chain',
-                              type: 'warning'
-                            })
-                            clearInterval(progressTimer)
-                            clearInterval(checkOrgStatusTimer)
-                          }
-                        })
-                      }, 5000)
-                      this.$once('hook:beforeDestroy', () => {
-                        console.log('before destroy')
-                        clearInterval(checkOrgStatusTimer)
-                      })
-                    })
-                } else {
-                  this.isCreateSuccess = false
-                  this.$notify({
-                    message: err,
-                    type: 'warning'
-                  })
-                }
-              }
-            )
-          } else {
-            this.$notify({
-              message: 'Please complete organization info to create!',
-              type: 'warning'
-            })
-            return false
-          }
-        })
-      } else {
-        this.$notify({
-          message: 'please log in first!',
-          type: 'warning'
-        })
-      }
-    },
-    submitFormOld(formName) {
-      if (this.coinbase) {
-        this.newOrg.wallet.push({
-          name: 'eth',
-          value: this.coinbase
-        })
-        console.log(this.newOrg)
-
-        this.$refs[formName].validate(valid => {
-          console.log('valid value:', valid)
-          if (valid) {
-            const deployData = Organization.genDeployData(
-              this.daosAddress,
-              this.newOrg.name
-            )
-            web3.eth.sendTransaction(
-              {
-                from: this.coinbase,
-                value: '0',
-                gas: '8000000',
+                gas: '8000000',
                 data: deployData
               },
               (err, data) => {
@@ -651,42 +556,67 @@ export default {
                     /(http\:\/\/)|(https\:\/\/)/,
                     ''
                   )
-                  this.$store
-                    .dispatch('organization/newOrg', this.newOrg)
-                    .then(res => {
-                      console.log('res', res)
-
+                  CommonApi.addTransation({
+                    txHash: this.newOrg.transactionHash,
+                    userId: (this.userInfo && this.userInfo._id) || '',
+                    type: 'NewOrgData',
+                    data: this.newOrg,
+                    status: 2
+                  }).then(
+                    res => {
+                      console.log('add trans success', res)
                       this.isCreateSuccess = true
-                      const checkOrgStatusTimer = setInterval(() => {
-                        getOrgStatus(this.orgForm._id).then(statusRes => {
-                          if (statusRes.err) {
+                      this.checkOrgStatusTimer = setInterval(() => {
+                        CommonApi.getTransation(
+                          this.newOrg.transactionHash
+                        ).then(data => {
+                          if (data.status === 1) {
+                            this.$store.dispatch(
+                              'organization/newOrgInfo',
+                              data
+                            )
+                            this.isTransactionSuccess = true
+                            clearInterval(this.checkOrgStatusTimer)
+                          } else if (data.status === 0) {
                             this.$notify({
-                              message: statusRes.msg,
+                              message: 'fail to add to chain',
                               type: 'warning'
                             })
                             clearInterval(progressTimer)
-                            clearInterval(checkOrgStatusTimer)
-                          } else if (statusRes.status === 1) {
-                            console.log('isTrans', this.isTransactionSuccess)
-                            this.isTransactionSuccess = true
-                            clearInterval(checkOrgStatusTimer)
-                          } else if (statusRes.status === -1) {
-                            // clearInterval(progressTimer)
+                            clearInterval(this.checkOrgStatusTimer)
+                          } else if (data.status === 2) {
+                            // pending
+                          } else if (data.err === 1) {
+                            // error
+                            this.$notify({
+                              message: data.msg,
+                              type: 'warning'
+                            })
+                            clearInterval(progressTimer)
                             clearInterval(this.checkOrgStatusTimer)
                           }
                         })
                       }, 5000)
                       this.$once('hook:beforeDestroy', () => {
                         console.log('before destroy')
-                        clearInterval(checkOrgStatusTimer)
+                        clearInterval(this.checkOrgStatusTimer)
                       })
-                    })
+                    },
+                    err => {
+                      this.$notify({
+                        message: err,
+                        type: 'warning'
+                      })
+                      clearInterval(this.checkOrgStatusTimer)
+                    }
+                  )
                 } else {
                   this.isCreateSuccess = false
                   this.$notify({
                     message: err,
                     type: 'warning'
                   })
+                  clearInterval(this.checkOrgStatusTimer)
                 }
               }
             )

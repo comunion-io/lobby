@@ -25,7 +25,17 @@ export default {
         }
       },
       deep: true
-    }
+    },
+    'orgForm.members': {
+      handler(val) {
+        if (this.orgForm.members.filter(item => item.role === 'owner' && item.userId === getUserId()).length > 0 ){
+          this.isOwner = true
+        } else {
+          this.isOwner = false
+        }
+      },
+      deep: true
+    },
   },
   methods: {
     checkIfOwner() {
