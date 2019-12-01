@@ -55,7 +55,8 @@
       @saveUserToChain="handleEditMember"
     />
 
-    <el-dialog ref="addDialogMM" title="Add Members" :visible.sync="showMMAddMember" width="666px">
+    <!-- add member -->
+    <el-dialog ref="addDialogMM" title="Add Member" :visible.sync="showMMAddMember" width="666px">
       <MetaMaskTrans
         actionName="add the member"
         successText="You have added the member"
@@ -67,10 +68,11 @@
       ></MetaMaskTrans>
     </el-dialog>
 
+    <!-- edit member  -->
     <el-dialog
       ref="editDialogMM"
-      title="Edit Members"
-      :visible.sync="showMMEditMember"
+      title="Edit Member"
+      :visible.sync="showMMRemoveMember"
       width="666px"
     >
       <MetaMaskTrans
@@ -80,6 +82,24 @@
         :getDeployData="getDeployDataEditMember"
         :dbData="dbDataEditMember"
         @transSuccess="handleSuccessEditMember"
+        :transTo="orgForm.contract"
+      ></MetaMaskTrans>
+    </el-dialog>
+
+    <!-- remove member -->
+    <el-dialog
+      ref="removeDialogMM"
+      title="Remove Member"
+      :visible.sync="showMMRemoveMember"
+      width="666px"
+    >
+      <MetaMaskTrans
+        actionName="remove the member"
+        successText="You have removed the member"
+        actionType="RemoveMemberData"
+        :getDeployData="getDeployDataRemoveMember"
+        :dbData="dbDataRemoveMember"
+        @transSuccess="handleSuccessRemoveMember"
         :transTo="orgForm.contract"
       ></MetaMaskTrans>
     </el-dialog>
@@ -96,7 +116,7 @@ import { updateOrgMember } from '@/api/organization'
 import GetInfo from '@/mixins/GetInfo'
 import DaoInstall from '@/mixins/DaoInstall'
 import MetaMaskTrans from '@/components/Common/MetaMaskTrans'
-import { Organization } from 'comunion-dao';
+import { Organization } from 'comunion-dao'
 
 export default {
   components: { AddUpdateDialog, UserCard, MetaMaskTrans },
@@ -111,29 +131,32 @@ export default {
       curUser: null,
 
       // add
-      dbDataAddMember: null,
+      dbDataAddMember: {},
       showMMAddMember: false,
 
       // edit
-      dbDataEditMember: null,
+      dbDataEditMember: {},
       showMMEditMember: false,
+
+      // remove
+      dbDataRemoveMember: {},
+      showMMRemoveMember: false,
 
       // common
       daos: null,
       daosAddress: '0x7284C823ea3AD29bEDfd09Ede1107981E9519896',
-      org: null,
+      org: null
     }
   },
   computed: {
     ...mapGetters(['userInfo', 'orgForm'])
   },
-  created() {
-  },
+  created() {},
   watch: {
     'orgForm.contract': {
       handler: function(val) {
         if (val && this.ethUtils) {
-          this.org = new Organization(this.ethUtils, val);
+          this.org = new Organization(this.ethUtils, val)
         }
       }
     }
@@ -187,7 +210,7 @@ export default {
       let defaultRole = 'member'
       try {
         if (!this.org) {
-          this.org = new Organization(this.ethUtils, this.orgForm.contract);
+          this.org = new Organization(this.ethUtils, this.orgForm.contract)
         }
         // role 字符串长度不能超过32字节
         let roleTrans = this.ethUtils.web3.utils.fromUtf8(defaultRole)
@@ -239,7 +262,7 @@ export default {
         role: user.role, // temporary save
         address: user.address // temporary save
       }
-      this.showMMEditMember = true;
+      this.showMMEditMember = true
     },
     handleSuccessEditMember() {
       this.isDialogEditVisible = false
@@ -248,10 +271,12 @@ export default {
     async getDeployDataEditMember() {
       try {
         if (!this.org) {
-          this.org = new Organization(this.ethUtils, this.orgForm.contract);
+          this.org = new Organization(this.ethUtils, this.orgForm.contract)
         }
         // role 字符串长度不能超过32字节
-        let roleTrans = this.ethUtils.web3.utils.fromUtf8(this.dbDataEditMember.role)
+        let roleTrans = this.ethUtils.web3.utils.fromUtf8(
+          this.dbDataEditMember.role
+        )
         // members 与 roles 按顺序一一对应
         let members = [this.dbDataEditMember.address]
         let roles = [roleTrans]
@@ -269,132 +294,35 @@ export default {
         return Promise.reject(err)
       }
     },
-  
-  // delete member
-    async getDeployDataDeleteMember(addr) {
-      let members = [addr]
-      let removeMembersData = await Organization.genRemoveMembersData(members)
-      return removeMembersData
+
+    // remove member
+    handleSuccessRemoveMember() {
+      this.showMMRemoveMember = false
     },
-    async ToDeleteMember(user) {
+    async getDeployDataRemoveMember() {
       try {
-        this.isTrans = true
-        const deployData = await this.getDeployDataDeleteMember(
-          this.getUserAddr(user)
-        )
-        await web3.eth
-          .sendTransaction({
-            from: this.coinbase,
-            value: '0',
-            gas: '8000000',
-            to: this.orgForm.contract, // 组织合约地址
-            data: deployData
-          })
-          .on('transactionHash', hash => {
-            console.log('get transhash 1')
-            this.transactionHash = hash
-            this.isTrans = false
-          })
-          .on('receipt', receipt => {
-            console.log('receipt', receipt)
-          })
-          .on('confirmation', (confirmationNumber, receipt) => {
-            console.log('confirmation', confirmationNumber)
-          })
-          .on('error', err => {
-            console.log('error1', err)
-            this.isTrans = false
-            Promise.reject(err)
-          })
-        console.log('trans2', this.transactionHash)
-        this.isTrans = false
-        this.showForm = false
-        this.showTrans = true
-        debugger
-        this.progressTimer = setInterval(() => {
-          if (this.percentage < 90) {
-            this.percentage++
-          } else {
-            clearInterval(this.progressTimer)
-          }
-        }, 2000)
-        this.$once('hook:beforeDestroy', () => {
-          clearInterval(this.progressTimer)
-        })
-        await this.$store.dispatch('organization/deleteOrgMember', user.email)
-        this.isCreateSuccess = true
-        const ifAddedToChain = () => {
-          if (!this.orgForm.members) return false
-          const member = this.orgForm.members.filter(
-            member => member._id == user._id
-          )
-          if (!member.length) return false
-          if (!member.address) return false
-          return true
+        if (!this.org) {
+          this.org = new Organization(this.ethUtils, this.orgForm.contract)
         }
-        this.checkOrgStatusTimer = setInterval(async () => {
-          await this.$store.dispatch(
-            'organization/getOrgInfo',
-            this.orgForm._id
-          )
-          if (ifAddedToChain()) {
-            // has written in the chain
-            this.isTransactionSuccess = true
-            this.showTrans = false
-            clearInterval(this.checkOrgStatusTimer)
-          }
-        }, 5000)
+        const members = [this.dbDataRemoveMember.address]
+        const removeMembersData = await this.org.genRemoveMembersData(members)
+        // delete useless attr
+        delete this.dbDataRemoveMember.address
+        return Promise.resolve(removeMembersData)
       } catch (err) {
-        // 统一处理错误，比较乱
-        console.log('catch', err)
-        this.$notify({
-          message: err || 'publish failed',
-          type: 'warning'
-        })
-        this.progressTimer && clearInterval(this.progressTimer)
-        this.checkOrgStatusTimer && clearInterval(this.checkOrgStatusTimer)
-        this.isCreateSuccess = false
-        this.isTrans = false
+        console.log('deploy err', err)
+        return Promise.reject(err)
       }
     },
-    handleGetStart() {
-      this.isTransactionSuccess = false
-    },
-
-    // old member handle logic
-    
-   
-    handleAddMemberOld() {
-      const member = {
-        _id: this.searchUser._id,
-        email: this.searchUser.email
-      }
-      this.$store.dispatch('organization/addOrgMember', member).then(res => {
-        if (res === 'success') {
-          this.isDialogAddVisible = false
-          this.searchUser = null
-          this.$store.dispatch('organization/getOrgInfo', this.orgForm._id)
-        } else {
-          this.$notify({
-            message: res,
-            type: 'warning'
-          })
-        }
-      })
-    },
-    
     handleClickDelete(user) {
-      if (this.isOwner) {
-        this.$store.dispatch('organization/deleteOrgMember', user.email)
-      } else {
-        this.$notify({
-          message: 'Please log in to delete member!',
-          type: 'warning'
-        })
+      this.dbDataRemoveMember = {
+        userId: user.userId,
+        email: user.email,
+        role: user.role,
+        address: user.address // temporary save
       }
-    },
-
-    
+      this.showMMRemoveMember = true
+    }
   }
 }
 </script>

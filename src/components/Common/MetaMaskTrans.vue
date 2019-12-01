@@ -225,6 +225,7 @@ export default {
                     clearInterval(this.checkOrgStatusTimer)
                   this.isSyncDbSuccess = false
                   this.isTrans = false
+                  this.showTrans = false
                 })
             }, 5000)
             this.$once('hook:beforeDestroy', () => {
