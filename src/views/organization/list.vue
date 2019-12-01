@@ -44,7 +44,7 @@ export default {
       this.loading = true
       getOrgList().then(res => {
         if (!res.err && res.entities) {
-          this.orgList = res.entities.reverse()
+          this.orgList = res.entities
         }
         this.loading = false
       })

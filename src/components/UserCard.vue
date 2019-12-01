@@ -17,7 +17,7 @@
             <img v-else src="~@/assets/avatar.png" alt="">
           </div>
           <div class="user-meta">
-            <div class="user-name">{{ user&&user.name }}</div>
+            <div class="user-name">{{ user&&user.userName }}</div>
             <div class="user-title">{{ user&&user.role }}</div>
           </div>
         </div>

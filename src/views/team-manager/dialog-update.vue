@@ -54,7 +54,7 @@
 <script>
 export default {
   props: {
-    'visible': Boolean
+    'visible': Boolean,
   },
   data() {
     return {
@@ -66,17 +66,38 @@ export default {
         role: '',
         description: ''
       },
+      curUser: null,
       dialogVisible: false
     }
   },
   methods: {
     init(user) {
       this.dialogVisible = this.visible
-      this.user = user
+      this.curUser = user
+      this.user = JSON.parse(JSON.stringify(user))
     },
     handleSaveUser() {
       this.dialogVisible = false
-      this.$emit('saveUser', this.user)
+      if (this.user.role === this.curUser.role && this.user.description === this.curUser.description) {
+        this.$notify({
+          message: 'Nothing Changed',
+          type: 'warning'
+        })
+        return;
+      }
+
+      this.$emit('saveUserToChain', this.user)
+      
+      // save user api is not working... so use the same logic
+      // // don't need to add to chain
+      // if (this.user.role === this.curUser.role && this.user.description !== this.curUser.description) {
+      //   this.$emit('saveUser', this.user)
+      // }
+
+      // // need
+      // if (this.user.role !== this.curUser) {
+      //   this.$emit('saveUserToChain', this.user)
+      // }
     }
   }
 

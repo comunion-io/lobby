@@ -8,7 +8,7 @@
       <div class="card-wrapper">
         <user-card
           v-for="user in orgForm.members"
-          :key="user._id"
+          :key="user.userId"
           :user="user"
           :editible="isOwner"
           @clickEdit="handleClickEdit"
@@ -52,6 +52,7 @@
       :user="curUser"
       :visible="isDialogEditVisible"
       @saveUser="handleUpdateMember"
+      @saveUserToChain="handleEditMember"
     />
 
     <el-dialog ref="addDialogMM" title="Add Members" :visible.sync="showMMAddMember" width="666px">
@@ -66,14 +67,19 @@
       ></MetaMaskTrans>
     </el-dialog>
 
-    <el-dialog ref="editDialogMM" title="Edit Members" :visible.sync="showMMAddMember" width="666px">
+    <el-dialog
+      ref="editDialogMM"
+      title="Edit Members"
+      :visible.sync="showMMEditMember"
+      width="666px"
+    >
       <MetaMaskTrans
         actionName="edit the member"
         successText="You have edited the member"
         actionType="SetMemberData"
-        :getDeployData="getDeployDataAddMember"
-        :dbData="dbDataAddMember"
-        @transSuccess="handleSuccessAddMember"
+        :getDeployData="getDeployDataEditMember"
+        :dbData="dbDataEditMember"
+        @transSuccess="handleSuccessEditMember"
         :transTo="orgForm.contract"
       ></MetaMaskTrans>
     </el-dialog>
@@ -133,6 +139,46 @@ export default {
     }
   },
   methods: {
+    getUserAddr(user) {
+      return user.wallet[0].address.toLowerCase()
+    },
+    // add member
+    handleClickAdd() {
+      if (this.isOwner) {
+        this.isDialogAddVisible = true
+      } else {
+        this.$notify({
+          message:
+            'Make sure you are the creator of this organization and have logged in!',
+          type: 'warning'
+        })
+      }
+    },
+    handleClose() {
+      this.isDialogAddVisible = false
+      this.searchEmail = ''
+      this.searchUser = null
+      this.isUserExist = true
+    },
+    handleSearchUser() {
+      getUserInfoByEmail(this.searchEmail).then(res => {
+        if (res.entity) {
+          this.searchEmail = ''
+          this.searchUser = res.entity
+          this.isUserExist = true
+        } else {
+          this.searchUser = null
+          this.isUserExist = false
+        }
+      })
+    },
+    handleAddMember() {
+      this.dbDataAddMember = {
+        userId: this.searchUser._id,
+        email: this.searchUser.email
+      }
+      this.showMMAddMember = true
+    },
     handleSuccessAddMember() {
       this.isDialogAddVisible = false
       this.showMMAddMember = false
@@ -157,102 +203,73 @@ export default {
         return Promise.reject(err)
       }
     },
-    getUserAddr(user) {
-      return user.wallet[0].address.toLowerCase()
-    },
-    async ToEditMember(user) {
-      try {
-        this.isTrans = true
-        const deployData = await this.getDeployData(
-          this.getUserAddr(user),
-          user.role
-        )
-        await web3.eth
-          .sendTransaction({
-            from: this.coinbase,
-            value: '0',
-            gas: '8000000',
-            to: this.orgForm.contract, // 组织合约地址
-            data: deployData
-          })
-          .on('transactionHash', hash => {
-            console.log('get transhash 1')
-            this.transactionHash = hash
-            this.isTrans = false
-          })
-          .on('receipt', receipt => {
-            console.log('receipt', receipt)
-          })
-          .on('confirmation', (confirmationNumber, receipt) => {
-            console.log('confirmation', confirmationNumber)
-          })
-          .on('error', err => {
-            console.log('error1', err)
-            this.isTrans = false
-            Promise.reject(err)
-          })
-        console.log('trans2', this.transactionHash)
-        this.isTrans = false
-        this.showForm = false
-        this.showTrans = true
-        debugger
-        this.progressTimer = setInterval(() => {
-          if (this.percentage < 90) {
-            this.percentage++
-          } else {
-            clearInterval(this.progressTimer)
-          }
-        }, 2000)
-        this.$once('hook:beforeDestroy', () => {
-          clearInterval(this.progressTimer)
-        })
 
-        const data = {
-          q: {
-            _id: this.orgForm._id,
-            'members.email': user.email
-          },
-          op: {
-            'members.$.role': user.role,
-            'members.$.description': user.description
-          }
-        }
-        await updateOrgMember(data)
-        this.isCreateSuccess = true
-        const ifAddedToChain = () => {
-          if (!this.orgForm.members) return false
-          const member = this.orgForm.members.filter(
-            member => member._id == user._id
-          )
-          if (!member.length) return false
-          if (!member.address) return false
-          return true
-        }
-        this.checkOrgStatusTimer = setInterval(async () => {
-          await this.$store.dispatch(
-            'organization/getOrgInfo',
-            this.orgForm._id
-          )
-          if (ifAddedToChain()) {
-            // has written in the chain
-            this.isTransactionSuccess = true
-            this.showTrans = false
-            clearInterval(this.checkOrgStatusTimer)
-          }
-        }, 5000)
-      } catch (err) {
-        // 统一处理错误，比较乱
-        console.log('catch', err)
+    // edit member
+    handleClickEdit(user) {
+      if (this.isOwner) {
+        this.isDialogEditVisible = true
+        this.$refs.editDialog.init(user)
+      } else {
         this.$notify({
-          message: err || 'publish failed',
+          message: 'Please log in to edit member!',
           type: 'warning'
         })
-        this.progressTimer && clearInterval(this.progressTimer)
-        this.checkOrgStatusTimer && clearInterval(this.checkOrgStatusTimer)
-        this.isCreateSuccess = false
-        this.isTrans = false
       }
     },
+    handleUpdateMember(user) {
+      const data = {
+        q: {
+          _id: this.orgForm._id,
+          'members.email': user.email
+        },
+        op: {
+          'members.$.role': user.role,
+          'members.$.description': user.description
+        }
+      }
+      updateOrgMember(data).then(res => {
+        this.$store.dispatch('organization/getOrgInfo', this.orgForm._id)
+      })
+    },
+    handleEditMember(user) {
+      this.dbDataEditMember = {
+        userId: user.userId,
+        email: user.email,
+        description: user.description,
+        role: user.role, // temporary save
+        address: user.address // temporary save
+      }
+      this.showMMEditMember = true;
+    },
+    handleSuccessEditMember() {
+      this.isDialogEditVisible = false
+      this.showMMEditMember = false
+    },
+    async getDeployDataEditMember() {
+      try {
+        if (!this.org) {
+          this.org = new Organization(this.ethUtils, this.orgForm.contract);
+        }
+        // role 字符串长度不能超过32字节
+        let roleTrans = this.ethUtils.web3.utils.fromUtf8(this.dbDataEditMember.role)
+        // members 与 roles 按顺序一一对应
+        let members = [this.dbDataEditMember.address]
+        let roles = [roleTrans]
+        let deployData = await this.org.genAddOrUpdateMembersData(
+          members,
+          roles
+        )
+        // delete useless attr
+        delete this.dbDataEditMember.address
+        delete this.dbDataEditMember.role
+
+        return Promise.resolve(deployData)
+      } catch (err) {
+        console.log('deploy err', err)
+        return Promise.reject(err)
+      }
+    },
+  
     async getDeployDataDeleteMember(addr) {
       let members = [addr]
       let removeMembersData = await Organization.genRemoveMembersData(members)
@@ -344,25 +361,8 @@ export default {
     },
 
     // old member handle logic
-    handleSearchUser() {
-      getUserInfoByEmail(this.searchEmail).then(res => {
-        if (res.entity) {
-          this.searchEmail = ''
-          this.searchUser = res.entity
-          this.isUserExist = true
-        } else {
-          this.searchUser = null
-          this.isUserExist = false
-        }
-      })
-    },
-    handleAddMember() {
-      this.dbDataAddMember = {
-        userId: this.searchUser._id,
-        email: this.searchUser.email
-      }
-      this.showMMAddMember = true
-    },
+    
+   
     handleAddMemberOld() {
       const member = {
         _id: this.searchUser._id,
@@ -381,17 +381,7 @@ export default {
         }
       })
     },
-    handleClickEdit(user) {
-      if (this.isOwner) {
-        this.isDialogEditVisible = true
-        this.$refs.editDialog.init(user)
-      } else {
-        this.$notify({
-          message: 'Please log in to edit member!',
-          type: 'warning'
-        })
-      }
-    },
+    
     handleClickDelete(user) {
       if (this.isOwner) {
         this.$store.dispatch('organization/deleteOrgMember', user.email)
@@ -403,38 +393,7 @@ export default {
       }
     },
 
-    handleUpdateMember(user) {
-      const data = {
-        q: {
-          _id: this.orgForm._id,
-          'members.email': user.email
-        },
-        op: {
-          'members.$.role': user.role,
-          'members.$.description': user.description
-        }
-      }
-      updateOrgMember(data).then(res => {
-        this.$store.dispatch('organization/getOrgInfo', this.orgForm._id)
-      })
-    },
-    handleClickAdd() {
-      if (this.isOwner) {
-        this.isDialogAddVisible = true
-      } else {
-        this.$notify({
-          message:
-            'Make sure you are the creator of this organization and have logged in!',
-          type: 'warning'
-        })
-      }
-    },
-    handleClose() {
-      this.isDialogAddVisible = false
-      this.searchEmail = ''
-      this.searchUser = null
-      this.isUserExist = true
-    }
+    
   }
 }
 </script>
