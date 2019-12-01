@@ -87,7 +87,7 @@ export default {
   },
   methods: {
     async handleSuccess() {
-      await this.$store.dispatch('organization/newAsset', this.asset, this.icon)
+      // await this.$store.dispatch('organization/newAsset', this.asset, this.icon)
       this.hasToken = true
     },
     closeGuide() {

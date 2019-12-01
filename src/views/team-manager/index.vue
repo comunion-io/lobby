@@ -270,6 +270,7 @@ export default {
       }
     },
   
+  // delete member
     async getDeployDataDeleteMember(addr) {
       let members = [addr]
       let removeMembersData = await Organization.genRemoveMembersData(members)
