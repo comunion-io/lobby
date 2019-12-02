@@ -1,6 +1,6 @@
 <template>
   <div class="token-manager">
-    <div class="token-details" v-if="hasToken">token{{ asset }}</div>
+    <div class="token-details" v-if="hasToken"><TokenInformation></TokenInformation></div>
     <div class="center-tip" v-else-if="!isOwner">Sorry, there is no token.</div>
     <div v-else>
       <div class="title">Publish Token</div>
@@ -34,6 +34,7 @@ import { mapGetters } from 'vuex'
 import MetaMaskInstall from '@/mixins/MetaMaskInstall'
 import DaoInstall from '@/mixins/DaoInstall'
 import MetaMaskTrans from '@/components/Common/MetaMaskTrans'
+import TokenInformation from './token-information'
 import GetInfo from '@/mixins/GetInfo'
 import { async } from 'q'
 import { Organization, OrgToken } from 'comunion-dao'
@@ -42,7 +43,8 @@ export default {
   components: {
     UserGuide,
     PublishTokenForm,
-    MetaMaskTrans
+    MetaMaskTrans,
+    TokenInformation
   },
   mixins: [GetInfo, MetaMaskInstall, DaoInstall],
   data() {
