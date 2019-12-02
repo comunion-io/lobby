@@ -16,16 +16,16 @@ export default {
     this.getOrgInfo()
   },
   watch: {
-    'userInfo.orgs': {
-      handler(val) {
-        if (this.userInfo.orgs.map(item => item._id).includes(getCurOrgId())) {
-          this.isOwner = true
-        } else {
-          this.isOwner = false
-        }
-      },
-      deep: true
-    },
+    // 'userInfo.orgs': {
+    //   handler(val) {
+    //     if (this.userInfo.orgs.map(item => item._id).includes(getCurOrgId())) {
+    //       this.isOwner = true
+    //     } else {
+    //       this.isOwner = false
+    //     }
+    //   },
+    //   deep: true
+    // },
     'orgForm.members': {
       handler(val) {
         if (this.orgForm.members.filter(item => item.role === 'owner' && item.userId === getUserId()).length > 0 ){

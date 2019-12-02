@@ -192,27 +192,41 @@ export default {
             })
             this.isSyncDbSuccess = true
             this.checkOrgStatusTimer = setInterval(() => {
-              CommonApi.getTransation(this.transactionHash).then(data => {
-                if (data.status === 1) {
-                  this.isTransactionSuccess = true
-                  this.showTrans = false
-                  clearInterval(this.checkOrgStatusTimer)
-                } else if (data.status === 0) {
-                  throw 'fail to add to chain'
-                } else if (data.err === 1) {
-                  throw data.msg
-                }
-              }).catch(err => {
-                console.log('get trans catch: \n ', err)
-                this.$notify({
-                  message: err || 'publish failed',
-                  type: 'warning'
+              CommonApi.getTransation(this.transactionHash)
+                .then(data => {
+                  if (data.status === 1) {
+                    // update the org info
+                    this.$store.dispatch(
+                      'organization/getOrgInfo',
+                      this.orgForm._id
+                    ).then(() => {
+                      this.isTransactionSuccess = true
+                      this.showTrans = false
+                      clearInterval(this.checkOrgStatusTimer)
+                    }).catch(err => {
+                      this.showTrans = false
+                      clearInterval(this.checkOrgStatusTimer)
+                      console.log('get org info: \n ', err)
+                    })
+                  } else if (data.status === 0) {
+                    throw 'fail to add to chain'
+                  } else if (data.err === 1) {
+                    throw data.msg
+                  }
                 })
-                this.progressTimer && clearInterval(this.progressTimer)
-                this.checkOrgStatusTimer && clearInterval(this.checkOrgStatusTimer)
-                this.isSyncDbSuccess = false
-                this.isTrans = false
-              })
+                .catch(err => {
+                  console.log('get trans catch: \n ', err)
+                  this.$notify({
+                    message: err || 'publish failed',
+                    type: 'warning'
+                  })
+                  this.progressTimer && clearInterval(this.progressTimer)
+                  this.checkOrgStatusTimer &&
+                    clearInterval(this.checkOrgStatusTimer)
+                  this.isSyncDbSuccess = false
+                  this.isTrans = false
+                  this.showTrans = false
+                })
             }, 5000)
             this.$once('hook:beforeDestroy', () => {
               console.log('before destroy')
