@@ -6,6 +6,10 @@ import {
   updateOrgInfo
 } from '@/api/organization'
 
+import {
+  addTransation
+} from '@/api/common'
+
 const state = {
   _id: '',
   name: '',
@@ -23,7 +27,8 @@ const state = {
   members: [],
   asset: null,
   status: 1,
-  contract: ''
+  contract: '',
+  finance: []
 }
 
 const mutations = {
@@ -47,6 +52,7 @@ const mutations = {
     state.icon = data.icon
     state.asset = data.asset
     state.contract = data.contract
+    state.finance = data.finance
   },
   SET_MEMBERS: (state, data) => {
     state.members = data
@@ -59,13 +65,16 @@ const mutations = {
   },
   SET_ICON: (state, icon) => {
     state.icon = icon
-  }
+  },
   // ADD_MEMBER: (state, member) => {
   //   state.members.push(member)
   // },
   // DEL_MEMBER: (state, member) => {
   //   state.members.push(member)
   // }
+  SET_FINANCE: (state, finance) => {
+    state.finance = finance
+  }
 }
 
 const actions = {
@@ -82,6 +91,28 @@ const actions = {
   }, asset, icon) {
     commit('SET_ASSET', asset)
     commit('SET_ICON', icon)
+  },
+  // 添加子账号
+  subAccount({ commit, state }, data) {
+    // commit('SET_FINANCE', finance)
+    return new Promise((resolve, reject) => {
+      addTransation(data)
+        .then(response => {
+          if (!response.err) {
+            commit('SET_ID', response.entity._id)
+            commit('SET_INFO', response.entity)
+          } else {
+            console.log(response.msg)
+          }
+        })
+        .catch(error => {
+          reject(error)
+        })
+    })
+  },
+  budget({ commit, state }, data) {
+    commit('SET_ID', data._id)
+    commit('SET_INFO', data.data)
   },
   newOrg({
     commit,

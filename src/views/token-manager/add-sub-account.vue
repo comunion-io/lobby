@@ -1,7 +1,7 @@
 <template>
   <div class="info-container">
     <!-- <h1 class="token_information_title">Token information</h1> -->
-    <div class="add_sub_account">
+    <div class="add_sub_account" v-if="showAddSub">
       <h2 class="form_title">Add sub account</h2>
       <el-form label-position="top" class="form_box">
         <el-form-item label="Budge account">
@@ -39,11 +39,20 @@
         <el-button class="add_button" round @click="addSubAccount"
           >Add</el-button
         >
-        <el-button class="add_button" round @click="putTxHashToServer"
+        <!-- <el-button class="add_button" round @click="putTxHashToServer"
           >MMLogin</el-button
-        >
+        > -->
       </el-form>
     </div>
+    <MetaMaskTrans
+        v-if="showMM"
+        actionName="add sub account"
+        successText="add sub account success"
+        actionType="ApprovalData"
+        :getDeployData="getDeployData"
+        :dbData="dbData"
+        @transSuccess="handleSuccess"
+    ></MetaMaskTrans>
   </div>
 </template>
 
@@ -54,13 +63,24 @@ import MetaMaskInstall from '@/mixins/MetaMaskInstall'
 import { getCurOrgId, setCurOrgId, getUserId } from '@/utils/auth'
 import { EthUtils, Daos, Organization, OrgToken } from 'comunion-dao'
 import MetaMaskTrans from '@/components/Common/MetaMaskTrans'
+import DaoInstall from '@/mixins/DaoInstall'
 
 export default {
-  mixins: [GetInfo, MetaMaskInstall],
+  // props:['id'],  
+  mixins: [GetInfo, MetaMaskInstall,DaoInstall],
+  components: {
+    MetaMaskTrans,
+  },
+
   data() {
     return {
       members: '',
       usage: '',
+      showMM: false,
+      showAddSub: true,
+      asset: '',
+      dbData: {},
+      orgInfo: {},
       address: '0x17ab03A8e7a39346cF035cc72991670E18d4F561',
       form: {
         members: [
@@ -69,7 +89,7 @@ export default {
             avater:
               'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=320178652,790985626&fm=26&gp=0.jpg',
             job: 'UIABC',
-            address: '0xc5ba7ff1883453170f7590fa689f1f48',
+            address: '0x17ab03a8e7a39346cf035cc72991670e18d4f561',
             uid: '1236'
           },
           {
@@ -77,17 +97,60 @@ export default {
             avater:
               'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=320178652,790985626&fm=26&gp=0.jpg',
             job: 'UIJOB',
-            address: '0xc5ba7ff1883453170f7590fa689f1f48',
+            address: '0x17ab03a8e7a39346cf035cc72991670e18d4f561',
             uid: '1237'
           }
         ]
       }
     }
   },
+  // watch:{
+  //   'id':function(a,b){
+  //     this.usage=a
+  //   }
+  // },
+
   computed: {
     ...mapGetters(['coinbase','orgForm'])
   },
+  created() {
+    this.asset = this.orgForm.asset
+    this.orgInfo = this.orgForm
+    console.log(this.orgInfo)
+    if (this.orgForm.asset) {
+      this.hasToken = true
+    } else {
+      this.showGuide = true
+    }
+  },
+
   methods: {
+
+    async getDeployData() {
+
+      try {
+        let deployData = await OrgToken.genDeployData(
+          this.orgForm.contract,
+          this.asset.name,
+          this.asset.symbol,
+          this.asset.supply
+        )
+        return Promise.resolve(deployData)
+      } catch (err) {
+        console.log('mm error!')
+        return Promise.reject(err)
+      }
+    },
+    async handleSuccess() {
+      console.log('mm success!')
+      await this.$store.dispatch('organization/budget', this.asset)
+      this.hasToken = true
+    },
+
+    addSubAccount(){
+      this.showMM = true
+      this.showAddSub = false
+    },
 
     putTxHashToServer(txhash){
         var orgId = getCurOrgId()
@@ -106,50 +169,6 @@ export default {
             }
         })
     },
-
-    async addSubAccount() {
-    EthUtils.init(web3)
-    let ethUtils = new EthUtils()
-
-      console.log(ethUtils)
-      console.log(getCurOrgId())
-      if (!this.coinbase) {
-        this.$notify({
-          message: 'please log in first!',
-          type: 'warning'
-        })
-        return
-      }
-      try {
-        let token = new OrgToken(ethUtils, this.orgForm.asset.contract)
-        let spenders = [this.address]
-        // 授权金额 (单位为wei, 取值应该是 数量 * 10^decimals, 从平台发布的token decimals默认为18)
-        let values = ['1']
-        // spenders 与 values 需要按顺序一一对应
-        let approveData = await token.genApproveExtData(spenders, values)
-        // 调起metamask
-        
-        var tx = {
-          from: this.coinbase,
-          value: '0',
-          to: this.orgForm.asset.contract, // OrgToken合约地址  org信息中拿到的地址
-          data: approveData
-        }
-        web3.eth.sendTransaction(tx, (err, txhash) => {
-          if (!err) {
-            console.log('approveExt hash:', txhash)
-            // TODO 将 txhash 上传到服务端 用于验证
-            this.putTxHashToServer(txhash)
-          } else {
-            console.log('bbb')
-            console.log(err)
-          }
-        })
-      } catch (error) {
-        console.log('ccc')
-        console.log(error)
-      }
-    }
   }
 }
 </script>

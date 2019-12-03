@@ -10,7 +10,7 @@
           </p>
         </div>
         <div class="token-address-box">
-          <img class="eth-icon" src="" />
+          <img class="eth-icon" :src="orgInfo.logo" />
           <h2 class="token-address">{{ asset.contract }}</h2>
           <span class="token-label">Host</span>
           <h2 class="total-box">300000000 ABC</h2>
@@ -31,57 +31,71 @@
           />
           <h2 class="add-sub-action">Add Sub account</h2>
         </div>
-        <div class="wallet-box">
+
+        <div class="wallet-box"
+              v-for="item in orgInfo.finance"
+              :key="item.txhash"
+              >
           <div class="top-box">
             <div class="wallet-title">Salary Wallet</div>
-            <div class="budget">Budget</div>
+            <div class="budget" @click="budgetClicked">Budget</div>
           </div>
           <div class="mid-box">
             <img class="bit-ico" src="@/assets/btc.png" />
-            <h2 class="address">0xe10adc3949ba59abbe56e057f20f883e</h2>
+            <h2 class="address">{{item.tokenAddress}}</h2>
           </div>
           <div class="bottom-box">
-            <h2>100000000 abc</h2>
+            <h2>{{item.budget}}</h2>
           </div>
         </div>
+
       </div>
     </div>
     <div v-if="showAddSub">
-        <!-- <AddSubAccount></AddSubAccount> -->
-        <Budget></Budget>
+      <AddSubAccount></AddSubAccount>
+    </div>
+    <div v-if="showBudget">
+      <Budget tokenAddress="{{budgetTokenAddress}}"></Budget>
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import  AddSubAccount from './add-sub-account'
+import AddSubAccount from './add-sub-account'
 import Budget from './budget'
 export default {
-  components: {AddSubAccount,Budget },
+  components: { AddSubAccount, Budget },
   name: 'token-information',
   data() {
     return {
       asset: '',
-      showAddSub: true,
-      showInfo : false
+      orgInfo: '',
+      showAddSub: false,
+      showBudget: false,
+      showInfo: true,
+      budgetTokenAddress: ''
     }
   },
   computed: {
     ...mapGetters(['coinbase', 'orgForm'])
   },
   created() {
-    // console.log(this.orgForm.asset)
     this.asset = this.orgForm.asset
-    if (this.orgForm.asset) {
-      this.hasToken = true
-    } else {
-      this.showGuide = true
-    }
+    this.orgInfo = this.orgForm
+    console.log(this.orgInfo)
   },
   methods: {
     addSubAccountAction() {
       console.log('add subu')
+      this.showInfo = false
+      this.showBudget = false
+      this.showAddSub = true
+    },
+    budgetClicked() {
+      this.showInfo = false
+      this.showBudget = true
+      this.showAddSub = false
     }
   }
 }
@@ -154,6 +168,8 @@ export default {
   }
 }
 .sub-account-box {
+  width: 100%;
+  overflow-y: scroll;
   display: flex;
   margin-top: 24px;
 }
@@ -193,6 +209,7 @@ export default {
     .wallet-title {
       font-family: Helvetica Neue;
       font-size: 16px;
+      width: 100px;
       line-height: 20px;
       color: #45588c;
     }
@@ -219,7 +236,7 @@ export default {
     .address {
       margin: 5px 0px 5px 10px;
       font-family: Helvetica Neue;
-      font-size: 20px;
+      font-size: 14px;
       line-height: 24px;
       color: #45588c;
     }
