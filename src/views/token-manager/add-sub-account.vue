@@ -6,21 +6,21 @@
       <el-form label-position="top" class="form_box">
         <el-form-item label="Budge account">
           <el-select
-            v-model="members"
+            v-model="selected_address"
             class="member_select"
             placeholder="choose member"
           >
             <el-option
-              v-for="item in form.members"
-              :key="item.uid"
-              :label="item.name"
-              :value="item.name"
+              v-for="item in members"
+              :key="item.address"
+              :label="item.userName"
+              :value="item.address"
             >
               <div class="member_item">
-                <img :src="item.avater" />
+                <!-- <img :src="avater" /> -->
                 <div>
                   <p class="member_name">
-                    {{ item.name }}
+                    {{ item.userName }}
                     <span class="member_job">{{ item.job }}</span>
                   </p>
                   <p class="member_address">{{ item.address }}</p>
@@ -39,9 +39,6 @@
         <el-button class="add_button" round @click="addSubAccount"
           >Add</el-button
         >
-        <!-- <el-button class="add_button" round @click="putTxHashToServer"
-          >MMLogin</el-button
-        > -->
       </el-form>
     </div>
     <MetaMaskTrans
@@ -49,8 +46,9 @@
         actionName="add sub account"
         successText="add sub account success"
         actionType="ApprovalData"
+        :transTo="contract"
         :getDeployData="getDeployData"
-        :dbData="dbData"
+        :dbData="dbData" 
         @transSuccess="handleSuccess"
     ></MetaMaskTrans>
   </div>
@@ -66,7 +64,6 @@ import MetaMaskTrans from '@/components/Common/MetaMaskTrans'
 import DaoInstall from '@/mixins/DaoInstall'
 
 export default {
-  // props:['id'],  
   mixins: [GetInfo, MetaMaskInstall,DaoInstall],
   components: {
     MetaMaskTrans,
@@ -75,40 +72,17 @@ export default {
   data() {
     return {
       members: '',
+      selected_address:'',
       usage: '',
       showMM: false,
       showAddSub: true,
       asset: '',
+      contract: '',
       dbData: {},
       orgInfo: {},
-      address: '0x17ab03A8e7a39346cF035cc72991670E18d4F561',
-      form: {
-        members: [
-          {
-            name: 'member1',
-            avater:
-              'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=320178652,790985626&fm=26&gp=0.jpg',
-            job: 'UIABC',
-            address: '0x17ab03a8e7a39346cf035cc72991670e18d4f561',
-            uid: '1236'
-          },
-          {
-            name: 'member2',
-            avater:
-              'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=320178652,790985626&fm=26&gp=0.jpg',
-            job: 'UIJOB',
-            address: '0x17ab03a8e7a39346cf035cc72991670e18d4f561',
-            uid: '1237'
-          }
-        ]
-      }
+      avater: 'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=320178652,790985626&fm=26&gp=0.jpg',
     }
   },
-  // watch:{
-  //   'id':function(a,b){
-  //     this.usage=a
-  //   }
-  // },
 
   computed: {
     ...mapGetters(['coinbase','orgForm'])
@@ -116,7 +90,8 @@ export default {
   created() {
     this.asset = this.orgForm.asset
     this.orgInfo = this.orgForm
-    console.log(this.orgInfo)
+    this.contract = this.orgForm.asset.contract
+    this.members = this.orgForm.members
     if (this.orgForm.asset) {
       this.hasToken = true
     } else {
@@ -129,12 +104,14 @@ export default {
     async getDeployData() {
 
       try {
-        let deployData = await OrgToken.genDeployData(
-          this.orgForm.contract,
-          this.asset.name,
-          this.asset.symbol,
-          this.asset.supply
-        )
+        EthUtils.init(web3)
+        let ethUtils = new EthUtils()
+        let token = new OrgToken(ethUtils, this.orgForm.asset.contract)
+        let spenders = [this.selected_address]
+
+        let values = ['1']
+        let deployData = await token.genApproveExtData(spenders, values)
+
         return Promise.resolve(deployData)
       } catch (err) {
         console.log('mm error!')
@@ -143,31 +120,17 @@ export default {
     },
     async handleSuccess() {
       console.log('mm success!')
-      await this.$store.dispatch('organization/budget', this.asset)
-      this.hasToken = true
+      this.$emit('addSubsuccess')
+    },
+
+    async getContract() {
+      return this.contract
     },
 
     addSubAccount(){
       this.showMM = true
       this.showAddSub = false
-    },
-
-    putTxHashToServer(txhash){
-        var orgId = getCurOrgId()
-        console.log(orgId)
-        txhash = '0xa3ed4ac5528deaa28142cf869a24facd43d8b8b5d18a5021d631cd3261fe871c'
-        this.$store.dispatch('organization/addSubAccount',orgId,this.usage,txhash).then(res=>{
-            console.log('aaa')
-            if (res === 'success') {
-                console.log('success !!!')
-            } else {
-                console.log(res)
-                this.$notify({
-                    message: res,
-                    type: 'warning'
-                })
-            }
-        })
+      this.dbData = {'tokenAddress':this.selected_address,'budget':'1'}
     },
   }
 }
@@ -245,20 +208,19 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   color: #606266;
-  height: 34px;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   cursor: pointer;
-  height: 60px;
+  height: auto;
 }
 .member_item {
   width: 100%;
   display: flex;
-  img {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-  }
+  // img {
+  //   width: 28px;
+  //   height: 28px;
+  //   border-radius: 50%;
+  // }
   .member_name {
     font-size: 16px;
     height: 30px;

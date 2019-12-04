@@ -36,7 +36,7 @@ import { EthUtils, Daos, Organization, OrgToken } from 'comunion-dao'
 import MetaMaskTrans from '@/components/Common/MetaMaskTrans'
 
 export default {
-  props:['tokenAddress'],
+  props: ['tokenAddress'],
   mixins: [GetInfo, MetaMaskInstall],
   computed: {
     ...mapGetters(['coinbase', 'orgForm'])
@@ -45,14 +45,13 @@ export default {
     MetaMaskTrans
   },
   created() {
+    this.address = this.tokenAddress
     this.asset = this.orgForm.asset
     this.orgInfo = this.orgForm
-    console.log(this.asset)
   },
-  watch:{
-    'tokenAddress':function(addr,b){
+  watch: {
+    tokenAddress: function(a, b) {
       this.address = a
-      console.log(this.address)
     }
   },
   name: 'Budget',
@@ -71,12 +70,29 @@ export default {
   methods: {
     async getDeployData() {
       try {
-        let deployData = await OrgToken.genDeployData(
-          this.orgForm.contract,
-          this.asset.name,
-          this.asset.symbol,
-          this.asset.supply
-        )
+        var amount = this.budgetAmount + 'e' + this.decimal
+        var num = new Number(amount)
+        var res = this.toNonExponential(num)
+        var value = res.toString()
+        
+        this.dbData = {
+          tokenAddress: this.address,
+          budget: value
+        }
+
+        EthUtils.init(web3)
+        let ethUtils = new EthUtils()
+        let token = new OrgToken(ethUtils, this.asset.contract)
+        let spenders = [this.address]
+
+        let values = [value]
+
+
+        console.log(values)
+    
+        let deployData = await token.genApproveExtData(spenders, values)
+
+
         return Promise.resolve(deployData)
       } catch (err) {
         return Promise.reject(err)
@@ -84,26 +100,18 @@ export default {
     },
     async handleSuccess() {
       console.log('hahah111')
-      await this.$store.dispatch('organization/budget', this.asset, this.icon)
+      //await this.$store.dispatch('organization/budget', this.asset, this.icon)
       this.hasToken = true
-    },
-
-    budgetClicked() {
-      var amount = this.budgetAmount + 'e' + this.decimal
-      var num = new Number(amount)
-      var value = this.toNonExponential(num)
-      this.dbData = {
-        tokenAddress: this.address,
-        budget: value
-      }
-      console.log(this.dbData)
-      this.showMM = true
-      this.showBudget = false
+      this.$emit('budgetSuccess')
     },
 
     toNonExponential(num) {
       var m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/)
       return num.toFixed(Math.max(0, (m[1] || '').length - m[2]))
+    },
+    budgetClicked(){
+      this.showMM = true
+      this.showBudget = false
     }
   }
 }

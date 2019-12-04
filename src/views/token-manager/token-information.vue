@@ -38,7 +38,7 @@
               >
           <div class="top-box">
             <div class="wallet-title">Salary Wallet</div>
-            <div class="budget" @click="budgetClicked">Budget</div>
+            <div class="budget" @click="budgetClicked(item.tokenAddress)">Budget</div>
           </div>
           <div class="mid-box">
             <img class="bit-ico" src="@/assets/btc.png" />
@@ -52,10 +52,10 @@
       </div>
     </div>
     <div v-if="showAddSub">
-      <AddSubAccount></AddSubAccount>
+      <AddSubAccount @addSubsuccess='addSubsuccess'></AddSubAccount>
     </div>
     <div v-if="showBudget">
-      <Budget tokenAddress="{{budgetTokenAddress}}"></Budget>
+      <Budget @budgetSuccess='budgetSuccess' :key='newChild' :token-address="budgetTokenAddress"></Budget>
     </div>
   </div>
 </template>
@@ -74,7 +74,8 @@ export default {
       showAddSub: false,
       showBudget: false,
       showInfo: true,
-      budgetTokenAddress: ''
+      budgetTokenAddress: '22223',
+      newChild:1
     }
   },
   computed: {
@@ -87,14 +88,25 @@ export default {
   },
   methods: {
     addSubAccountAction() {
-      console.log('add subu')
       this.showInfo = false
       this.showBudget = false
       this.showAddSub = true
     },
-    budgetClicked() {
+    budgetClicked(tokenAddress) {
+      this.budgetTokenAddress = tokenAddress
+      this.newChild++
       this.showInfo = false
       this.showBudget = true
+      this.showAddSub = false
+    },
+    addSubsuccess(){
+      this.showInfo = true
+      this.showBudget = false
+      this.showAddSub = false
+    },
+    budgetSuccess(){
+      this.showInfo = true
+      this.showBudget = false
       this.showAddSub = false
     }
   }
