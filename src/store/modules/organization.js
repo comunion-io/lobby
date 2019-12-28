@@ -102,6 +102,7 @@ const actions = {
             commit('SET_ID', response.entity._id)
             commit('SET_INFO', response.entity)
           } else {
+            console.log('98988kkk')
             console.log(response.msg)
           }
         })

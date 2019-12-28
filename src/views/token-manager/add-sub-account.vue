@@ -17,11 +17,13 @@
               :value="item.address"
             >
               <div class="member_item">
-                <!-- <img :src="avater" /> -->
-                <div>
+                <div style='line-height:60px;'>
+                <avater></avater>
+                </div>
+                <div class='info'>
                   <p class="member_name">
                     {{ item.userName }}
-                    <span class="member_job">{{ item.job }}</span>
+                    <span class="member_job">UI</span>
                   </p>
                   <p class="member_address">{{ item.address }}</p>
                 </div>
@@ -55,6 +57,7 @@
 </template>
 
 <script>
+
 import { mapGetters } from 'vuex'
 import GetInfo from '@/mixins/GetInfo'
 import MetaMaskInstall from '@/mixins/MetaMaskInstall'
@@ -62,11 +65,13 @@ import { getCurOrgId, setCurOrgId, getUserId } from '@/utils/auth'
 import { EthUtils, Daos, Organization, OrgToken } from 'comunion-dao'
 import MetaMaskTrans from '@/components/Common/MetaMaskTrans'
 import DaoInstall from '@/mixins/DaoInstall'
+import avater from '@/components/Common/Avatar'
 
 export default {
   mixins: [GetInfo, MetaMaskInstall,DaoInstall],
   components: {
     MetaMaskTrans,
+    avater
   },
 
   data() {
@@ -86,6 +91,13 @@ export default {
 
   computed: {
     ...mapGetters(['coinbase','orgForm'])
+  },
+  watch: {
+    'orgForm.asset': {
+      handler: function(val) {
+         this.asset = this.orgForm.asset
+      }
+    }
   },
   created() {
     this.asset = this.orgForm.asset
@@ -137,16 +149,11 @@ export default {
 </script>
 
 <style lang="scss">
+.el-select-dropdown__item{
+  height:auto;
+}
 .info-container {
-  .el-form--label-top .el-form-item__label {
-    padding: 0;
-    font-size: 14px;
-    font-weight: 400;
-  }
-
-  .el-form-item {
-    margin-bottom: 5px;
-  }
+  
   .token_information_title {
     font-family: Helvetica Neue;
     font-size: 24px;
@@ -189,51 +196,44 @@ export default {
 
   .member_select {
     width: 478px;
-    .el-input__inner {
-      font-size: 16px;
-      font-weight: 500;
-      color: #45588c;
-      line-height: 30px;
-    }
+   
   }
   .account_input {
     width: 478px;
   }
 }
-.el-select-dropdown__item {
-  font-size: 14px;
-  padding: 10px 20px;
-  position: relative;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: #606266;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  cursor: pointer;
-  height: auto;
-}
+
 .member_item {
   width: 100%;
   display: flex;
+
   // img {
   //   width: 28px;
   //   height: 28px;
   //   border-radius: 50%;
   // }
+  .info{
+    flex:1;
+    padding-left:15px;
+    p{
+      padding:0;
+      margin:0;
+      line-height: 28px;
+    }
+  }
   .member_name {
     font-size: 16px;
-    height: 30px;
     font-weight: 500;
     color: #45588c;
     .member_job {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 500;
       color: #7b88ff;
       background: #f2f3ff;
       border-radius: 12px;
-      display: inline-block;
-      line-height: 0;
+      margin-left:10px;
+      padding:2px 10px;
+
     }
   }
   .member_address {

@@ -8,19 +8,27 @@
 import { mapGetters } from 'vuex'
 import GetInfo from '@/mixins/GetInfo'
 import { async } from 'q'
+import { getCurOrgId, setCurOrgId, getUserId } from '@/utils/auth'
+import {getOrgRecords} from '@/api/organization'
 
 export default {
   mixins: [GetInfo],
   data() {
     return {
       showGuide: true,
-      loading: false
+      loading: false,
+      asset: '',
+      orgId:'',
     }
   },
   computed: {
     ...mapGetters(['coinbase', 'orgForm'])
   },
-  created() {},
+  created() {
+    this.orgInfo = this.orgForm
+    this.orgId = getCurOrgId();
+
+  },
   methods: {
     closeGuide() {
       this.showGuide = false
@@ -41,5 +49,4 @@ export default {
 }
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

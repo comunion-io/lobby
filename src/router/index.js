@@ -134,6 +134,12 @@ export const constantRoutes = [
             props: true,
             name: 'assign-token',
             component: () => import('@/views/finance/AssignToken')
+          },
+          {
+            path: 'assets',
+            props: true,
+            name: 'assets',
+            component: () => import('@/components/Finance/Assets')
           }
         ]
       }

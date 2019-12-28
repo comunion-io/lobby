@@ -84,6 +84,7 @@ export default {
   created() {
     this.asset = this.orgForm.asset
     this.orgInfo = this.orgForm
+    console.log('--------')
     console.log(this.orgInfo)
   },
   methods: {

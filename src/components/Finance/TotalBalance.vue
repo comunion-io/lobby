@@ -1,11 +1,11 @@
 <template>
     <div class="total-balance">
-        <h2 class="title">TOTAL Balance</h2>
+        <!-- <h2 class="title">TOTAL Balance2</h2>
         <div class="balance">
             <span>{{ crypto.value }} {{ crypto.symbol }}</span>
             <span class="almost-equal" >&#8776;</span>
             <span>{{ fiat.symbol }} {{ fiat.value }} </span>
-        </div>
+        </div> -->
 
     </div>
 </template>

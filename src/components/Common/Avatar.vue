@@ -1,6 +1,6 @@
 <template>
   <div class="avatar">
-    <img :src="path ? path : defaultAvatar" :alt="username" />
+    <img :src="paths ? paths : defaultAvatar" :alt="username" />
   </div>
 </template>
 
@@ -13,7 +13,8 @@ export default {
   },
   data() {
     return {
-      defaultAvatar
+      defaultAvatar:defaultAvatar,
+      paths:this.path
     }
   }
 }
@@ -25,6 +26,7 @@ export default {
     width: 28px;
     height: 28px;
     border-radius: 100px;
+    vertical-align: middle;
   }
 }
 </style>

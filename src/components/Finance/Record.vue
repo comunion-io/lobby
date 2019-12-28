@@ -8,42 +8,44 @@
       <div v-if="recordCount > 0" class="record-list-container">
         <ul class="record-list">
           <li v-for="record in records" :key="record.id">
-            <div v-if="record.user" class="record-obj">
+            <div class="record-obj">
               <avatar />
               <div class="record-user-info">
                 <span class="record-name">
-                  {{ record.user.username}}
-                  <tag v-for="(tag, i) in record.user.tags" :key="i" :text="tag" type="primary" />
+                  dddd
+                  <i class='title'>UI</i>
                 </span>
-                <span v-for="(tag, i) in record.tags" :key="i" class="record-type">{{tag}}</span>
+
+                <span
+                  class="record-type"
+                  >mm</span>
               </div>
             </div>
-
-            <div v-else class="record-obj-hash">
-              <span class="record-hash">{{ record.to}}</span>
-              <span v-for="(tag, i) in record.tags" :key="i" class="record-type">{{tag}}</span>
-            </div>
-
             <div class="record-from-to">
               <p>
-                From
-                <span class="address">{{ record.from }}</span>
+                <span class='address_tip'>From</span> 
+                <span class="address">{{ record.sender }}</span>
               </p>
               <p>
-                To
-                <span class="address">{{ record.to }}</span>
+                <span class='address_tip'>To</span>  
+                <span class="address">{{ record.receiver }}</span>
               </p>
             </div>
 
             <div class="record-value">
-              <span class="value">+{{ record.value }} {{ record.symbol }}</span>
+              <span class="value">+{{ record.value }} {{ record.token }}</span>
 
-              <span class="datetime">{{ record.datetime }}</span>
+              <span class="datetime">31/12/2019</span>
             </div>
-
-            <a :href="`https://etherscan.io/tx/${record.hash}`" target="__blank">
+            
+            <a class='knowMore' :href="`https://etherscan.io/tx/${record.txHash}`" target="__blank">
+              <a
+              class='more'
+              >View Transaction</a>
               <i class="el-icon-more"></i>
             </a>
+            </a>
+            
           </li>
         </ul>
 
@@ -62,6 +64,8 @@
 
 <script>
 import { Avatar, Tag } from '@/components/Common'
+import { getCurOrgId, setCurOrgId, getUserId } from '@/utils/auth'
+import {getOrgRecords} from '@/api/organization'
 
 export default {
   components: {
@@ -102,10 +106,31 @@ export default {
       ]
     }
   },
+  methods: {
+    getRecords(orgId) {
+      // var orgId = this.orgForm._id
+      console.log(orgId)
+      getOrgRecords(orgId).then(res => {
+        if (!res.err) {
+          // console.log('get success')
+          // console.log(res)
+          this.records=res.entities
+          console.log(this.records)
+        } else {
+          alert(res.msg)
+        }
+      })
+    }
+  },
   computed: {
     recordCount() {
       return this.records.length
     }
+  },
+  created() {
+    this.orgInfo = this.orgForm
+    this.orgId = getCurOrgId()
+    this.getRecords(this.orgId)
   }
 }
 </script>
@@ -160,9 +185,47 @@ export default {
 
           .record-name {
             margin: 6px 0;
+            .title{
+              padding:0 10px;
+              color: #7B88FF;
+              background: #F2F3FF;
+              border-radius: 100px;
+              font-style: normal;
+              font-size: 12px;
+              display: inline-block;
+              margin-left:10px;
+              line-height:18px;
+            }
           }
           .record-type {
             color: $secondaryColor;
+          }
+        }
+        .knowMore{
+          position: relative;
+          padding-left:60px;
+          a{
+            position: absolute;
+            background: #FFFFFF;
+            opacity: 0.98;
+            /* Dark-6 */
+            border: 1px solid rgba(55, 64, 89, 0.05);
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.03);
+            border-radius: 10px;
+            color: rgba(55, 64, 89, 0.7);
+            font-size: 14px;
+            right: 0px;
+            top: 30px;
+            min-width: 200px;
+            padding: 10px;
+            display: none;
+            
+          }
+        }
+        .knowMore:hover{
+          cursor: pointer;
+          a{
+            display:block;
           }
         }
 
@@ -170,16 +233,21 @@ export default {
           display: flex;
           flex-direction: column;
           margin: 0 60px 0 0;
+          flex:1;
+          padding-left:60px;
 
           p {
             margin: 6px 0;
             font-size: 13px;
             line-height: 18px;
             font-weight: bold;
+            .address_tip{
+              display: inline-block;
+              width:60px;
+            }
             .address {
               margin-left: 16px;
               font-weight: normal;
-              float: right;
             }
           }
         } // end: record-from-to
@@ -187,8 +255,6 @@ export default {
         .record-value {
           display: flex;
           flex-direction: column;
-          margin: 0 60px 0 0;
-
           .value {
             font-size: 13px;
             line-height: 18px;

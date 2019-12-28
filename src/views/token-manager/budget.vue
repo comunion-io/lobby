@@ -8,6 +8,7 @@
             v-model="budgetAmount"
             class="amout_input"
             placeholder="Amount"
+            @input="handleInput"
           />
         </el-form-item>
         <el-button class="add_button" round @click="budgetClicked" type="number"
@@ -20,6 +21,7 @@
       actionName="budget"
       successText="success"
       actionType="ApprovalData"
+      :transTo="contract"
       :getDeployData="getDeployData"
       :dbData="dbData"
       @transSuccess="handleSuccess"
@@ -48,6 +50,7 @@ export default {
     this.address = this.tokenAddress
     this.asset = this.orgForm.asset
     this.orgInfo = this.orgForm
+    this.contract = this.orgForm.asset.contract
   },
   watch: {
     tokenAddress: function(a, b) {
@@ -60,6 +63,7 @@ export default {
       budgetAmount: '',
       decimal: 3,
       address: '',
+      contract: '',
       showMM: false,
       showBudget: true,
       asset: {},
@@ -68,6 +72,9 @@ export default {
     }
   },
   methods: {
+    handleInput(val){
+      this.budgetAmount=val.replace(/[^\d]/g,'');
+    },
     async getDeployData() {
       try {
         var amount = this.budgetAmount + 'e' + this.decimal

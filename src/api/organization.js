@@ -66,3 +66,10 @@ export function checkOrgEmail(email) {
     method: 'get'
   })
 }
+
+export function getOrgRecords(_id) {
+  return request({
+    url: `/r/record?org_id=${_id}`,
+    method: 'get'
+  })
+}

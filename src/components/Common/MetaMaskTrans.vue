@@ -153,7 +153,7 @@ export default {
       const deployData = await this.getDeployData()
       const mmData = {
         from: this.coinbase,
-        gas: '8000000',
+         gas: '800000',
         value: '0',
         data: deployData
       }
