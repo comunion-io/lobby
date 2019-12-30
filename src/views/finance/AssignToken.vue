@@ -5,7 +5,7 @@
 
       <el-card class="box-card full">
         <div slot="header" class="clearfix">
-          <h3 class="title">Assign token - ABC</h3>
+          <h3 class="title">Assign token - {{this.asset.symbol}}</h3>
         </div>
 
         <el-form ref="form" :model="form" label-position="top">
@@ -126,9 +126,11 @@ export default {
     console.log(this.members)
     this.contract = this.orgForm.asset.contract
     this.asset = this.orgForm.asset
-    console.log('asset : ' + JSON.stringify(this.orgForm))
-    console.log('orgForm : ' + this.orgForm.asset.contract)
-    // console.log(this.contract)
+    if(this.asset.decimal > 0){
+      this.decimal = this.asset.decimal
+    }else{
+      this.decimal = 18
+    }
   },
   data() {
     return {
@@ -144,7 +146,7 @@ export default {
         tags: []
       },
       dbData: {},
-      decimal: 3,
+      decimal: 18,
 
       // mock data
       tags: [
@@ -180,7 +182,8 @@ export default {
         this.dbData = {
           tokenAddress: this.contract,
           value: assignValue,
-          remark: this.form.remark
+          remark: this.form.remark,
+          tiem: (new Date()).getTime()
         }
         console.log(this.dbData)
         // dd(this.dbData)
@@ -207,7 +210,7 @@ export default {
       this.hasToken = true
       // this.$emit('assignTokenSuccess')
 
-      this.$router.push({ name: 'assets' })
+      this.$router.push({ name: 'finance-view' })
     },
     async getBanlanceOf(){
       EthUtils.init(web3)

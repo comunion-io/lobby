@@ -51,6 +51,11 @@ export default {
     this.asset = this.orgForm.asset
     this.orgInfo = this.orgForm
     this.contract = this.orgForm.asset.contract
+    if(this.asset.decimal > 0){
+      this.decimal = this.asset.decimal
+    }else{
+      this.decimal = 18
+    }
   },
   watch: {
     tokenAddress: function(a, b) {
@@ -61,7 +66,7 @@ export default {
   data() {
     return {
       budgetAmount: '',
-      decimal: 3,
+      decimal: 18,
       address: '',
       contract: '',
       showMM: false,

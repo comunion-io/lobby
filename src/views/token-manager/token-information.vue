@@ -13,7 +13,7 @@
           <img class="eth-icon" :src="orgInfo.logo" />
           <h2 class="token-address">{{ asset.contract }}</h2>
           <span class="token-label">Host</span>
-          <h2 class="total-box">300000000 ABC</h2>
+          <h2 class="total-box">300000000 {{this.asset.symbol}}</h2>
         </div>
         <div class="token-info-box">
           <span class="token-name"

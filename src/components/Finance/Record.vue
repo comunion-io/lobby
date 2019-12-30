@@ -9,16 +9,16 @@
         <ul class="record-list">
           <li v-for="record in records" :key="record.id">
             <div class="record-obj">
-              <avatar />
+              <avatar :path="record.receiveUser.logo"/>
               <div class="record-user-info">
                 <span class="record-name">
-                  dddd
-                  <i class='title'>UI</i>
+                  {{record.receiveUser.username}}
+                  <i class='title' v-if="record.receiveUser.skills">UI</i>
                 </span>
 
                 <span
                   class="record-type"
-                  >mm</span>
+                  >{{record.remark}}</span>
               </div>
             </div>
             <div class="record-from-to">
@@ -142,6 +142,13 @@ export default {
   .record-list-container {
     overflow: auto;
 
+              .useravatar{
+            width: 28px;
+            height: 28px;
+            // border-radius: 100px;
+            // vertical-align: middle;
+          }
+
     .record-list {
       color: $titleColor;
       list-style-type: none;
@@ -177,7 +184,6 @@ export default {
           .avatar {
             margin-right: 8px;
           }
-
           .record-user-info {
             display: flex;
             flex-direction: column;

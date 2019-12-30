@@ -1,13 +1,15 @@
 <template>
   <div class="assets">
     <el-card class="box-card full">
-      <ul v-if="assetsCount" class="asset-list">
+      <ul v-if="finances.length>0" class="asset-list">
         <li v-for="finance in finances" v-bind:key="finance.txHash">
           <svg-icon :icon-class="`logo-${iconSymbol.toLowerCase()}`" />
           <div class="asset-content">
             <div class="asset-header">
               <span class="asset-balance"
-                >{{ showBudget(finance.budget) }} {{ orgAsset.symbol }}</span
+                >{{ showBudget(finance.budget) }} 
+                <!-- {{ orgAsset.symbol }} -->
+                </span
               >
               <tag v-if="finance.isHost" text="Host" />
               <tag v-for="(t, index) in finance.tags" :text="t" :key="index" />
@@ -53,14 +55,15 @@ export default {
   },
   mixins: [GetInfo],
   computed: {
-    ...mapGetters(['coinbase', 'orgForm'])
+    ...mapGetters(['coinbase', 'orgForm.finance'])
+    
   },
   data() {
     return {
       orgAsset:{},
       iconSymbol:'eth',
-      decimal: 3,
-      finances:[{}],
+      decimal: 18,
+      finances:[],
       assets: [
         {
           id: '1',
@@ -97,8 +100,11 @@ export default {
     this.orgAsset = this.orgForm.asset
     //this.finances = this.orgForm.finance
     this.showBudget('1')
-    // var tmp = this.toNonExponential('1e3')
-    // console.log(tmp)
+    if(this.asset.decimal.checked){
+      this.decimal = this.asset.decimal
+    }else{
+      this.decimal = 18
+    }
   },
   // computed: {
   //   ...mapGetters(['coinbase', 'orgForm'])
@@ -117,11 +123,6 @@ export default {
       var m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/)
       return num.toFixed(Math.max(0, (m[1] || '').length - m[2]))
     },
-  },
-  computed: {
-    assetsCount() {
-      return this.orgForm.finance.length
-    }
   }
 }
 </script>
