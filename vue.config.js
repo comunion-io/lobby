@@ -54,13 +54,12 @@ module.exports = {
       //   }
       // },
       [process.env.VUE_APP_COMUNION_API]: {
-        // target: `http://178.128.221.42:8090/`,
-        target: `http://dao-test.comunion.io:8080/`,
+        target: `http://178.128.221.42:8090/`,
         changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_COMUNION_API]: ''
         }
-      },
+      }
     }
     // after: require('./mock/mock-server.js')
   },
