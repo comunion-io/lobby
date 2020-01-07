@@ -78,7 +78,7 @@
                   </el-form-item>
                   <el-form-item label="Organization Logo" class="common-upload-style" prop="logo">
                     <el-upload
-                      action="http://dao-test.comunion.io/a/upload"
+                      action="http://dao-test.comunion.io:8090/a/upload"
                       name="upload"
                       list-type="picture-card"
                       :multiple="false"

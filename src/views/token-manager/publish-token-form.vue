@@ -9,7 +9,7 @@
         <!-- action="http://178.128.221.42:8080/a/upload" -->
         <el-upload
           class="icon-uploader"
-          action="http://dao-test.comunion.io/a/upload"
+          action="http://dao-test.comunion.io:8090/a/upload"
           accept=".jpg, .jpeg, .png, .PNG, .JPG, .JPEG"
           :multiple="false"
           name="upload"
