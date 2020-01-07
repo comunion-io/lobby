@@ -78,7 +78,7 @@
                   </el-form-item>
                   <el-form-item label="Organization Logo" class="common-upload-style" prop="logo">
                     <el-upload
-                      action="http://178.128.221.42:8090/a/upload"
+                      action="http://dao-test.comunion.io/a/upload"
                       name="upload"
                       list-type="picture-card"
                       :multiple="false"
@@ -279,9 +279,8 @@ export default {
       newOrg: {
         name: '',
         type: '', // 没有该字段
-        logo:
-          'http://comunion-avatar.sgp1.digitaloceanspaces.com/avatar_jvQ04BG4EI.jpeg',
-        email: 'hi_zmj@163.com',
+        logo: '',
+        email: '',
         wallet: [],
         website: '',
         mission: '',

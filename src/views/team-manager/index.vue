@@ -124,7 +124,7 @@ export default {
   data() {
     return {
       isUserExist: true,
-      searchEmail: 'heyiqing6@sina.com',
+      searchEmail: '',
       searchUser: null,
       isDialogEditVisible: false,
       isDialogAddVisible: false,
