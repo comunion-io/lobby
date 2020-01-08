@@ -9,7 +9,7 @@
         <!-- action="http://178.128.221.42:8080/a/upload" -->
         <el-upload
           class="icon-uploader"
-          action="http://178.128.221.42:8090/a/upload"
+          action="http://dao-test.comunion.io:8090/a/upload"
           accept=".jpg, .jpeg, .png, .PNG, .JPG, .JPEG"
           :multiple="false"
           name="upload"
@@ -52,10 +52,10 @@ export default {
     return {
       imageUrl: '',
       formParams: {
-        icon: 'http://comunion-avatar.sgp1.digitaloceanspaces.com/avatar_jvQ04BG4EI.jpeg',
-        name: 'HelloWorld',
-        symbol: 'HW',
-        supply: 200000
+        icon: '',
+        name: '',
+        symbol: '',
+        supply: 88888
       },
       formRules: {
         icon: [

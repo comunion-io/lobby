@@ -32,7 +32,7 @@
             </div>
             <div v-show="isInEdit&&!isShowLogo" class="common-upload-style">
               <el-upload
-                action="http://178.128.221.42:8080/a/upload"
+                action="http://dao-test.comunion.io:8090/a/upload"
                 name="upload"
                 list-type="picture-card"
                 :multiple="false"
